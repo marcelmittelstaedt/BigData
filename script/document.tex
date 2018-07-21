@@ -1,0 +1,199 @@
+%%%------------------------------------------------------------------------------%%%
+%%% Seiteneinstellungen %%%
+%%%------------------------------------------------------------------------------%%%
+
+\documentclass[12pt,oneside,a4paper]{scrreprt}
+\usepackage[left=3.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm,includeheadfoot]{geometry}	
+\usepackage{silence}
+\WarningFilter{scrbook}{Usage of package `fancyhdr'}	
+\usepackage{scrhack}
+\usepackage{epigraph}
+\usepackage{xcolor}
+\usepackage{genealogytree}
+
+
+%%%------------------------------------------------------------------------------%%%
+%%% benötigte Pakete %%%
+%%%------------------------------------------------------------------------------%%%
+
+\linespread{1.25}\selectfont
+\usepackage{fancyhdr} % Für die Kopf- und Fußzeilen
+\usepackage{graphicx} 
+\usepackage{float} 
+\usepackage{paralist} %Für Liste mit Pfeilen 
+\usepackage{graphics} % Zum Einbinden von Bildern mit \includegraphics
+\usepackage[british,UKenglish,USenglish,english,american]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp} % Umlaute
+\usepackage[numbers,round]{natbib} 
+%\usepackage{natbib} % Literaturverweise mit (Autor Jahr) nach DIN
+\definecolor{links}{HTML}{2A1B81}
+\usepackage[unicode=true, pdfusetitle,bookmarks=true,bookmarksnumbered=true,bookmarksopen=true, breaklinks=false,pdfborder={0 0 1},backref=section,colorlinks, linkcolor = black, citecolor = black, filecolor = black, urlcolor = links]{hyperref}
+
+\usepackage{url}
+\usepackage{listings}
+%\usepackage{picins} --> veraltet
+
+% disable footnotes numbering reset in each chapter
+\usepackage{remreset}
+\makeatletter
+\@removefromreset{footnote}{chapter}
+\makeatother
+
+\setlength{\headheight}{1.1\baselineskip}
+
+%%%------------------------------------------------------------------------------%%%
+%%% Variablen %%%
+%%%------------------------------------------------------------------------------%%%
+
+\newcommand{\Seitenbreite}{155mm}
+\newcommand{\Seitentexthoehe}{230mm}
+\newcommand{\SeitentexthoeheHALB}{115mm}
+\newcommand{\MYtitle}{Entw. einer JEE Web-Anwendung}
+\newcommand{\MYauthor}{Marcel Mittelstädt}
+\newcommand{\MYdate}{02. September 2011}
+\newcommand{\mycomment}[1]{}
+
+%%%------------------------------------------------------------------------------%%%
+%%% Ränder, Absatzabstände etc. %%%
+%%%------------------------------------------------------------------------------%%%
+
+\setlength{\parskip}{1ex plus0.5ex minus0.2ex} % Absatzabstand etwas größer
+\setlength{\itemsep}{0ex plus0.2ex} % Abstand zweier Listenelemente kleiner
+\parindent=0cm % Kein Absatzeinzug
+\parskip=1mm % Abstand zwischen 2 Absätzen
+
+%%%------------------------------------------------------------------------------%%%
+%%% Abkürzungsverzeichnis, Glossar und Listings strukturieren %%%
+%%%------------------------------------------------------------------------------%%%
+
+\usepackage{nomencl}
+\let\abk\nomenclature
+\renewcommand{\nomname}{Abkürzungsverzeichnis}
+\setlength{\nomlabelwidth}{.20\hsize}
+\renewcommand{\nomlabel}[1]{#1 \dotfill}
+\setlength{\nomitemsep}{-\parsep}
+\makenomenclature
+% makeindex hauptdatei.nlo -s nomencl.ist -o hauptdatei.nls erst Latex dan Konsole dann Latex
+
+\renewcommand\lstlistingname{Auszug}
+\renewcommand\lstlistlistingname{Auszugverzeichnis}
+\def\lstlistingautorefname{Ausz.}
+
+%%%------------------------------------------------------------------------------%%%
+%%% Formatierung von Quellcodes %%%
+%%%------------------------------------------------------------------------------%%%
+
+\usepackage{xcolor} % Text farbig markieren 
+\usepackage{calc}
+\definecolor{lightgrey}{HTML}{F5F5F5}
+\definecolor{lightgreen}{HTML}{669900}
+\definecolor{colKeyWords}{HTML}{A52A33}
+\definecolor{colComments}{HTML}{0733FF}
+\definecolor{colIdentifiers}{HTML}{371D42}
+
+\lstset{%
+float=hbp,%
+language=Java, %
+basicstyle=\ttfamily\small, %
+identifierstyle=\color{colIdentifiers}, %
+keywordstyle=\color{colKeyWords}\bf, %
+stringstyle=\color{colComments}, %
+commentstyle=\color{lightgreen}, %
+columns=flexible, %
+tabsize=2, %
+frame=single, %
+extendedchars=true, %
+showspaces=false, %
+showstringspaces=false, %
+numbers=left, %
+numberstyle=\tiny, %
+breaklines=true, %
+backgroundcolor=\color{lightgrey}, %
+breakautoindent=true, %
+captionpos=b%
+} 
+
+%%%------------------------------------------------------------------------------%%%
+%%% Kopf- und Fußzeileneinstellungen %%%
+%%%------------------------------------------------------------------------------%%%
+
+\pagestyle{fancy}
+\fancyhf{}
+
+
+	\renewcommand{\headrulewidth}{0.5pt}
+	
+	\pagenumbering{Roman}
+	\fancyfoot[L]{\today}
+	\fancyfoot[R]{\thepage}
+	\renewcommand{\footrulewidth}{0.5pt}
+
+
+
+%%%------------------------------------------------------------------------------%%%
+%%% Jetzt geht die Arbeit richtig los: %%%
+%%%------------------------------------------------------------------------------%%%
+\usepackage{nameref}
+\begin{document}
+%%%------------------------------------------------------------------------------%%%
+%%% Die Titelseite und Vorwort %%%
+%%%------------------------------------------------------------------------------%%%
+\include{deckblatt}
+%%%------------------------------------------------------------------------------%%%
+%%% Die Verzeichnisse %%%
+%%%------------------------------------------------------------------------------%%%
+
+\newpage
+\include{preface}
+\setcounter{tocdepth}{2}
+\tableofcontents % Inhaltsverzeichnis
+
+
+%%%---------------------------------------------------------------------------------------%%%
+%%% An dieser Stelle sollen die eingebundenen Kapitel %%%
+%%% erscheinen, dafür die vorhin angelegten Kapitel entfernen %%%
+%%%---------------------------------------------------------------------------------------%%%
+
+\pagenumbering{arabic}
+\setcounter{table}{1}
+\setcounter{secnumdepth}{3}
+\pagestyle{fancy}
+\fancypagestyle{plainn}
+{
+	\fancyhead[R]{%
+	% We want italics
+	%\itshape
+	% The chapter number only if it's greater than 0
+ 	%\chaptermark
+	% The chapter title
+	\leftmark}
+	\renewcommand{\headrulewidth}{0.5pt}
+	
+	\fancyfoot[L]{\MYdate}
+	\fancyfoot[R]{\thepage}
+	\renewcommand{\footrulewidth}{0.5pt}
+}	% Extracommand damit die Header und Footer um ToC richtig sind
+\pagestyle{plainn}
+\include{stuff} %blinde Zitate, Quellenverweise, Abkürzungen etc.
+
+\include{bigdata_intro}
+\include{technical_foundation_intro}
+\include{data_processing_intro}
+\include{software_frameworks_intro}
+\include{data_science_intro}
+\include{outlook}
+\include{appendix}
+
+\newpage 
+\printnomenclature % Abkürzungsverzeichnis
+\newpage 
+\listoffigures % Grafikverzeichnis
+\newpage
+\lstlistoflistings
+\newpage 
+%\listoftables % Tabellenverzeichnis
+%\newpage
+\bibliographystyle{alphadin} % Literaturverzeichnis I
+\bibliography{libr} 	  % Literaturverzeichnis II
+\end{document}

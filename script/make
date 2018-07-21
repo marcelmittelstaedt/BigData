@@ -1,0 +1,4 @@
+xelatex document.tex
+makeindex document.nlo -s nomencl.ist -o document.nls
+bibtex document
+xelatex document.tex
