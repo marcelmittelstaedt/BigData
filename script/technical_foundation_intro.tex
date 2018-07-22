@@ -263,22 +263,39 @@ As this seems pretty unlikely at first sight - it's definitely not. For instance
 \begin{itemize}
 			\item computing power (CPU) / Storage (HDD), 
 			\item rack space (2 RU\abk{RU}{Rack Unit}\footnote{\cite{WPRU}, Rack Unit is a unit of measure defined as 44.50 millimetres (1.75 in). It is most frequently used as a measurement of the overall height of rack frames.}) / storage and 
-			\item benefit/cost.
+			\item benefit/cost.\\
 \end{itemize}
 Each of this servers can store 19 HDDs, if you build a hadoop cluster with those servers, e.g. with about 100 nodes, this means 1,900 HDD's. Based on a regularly study by BackBlaze (a big data storage center provider like Amazon AWS) and a set of 82,516 HDD's, the average annual failure rate is about 2.11\%. Regarding our previous Hadoop example containing 1.900 HDD's, we can suppose that nearly any week one HDD will fail. If we would make use of the particular HDD model \textit{Seagate ST4000DX00} with a failure rate of 35,88\% (also mentioned within the study) this would mean nearly 2 HDD's would fail each day.\\
 
-In single server data systems it is possible to mitigate those problems by adding redundancy to individual hardware parts to minimize the failure rate of the whole system to a point where a failure is very unlikely, as at any time a redundant part can take over. This could mean, dual power adapters (like used by the previous mentioned \textit{ProLiant DL380 Gen10 Server}), RAID configurations or hot-swappable CPU's.\\
+In single server data systems it is possible to mitigate those problems by adding redundancy to individual hardware parts to minimize the failure rate of the whole system to a point where a failure is very unlikely, as at any time a redundant part can take over. This could mean, dual power adapters (like used by the previous mentioned \textit{ProLiant DL380 Gen10 Server}), RAID\abk{RAID}{Redundant Array of Independent Disks}\footnote{RAID, is a data storage virtualization technology that combines multiple physical disk drive components into one or more logical units for the purposes of data redundancy, performance improvement, or both.} configurations or hot-swappable CPU's.\\
 
 As data volumes and computing demand increases, data-systems need to be distributed among several servers, which proportionally increases the rate of hardware faults and system failures, like discussed above regarding HDD faults. Therefore distributed data systems need to be able to tolerate the loss of entire machines, requiring software to be fault-tolerance additionally to hardware redundancy. 
-But those distributed data systems have further advantages, a system that tolerates failure of single machines can be restarted, patched, updated (\textit{rolling-upgrades}) or maintained one node at a time without a downtime of the whole data system.
+But those distributed data systems have further advantages, a system that tolerates failure of single machines can be restarted, patched, updated (\textit{rolling-upgrades}) or maintained - one node at a time - without a downtime of the whole data-system.
 
 \subsubsection{Software Faults}
 \label{tf_nfreq_reliability_software_faults}
+When we talk about software faults in terms of distributed data-systems, we don't talk about usual bugs but rather faults which affect the whole data-system integrity and reliability. Such faults are harder to anticipate than usual bugs of single-server applications, as they usually tend to be caused by the environment (e.g. multiple servers, network, dependencies, special and unusual circumstances), are difficult to test, and are even worse in their result as they can cause a failure of the whole data-system.
+Examples could be:
+\begin{itemize}
+			\item a runaway and/or zombie process that extensively used up some shared ressource (e.g. network, CPU, RAM, disk space)
+			\item a software bug causing the whole cluster to fail (e.g. the Hadoop Ressource Manager YARN\abk{YARN}{Yet Another Resource Negotiator}\footnote{YARN, Yet Another Resource Negotiator} once had a bug\footnote{\cite{YARNKPBUG}, https://issues.apache.org/jira/browse/YARN-2809}, that if you removed a cgroup (\textit{control group}) under some circumstances (\textit{race conditions}) a kernel panic and in this way a failure of multiple server was caused
+			\item a service the whole data-system depends on slows done, becomes unresponsive or fails
+			\item cascading failures (e.g. one server of the data-system fails due to heavy network traffic, causing the other servers to take over, in this way increasing network traffic for them too and finally all server will fail)\\
+\end{itemize}
+
+As you can see, most of the reasons for software faults are caused by assumptions about the environment that may not be true at some time and at some special circumstances. To avoid suffering those issues you need to carefully think about assumptions and interactions within the distributed data-system, you will need a lot of measuring, monitoring and you will do a lot of analyzing of the system behaviour in any special circumstance as well as testing even with forcing some servers of the system to crash.
 
 \subsubsection{Human Faults}
 \label{tf_nfreq_reliability_human_faults}
 
-Text \\[0.5 cm]
+We have been talking a lot about reliability so far, but what about the most unreliable factor: humans. We will briefly discuss some approaches to make a data-system reliable in terms of unreliable humans:
+\begin{itemize}
+			\item decouple places where people make the most failures from places they can cause failures, e.g. using production and development environments or providing interfaces or frameworks for an API instead of direct API access
+			\item use extensive testing (e.g. unit test, system tests, integration tests) and automize them
+			\item measuring and monitoring (e.g. performance metrics, error rates) allows to check wether assumptions or constraints are violated at an early stage \\[0.5 cm]
+\end{itemize}
+
+To sum up the last chapters: why do wee need reliability? Reliability is not just a major topic for stock exchanges, air traffic control or military. Failures of a data-system can cause data loss, lost productivity or sales loss and therefore huge costs and loss of revenue. There are special circumstances when you may choose to reduce reliability for the sake of time, development effort or operational costs (e.g. \textit{prototyping}), but you need to be very conscious and it's inevitable that at some point in the future you will need to invest the the saved effort, time and costs and probably a multiple of what it would have been before.\\[1.0 cm]
 \hspace*{4mm}%
 \fbox{%
   \hspace*{1.5mm}\hspace*{-1\fboxsep}%
@@ -294,13 +311,29 @@ Text \\[0.5 cm]
 
 \subsection{Maintainability}
 \label{tf_nfreq_maintainability}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+Maintenance is known as one of the biggest costs at software devlopment and in the same way a very unfamous topic to software engineers. Keeping a system running, investigating failures, fixing bugs, adding new features, adapting it to updates of underlying hard- and software - to name some usual tasks.\\
 
-\subsection{Extensability}
-\label{tf_nfreq_extensability}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+A data-system should be designe to minimize effort during maintenance and in this way making it more reliable. We will briefly discuss 3 major topics: \textit{operability}, \textit{simplicity} and \textit{evolvability}.
+
+\subsection{Operability}
+\label{tf_nfreq_maintainability_operability}
+The main goal of operability should be to make operations easy to keep the system running smoothly, this means making routine tasks easy and enable operations ressources to use their time for important tasks. This can be achieved by:
+\begin{itemize}
+			\item good documentation and operational model (a data-system which can be understand easily can be operated more easily)
+			\item transparency (visibility into the data system and runtime behaviour, e.g. by log files or monitoring tools)
+			\item no dependencies between single services or server (allow single server to go down for maintenance tasks, e.g. patches, update or restarts)
+			\item self-healing if possible, but also possibilities to override for operators\\[0.5 cm]
+\end{itemize}
+
+\subsection{Simplicity}
+\label{tf_nfreq_maintainability_simplicity}
+When you start a development project everything is pretty simple and probably well-documented but later on with multiple developers, features, services and servers, it gets more complex, hard to understand by a developer and especially more difficult to handle by administrators. As a lot of issues caused by this are not specific to data-systems we will focuse on complexity and abstraction, as reducing complexity should be the main goal when devloping distributed data-systems. Making a system less complex doesn't require reducing functionaility, it's more about removing unnecessary complexity.\\
+For instance if your data-system is crunching a lot of data for a very plain purpose, like parsing web server log files for analytical purpose to get to know how many people have visited your website - you could do this counting in Java (MapReduce) but this will probably be about 50 lines of code, a lot of libraries, testing and dependencies - making operations more difficult in the same way. If you would do this using Hive on HDFS your done with a one-line SQL statement.\\
+
+However finding useful abstractions is not that easy and needs a lot of experience, but when you are developing something you should always ask yourself: do I make use of abstraction and will the complexity be at a manageable level?
 
 
+\newpage
 \section{Storage Concepts}
 \label{tf_storageconcepts}
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
