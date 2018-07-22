@@ -140,7 +140,7 @@ Therefore we will discuss the parameters and definition of \textbf{Load} (Sectio
 To get an idea what \textit{load} of a data system actually means, how it could be described an measured, we will take a nother look at the example of ebay.com discussed so far. If we take a look back at the architecure of ebay at 1997-1999 (Figure \ref{schema_ebay_architecture_1997_1999} on page \pageref{schema_ebay_architecture_1997_1999}) we can already guess with increasing load (page requests to certain items listed on ebay.com and in this way calls to the database through the application) will reach its limit at the maximum amount of read requests the oracle database can serve. As the application tier (web server) has already been scaled horizontally to multiple nodes, the oracle database server reached its limit of physical growth in November 1999. So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure XXX. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
 Later on they segmented whole databases into functional areas like hosts for item, user, account or transaction data as well as partition the data by typical usage characteristics to scale horizontally.\\
 
-They obviously did furher optimizations at the whole data system to be able to cope with the increasing load, like disabling transactions, moving CPU-intensive\abk{CPU}{Central Processing Unit}\footnote{CPU, In computing, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit} work to the application tier (e.g. joins, referential integrity or sorting), extensive use of prepared statements...but as this techniques are not mainly specific for distributed systems and some of them not even recommened nowadays, we won't focuse on them within this lecture.\\
+They obviously did furher optimizations at the whole data system to be able to cope with the increasing load, like disabling transactions, moving CPU-intensive\abk{CPU}{Central Processing Unit}\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit} work to the application tier (e.g. joins, referential integrity or sorting), extensive use of prepared statements...but as this techniques are not mainly specific for distributed systems and some of them not even recommened nowadays, we won't focuse on them within this lecture.\\
 
 In the example of ebay.com, requests per item and category could be a valuable \textit{load parameter} for discussing scalability, since it determines the database requests per data record and partition - as proven by the the data system structure of ebay at 2002 as we see.
 Your or other data systems you have seen so far most likely have very different characteristics, but you can apply similar principles to reason about their load.
@@ -161,10 +161,12 @@ The \textbf{load} of a data system is a measurement of the amount of computation
 \subsubsection{Performance}
 \label{tf_nfreq_scalability_performance}
 Now that we have described what \textit{load} of a data system means as well as what \textit{load parameters} could be, we will examine more closely what happens when the load increases. Usually there are two important cases you need to think about while developing data systems:\\
+\begin{samepage}
 \begin{itemize}
 			\item The load parameter increases, but all ressources (e.g. number of server, CPU or memory) stay the same - how is the performance of the data system affected?
 			\item The load parameter increases - how much do you need to increase the ressources (e.g. number of server, CPU or memory) to keep the performance stay the same?\\
 \end{itemize}
+\end{samepage}
 
 But how to answer them? Therefore we need performance numbers. In case of data systems measurement, methods usually are \textbf{throughput} (number of records that can be handled), e.g.:
 \begin{itemize}
@@ -182,9 +184,22 @@ Regardless of throughput or response time - if we think about performance we don
 			\item physical issues (e.g. a damaged disk/ssd or overheating of a CPU and, associated therwith a decreased processing power) \\
 \end{itemize}
 
+Therfore it is common to use an average for measuring throughput or response times. \textit{Average} doesn't refer to a particular formula, we will briefly discuss 3 that are commonly used:
+\begin{itemize}
+			\item \textbf{arithmetic mean}\footnote{Sum of values divided by the number of values.} (easy to calculate but ignores ratios and is highly affected by statistical outliers, so it cannot tell you how many requests, reador writes actually have had a worse performance)
+			\item \textbf{median}\footnote{A median separates the higher half of values from the lower half.} (easy to calculate and less distorted by outliers)
+			\item \textbf{percentiles}\footnote{A measure used for indicating a certain percentage of scores falls below that measure.} (easy to calculate, not distorted by outliers) \\
+\end{itemize}
 
-Text
-\\[0.5 cm]
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=1\textwidth]{mean_average_percentile_plot.png}
+	\caption{Schema - Arithmetic Mean, Median and Percentiles Example}
+	\label{schema_mean_average_percentile_plot}
+\end{figure}
+
+As you can guess, evaluating symmetric distributions with no outliers, \textit{arithmetic mean} will be the best choice, but as we are looking at performance parameters like throughput and response times, symmetric distribution is a whishful thinking. More usually throughput and response times will result in skewed distributions, so \textit{median} seems to be the better choice, as it doesn't ignore ratio and outliers completely. For instance if you calculate the median for latency (y-axis) of reads in a given timeframe (x-axis) from a data system as illustrated in figure \ref{schema_mean_average_percentile_plot} on page \pageref{schema_mean_average_percentile_plot}. You can see a small peak at \textit{07:08:00} but it still looks fine as the median response time is < 100ms. But what about the green graph (\textit{95th percentile})? That's the main reason why using percentiles is pretty common, especially the 95th, 99th or 99.9th percentile (abbreviated \textit{p95}, textit{p99}, textit{p999}) is frequently used in SLA's\footnote{\cite{WKSLA}, \textit{Service Level Agreement, a commitment between a service provider and a client.}}. Percentiles define thresholds at which 95\%, 99\% or 99,9\% of requests, reads or writes are beneath that threshold. Looking back at figure \ref{schema_mean_average_percentile_plot} this would mean that 95\% of all requests, reads or writes done by user are faster or equal 810ms and 5\% will result in a response time > 810 ms, which in case of a customer facing data system could mean: 5\% unsatisfied users and in this way probably a loss of possible leads (e.g. purchases on a webshop or subscriptions for a video streaming platform) and ultimately loss of revenue.\\
+So why don't use 99,9th percentile every time as it is the best? This is a major cost factor, optimizing the last percentiles gets really expensive, especially as this usually involves a lot of hardware redundancy as well as eliminating factors outside of your control. At the end at a certain point costs will be bigger than the benefits, so you need to make a trade-off. \\[0.5 cm]
 \hspace*{4mm}%
 \fbox{%
   \hspace*{1.5mm}\hspace*{-1\fboxsep}%
@@ -198,12 +213,84 @@ Text
 \textbf{Performance} of a data system is defined by system throughput and response time, e.g. number of transactions (like read/write operations), processed records (like aggregations for analytical purposes) or even system commands (like an \textit{update statistics} or rebalancing of several data nodes) under a given workload and for a specific timeframe. It usually depends on a variety of influencable as well as uninfluencable factors of the system itself, like network latency, a page fault or damaged disk. \\[0.4 cm]
 \end{minipage}\\
 
-\subsubsection{Approaches}
+\subsubsection{Approaches For Scaling}
 \label{tf_nfreq_scalability_approaches}
+Now that we are familiar with describing \textit{load} and measuring \textit{perfromance} we can answer the question: how to ensure performance, even if the load increases?
+As we have seen by the example of ebay.com within the previous chapters, a system which is able to cope with a load, won't be able to handle 10 times of that load. This needs us to think about the architecture right at the beginning as well as each time the load significantly increases. As we have learned there are two ways to scale an architecture of a data-system:
 
-\subsection{Availablity/Reliabaility}
+\begin{itemize}
+			\item \textbf{scale up/vertical} - replace a server by a more powerful one
+			\item \textbf{scale out/horizontal} - distribute the load towards multiple server instead of one\\
+\end{itemize}
+
+A data-system running on a single server is easier to develop, as you can neglect a lot of factors that are specific to distributed systems (e.g. replication, partitioning or transactions and consistency across nodes), but more powerful machines are also more expensive and at a certain point you will reach the physical limit as ebay.com did. \\
+A distributed data-system will require more development, test and operational effort as well as result in complexity but servers will be much cheaper as you make use of less powerful machines (\textit{``commodity'' hardware}) and you are able to bypass the inevitable physical limit of a single server. \\
+In practise you won't choose one pattern only (scale up or out) as well-working architectures need a carefully chosen mixture of both approaches, e.g. it doesn't make sense to make use of a lot of poorly powered servers (like a Raspberry Pi) instead of some more powerful machines in terms of unnecessary costs, network and software complexity. As you may guess, there is no one-size-fits-all solution and architecture for scalabale data-systems as the requirements are highly specific to each data-system itself. The \textit{load parameter} may be strongly influenced by:
+
+\begin{itemize}
+			\item the \textbf{volume of data} to store
+			\item the \textbf{number of read or write operations}
+			\item the required \textbf{throughput} or \textbf{response time}
+			\item the \textbf{structure of the data} and \textbf{how it's accessed} (e.g. relational, document-oriented, graph)
+			\item and many more.\\
+\end{itemize}
+
+Right now it shall be sufficient that you know the basics concepts of scalability, later within this lecture, we will make use of it when looking at distributed data storage and processing as well as related software and frameworks. At the end you should be able to apply those concepts to any data-system and be able to make reasonable decisions in terms of scalability.
+
+\newpage
+
+\subsection{Reliability}
 \label{tf_nfreq_avrel}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+In general \textit{reliability} represents the probability that something/someone will perform a required function without failure under stated conditions for a period of time, e.g. a test will be reliable when it gives the same repeated result under the same conditions. \\Or more pragmatic: \textit{something works correctly even if things go wrong}.\\
+
+So what are the \textit{faults}, mentioned in the previous defintions that we need to anticipate, about?
+
+\subsubsection{Hardware Faults}
+\label{tf_nfreq_reliability_hardware_faults}
+
+Obviously any hardware produced has a certain lifespan, buth that's not the only reason for hardware faults. If you're talking with operators of data centers, they will provide you with a broad list of common as well ase spine-chilling causes for hardware faults as:\\
+
+\begin{itemize}
+			\item broken HDD's\abk{HDD}{Hard Disk Drive}\footnote{HDD, a hard disk drive is a non-volatile computer storage device containing magnetic disks or platters rotating at high speeds.} or SSD's\abk{SSD}{Solid-State Drive}\footnote{SSD, a solid-state drive is a nonvolatile storage device that stores persistent data on solid-state flash memory.}
+			\item faulty RAM\abk{RAM}{Random Access Memory}\footnote{RAM, a Random Access Memory is the hardware in a computing device where the operating system, application programs and data in current use are kept so they can be quickly reached by the device's processor.} or CPU's\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit}
+			\item broken power adapters, switches or whole network outages
+			\item unplugged network cables or even connected to the wrong port
+			\item and many many more.\\
+\end{itemize}
+
+As this seems pretty unlikely at first sight - it's definitely not. For instance let's have a look at hard drives, especially in distributed data-systems you will have a lot of them. If you think about Apache Hadoop, you usually use low-class server (\textit{``commodity'' hardware}), e.g. \textit{ProLiant DL380 Gen10 Server} as they provide a good ratio of:
+
+\begin{itemize}
+			\item computing power (CPU) / Storage (HDD), 
+			\item rack space (2 RU\abk{RU}{Rack Unit}\footnote{\cite{WPRU}, Rack Unit is a unit of measure defined as 44.50 millimetres (1.75 in). It is most frequently used as a measurement of the overall height of rack frames.}) / storage and 
+			\item benefit/cost.
+\end{itemize}
+Each of this servers can store 19 HDDs, if you build a hadoop cluster with those servers, e.g. with about 100 nodes, this means 1,900 HDD's. Based on a regularly study by BackBlaze (a big data storage center provider like Amazon AWS) and a set of 82,516 HDD's, the average annual failure rate is about 2.11\%. Regarding our previous Hadoop example containing 1.900 HDD's, we can suppose that nearly any week one HDD will fail. If we would make use of the particular HDD model \textit{Seagate ST4000DX00} with a failure rate of 35,88\% (also mentioned within the study) this would mean nearly 2 HDD's would fail each day.\\
+
+In single server data systems it is possible to mitigate those problems by adding redundancy to individual hardware parts to minimize the failure rate of the whole system to a point where a failure is very unlikely, as at any time a redundant part can take over. This could mean, dual power adapters (like used by the previous mentioned \textit{ProLiant DL380 Gen10 Server}), RAID configurations or hot-swappable CPU's.\\
+
+As data volumes and computing demand increases, data-systems need to be distributed among several servers, which proportionally increases the rate of hardware faults and system failures, like discussed above regarding HDD faults. Therefore distributed data systems need to be able to tolerate the loss of entire machines, requiring software to be fault-tolerance additionally to hardware redundancy. 
+But those distributed data systems have further advantages, a system that tolerates failure of single machines can be restarted, patched, updated (\textit{rolling-upgrades}) or maintained one node at a time without a downtime of the whole data system.
+
+\subsubsection{Software Faults}
+\label{tf_nfreq_reliability_software_faults}
+
+\subsubsection{Human Faults}
+\label{tf_nfreq_reliability_human_faults}
+
+Text \\[0.5 cm]
+\hspace*{4mm}%
+\fbox{%
+  \hspace*{1.5mm}\hspace*{-1\fboxsep}%
+  \parbox{0.08\textwidth + 5mm - 2\fboxsep}{%
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=\linewidth]{gear_brain.png}
+\end{minipage}
+  }%
+}\hspace*{4mm}%
+\begin{minipage}{0.8\textwidth}\raggedright
+\textbf{Reliability} in terms of hardware, software or especially data-systems can be defined as the ability of a system to function as specified and expected. A reliable data-system also detects and tolerates faults due to mistakes of users, hardware or lower parts of the data-system itself as well as ensures the required performance under any expected load. \\[0.4 cm]
+\end{minipage}\\
 
 \subsection{Maintainability}
 \label{tf_nfreq_maintainability}
