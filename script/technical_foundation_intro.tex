@@ -7,12 +7,11 @@
 In this chapter we will go trough the foundation of data systems, requirements and concepts which apply to any (data-driven) system. This covers in particular following topics:
 \begin{samepage}
 \begin{itemize}
-	\item Section\ref{tf_nfreq} Requirements of \textbf{\nameref{tf_nfreq}}, e.g. 
+	\item Section \ref{tf_nfreq} Requirements of \textbf{\nameref{tf_nfreq}}, e.g. 
 		\begin{itemize}
 			\item \ref{tf_nfreq_scalability} \nameref{tf_nfreq_scalability}, 
 			\item \ref{tf_nfreq_avrel} \nameref{tf_nfreq_avrel}, 
-			\item \ref{tf_nfreq_maintainability} \nameref{tf_nfreq_maintainability}, 
-			\item \ref{tf_nfreq_extensability} \nameref{tf_nfreq_extensability} amongst others.
+			\item \ref{tf_nfreq_maintainability} \nameref{tf_nfreq_maintainability}.
 		\end{itemize}
 	\item Section \ref{tf_storageconcepts} \textbf{\nameref{tf_storageconcepts}} for databases
 	\item Section \ref{tf_dma} \textbf{\nameref{tf_dma}} concepts
@@ -27,7 +26,7 @@ In this chapter we will go trough the foundation of data systems, requirements a
 \end{samepage}
 
 At the end you will have a basic understanding about the difference between common and distributed systems and databases, the basic concepts of each of them and which one theoretically fits best to solve a certain problem.
-A more hands-on deep-dive into related software, frameworks as well as specific problems and use cases will be demonstrated later in chapter XXX.
+A more hands-on deep-dive into related software, frameworks as well as specific problems and use cases will be demonstrated later in chapter \ref{chapter_software_frameworks} \nameref{chapter_software_frameworks}.
 
 \section{Data-Driven Systems}
 \label{tf_nfreq}
@@ -108,8 +107,7 @@ Within the next chapters we will focus on the aspects which must be taken into a
 \begin{itemize}
 			\item \nameref{tf_nfreq_scalability} (Chapter \ref{tf_nfreq_scalability}),
 			\item \nameref{tf_nfreq_avrel} (Chapter \ref{tf_nfreq_avrel}),
-			\item \nameref{tf_nfreq_maintainability} (Chapter \ref{tf_nfreq_maintainability}) and
-			\item \nameref{tf_nfreq_extensability} (Chapter \ref{tf_nfreq_extensability}).\\
+			\item \nameref{tf_nfreq_maintainability} (Chapter \ref{tf_nfreq_maintainability}).\\
 \end{itemize}
 
 As many people and companies usually mess around with those terms, firstly we will develop a clear understanding on what they mean and later on take a closer look on how to apply algorithms, development and architectures to fulfill them appropriately.
@@ -137,8 +135,16 @@ Therefore we will discuss the parameters and definition of \textbf{Load} (Sectio
 
 \subsubsection{Load}
 \label{tf_nfreq_scalability_load}
-To get an idea what \textit{load} of a data system actually means, how it could be described an measured, we will take a nother look at the example of ebay.com discussed so far. If we take a look back at the architecure of ebay at 1997-1999 (Figure \ref{schema_ebay_architecture_1997_1999} on page \pageref{schema_ebay_architecture_1997_1999}) we can already guess with increasing load (page requests to certain items listed on ebay.com and in this way calls to the database through the application) will reach its limit at the maximum amount of read requests the oracle database can serve. As the application tier (web server) has already been scaled horizontally to multiple nodes, the oracle database server reached its limit of physical growth in November 1999. So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure XXX. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
-Later on they segmented whole databases into functional areas like hosts for item, user, account or transaction data as well as partition the data by typical usage characteristics to scale horizontally.\\
+To get an idea what \textit{load} of a data system actually means, how it could be described an measured, we will take a nother look at the example of ebay.com discussed so far. If we take a look back at the architecure of ebay at 1997-1999 (Figure \ref{schema_ebay_architecture_1997_1999} on page \pageref{schema_ebay_architecture_1997_1999}) we can already guess with increasing load (page requests to certain items listed on ebay.com and in this way calls to the database through the application) will reach its limit at the maximum amount of read requests the oracle database can serve. As the application tier (web server) has already been scaled horizontally to multiple nodes, the oracle database server reached its limit of physical growth in November 1999. \\
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=0.4\textwidth]{Ebay_2002.png}
+	\caption{Schema - Ebay Architecture April 2001 - December 2002}
+	\label{schema_ebay_2002}
+\end{figure}
+
+So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure \ref{schema_ebay_2002} on page \pageref{schema_ebay_2002}. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
+Later on they segmented whole databases into functional areas like hosts for item, user, account or transaction data as well as partitioned the data by typical usage characteristics to scale horizontally.\\
 
 They obviously did furher optimizations at the whole data system to be able to cope with the increasing load, like disabling transactions, moving CPU-intensive\abk{CPU}{Central Processing Unit}\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit} work to the application tier (e.g. joins, referential integrity or sorting), extensive use of prepared statements...but as this techniques are not mainly specific for distributed systems and some of them not even recommened nowadays, we won't focuse on them within this lecture.\\
 
@@ -198,8 +204,8 @@ Therfore it is common to use an average for measuring throughput or response tim
 	\label{schema_mean_average_percentile_plot}
 \end{figure}
 
-As you can guess, evaluating symmetric distributions with no outliers, \textit{arithmetic mean} will be the best choice, but as we are looking at performance parameters like throughput and response times, symmetric distribution is a whishful thinking. More usually throughput and response times will result in skewed distributions, so \textit{median} seems to be the better choice, as it doesn't ignore ratio and outliers completely. For instance if you calculate the median for latency (y-axis) of reads in a given timeframe (x-axis) from a data system as illustrated in figure \ref{schema_mean_average_percentile_plot} on page \pageref{schema_mean_average_percentile_plot}. You can see a small peak at \textit{07:08:00} but it still looks fine as the median response time is < 100ms. But what about the green graph (\textit{95th percentile})? That's the main reason why using percentiles is pretty common, especially the 95th, 99th or 99.9th percentile (abbreviated \textit{p95}, textit{p99}, textit{p999}) is frequently used in SLA's\footnote{\cite{WKSLA}, \textit{Service Level Agreement, a commitment between a service provider and a client.}}. Percentiles define thresholds at which 95\%, 99\% or 99,9\% of requests, reads or writes are beneath that threshold. Looking back at figure \ref{schema_mean_average_percentile_plot} this would mean that 95\% of all requests, reads or writes done by user are faster or equal 810ms and 5\% will result in a response time > 810 ms, which in case of a customer facing data system could mean: 5\% unsatisfied users and in this way probably a loss of possible leads (e.g. purchases on a webshop or subscriptions for a video streaming platform) and ultimately loss of revenue.\\
-So why don't use 99,9th percentile every time as it is the best? This is a major cost factor, optimizing the last percentiles gets really expensive, especially as this usually involves a lot of hardware redundancy as well as eliminating factors outside of your control. At the end at a certain point costs will be bigger than the benefits, so you need to make a trade-off. \\[0.5 cm]
+As you can guess, evaluating symmetric distributions with no outliers, \textit{arithmetic mean} will be the best choice, but as we are looking at performance parameters like throughput and response times, symmetric distribution is a whishful thinking. More usually throughput and response times will result in skewed distributions, so \textit{median} seems to be the better choice, as it doesn't ignore ratio and outliers completely. For instance if you calculate the median for latency (y-axis) of reads in a given timeframe (x-axis) from a data system as illustrated in figure \ref{schema_mean_average_percentile_plot} on page \pageref{schema_mean_average_percentile_plot}. You can see a small peak at \textit{07:08:00} but it still looks fine as the median response time is < 100ms. But what about the green graph (\textit{95th percentile})? That's the main reason why using percentiles is pretty common, especially the 95th, 99th or 99.9th percentile (abbreviated \textit{p95}, \textit{p99}, \textit{p999}) is frequently used in SLA's\footnote{\cite{WKSLA}, \textit{Service Level Agreement, a commitment between a service provider and a client.}}. Percentiles define thresholds at which 95\%, 99\% or 99,9\% of requests, reads or writes are beneath that threshold. Looking back at figure \ref{schema_mean_average_percentile_plot} this would mean that 95\% of all requests, reads or writes done by user are faster or equal 810ms and 5\% will result in a response time > 810 ms, which in case of a customer facing data system could mean: 5\% unsatisfied users and in this way probably a loss of possible leads (e.g. purchases on a webshop or subscriptions for a video streaming platform) and ultimately loss of revenue.\\
+So why don't use 99,9th percentile every time as it is the best? This is a major cost factor, optimizing the last percentiles gets really expensive, especially as this usually involves a lot of hardware redundancy as well as eliminating factors outside of your control. At a certain point costs will be bigger than the benefits, so you need to make a trade-off. \\[0.5 cm]
 \hspace*{4mm}%
 \fbox{%
   \hspace*{1.5mm}\hspace*{-1\fboxsep}%
@@ -251,8 +257,8 @@ So what are the \textit{faults}, mentioned in the previous defintions that we ne
 Obviously any hardware produced has a certain lifespan, buth that's not the only reason for hardware faults. If you're talking with operators of data centers, they will provide you with a broad list of common as well ase spine-chilling causes for hardware faults as:\\
 
 \begin{itemize}
-			\item broken HDD's\abk{HDD}{Hard Disk Drive}\footnote{HDD, a hard disk drive is a non-volatile computer storage device containing magnetic disks or platters rotating at high speeds.} or SSD's\abk{SSD}{Solid-State Drive}\footnote{SSD, a solid-state drive is a nonvolatile storage device that stores persistent data on solid-state flash memory.}
-			\item faulty RAM\abk{RAM}{Random Access Memory}\footnote{RAM, a Random Access Memory is the hardware in a computing device where the operating system, application programs and data in current use are kept so they can be quickly reached by the device's processor.} or CPU's\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit}
+			\item broken HDDs\abk{HDD}{Hard Disk Drive}\footnote{HDD, a hard disk drive is a non-volatile computer storage device containing magnetic disks or platters rotating at high speeds.} or SSDs\abk{SSD}{Solid-State Drive}\footnote{SSD, a solid-state drive is a nonvolatile storage device that stores persistent data on solid-state flash memory.}
+			\item faulty RAM\abk{RAM}{Random Access Memory}\footnote{RAM, a Random Access Memory is the hardware in a computing device where the operating system, application programs and data in current use are kept so they can be quickly reached by the device's processor.} or CPUs\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit}
 			\item broken power adapters, switches or whole network outages
 			\item unplugged network cables or even connected to the wrong port
 			\item and many many more.\\
@@ -265,10 +271,9 @@ As this seems pretty unlikely at first sight - it's definitely not. For instance
 			\item rack space (2 RU\abk{RU}{Rack Unit}\footnote{\cite{WPRU}, Rack Unit is a unit of measure defined as 44.50 millimetres (1.75 in). It is most frequently used as a measurement of the overall height of rack frames.}) / storage and 
 			\item benefit/cost.\\
 \end{itemize}
-Each of this servers can store 19 HDDs, if you build a hadoop cluster with those servers, e.g. with about 100 nodes, this means 1,900 HDD's. Based on a regularly study by BackBlaze (a big data storage center provider like Amazon AWS) and a set of 82,516 HDD's, the average annual failure rate is about 2.11\%. Regarding our previous Hadoop example containing 1.900 HDD's, we can suppose that nearly any week one HDD will fail. If we would make use of the particular HDD model \textit{Seagate ST4000DX00} with a failure rate of 35,88\% (also mentioned within the study) this would mean nearly 2 HDD's would fail each day.\\
+Each of this servers can store 19 HDDs, if you build a hadoop cluster with those servers, e.g. with about 100 nodes, this means 1,900 HDDs. Based on a regularly study by BackBlaze\footnote{\cite{HDDSTDY}, https://www.backblaze.com/blog/hard-drive-failure-rates-q1-2017/} (a big data storage center provider like Amazon AWS) with a set of 82,516 HDDs, the average annual failure rate is about 2.11\%. Regarding our previous Hadoop example containing 1.900 HDDs, we can suppose that nearly any week a HDD will fail. If we would make use of the particular HDD model \textit{Seagate ST4000DX00} with a failure rate of 35,88\% (also mentioned within the study) this would mean nearly 2 HDDs would fail each day.\\
 
-In single server data systems it is possible to mitigate those problems by adding redundancy to individual hardware parts to minimize the failure rate of the whole system to a point where a failure is very unlikely, as at any time a redundant part can take over. This could mean, dual power adapters (like used by the previous mentioned \textit{ProLiant DL380 Gen10 Server}), RAID\abk{RAID}{Redundant Array of Independent Disks}\footnote{RAID, is a data storage virtualization technology that combines multiple physical disk drive components into one or more logical units for the purposes of data redundancy, performance improvement, or both.} configurations or hot-swappable CPU's.\\
-
+In single server data systems it is possible to mitigate those problems by adding redundancy to individual hardware parts to minimize the failure rate of the whole system to a point where a failure is very unlikely, as at any time a redundant part can take over. This could mean, dual power adapters (like used by the previous mentioned \textit{ProLiant DL380 Gen10 Server}), RAID\abk{RAID}{Redundant Array of Independent Disks}\footnote{RAID, is a data storage virtualization technology that combines multiple physical disk drive components into one or more logical units for the purposes of data redundancy, performance improvement, or both.} configurations or hot-swappable CPUs.
 As data volumes and computing demand increases, data-systems need to be distributed among several servers, which proportionally increases the rate of hardware faults and system failures, like discussed above regarding HDD faults. Therefore distributed data systems need to be able to tolerate the loss of entire machines, requiring software to be fault-tolerance additionally to hardware redundancy. 
 But those distributed data systems have further advantages, a system that tolerates failure of single machines can be restarted, patched, updated (\textit{rolling-upgrades}) or maintained - one node at a time - without a downtime of the whole data-system.
 
@@ -315,7 +320,7 @@ Maintenance is known as one of the biggest costs at software devlopment and in t
 
 A data-system should be designe to minimize effort during maintenance and in this way making it more reliable. We will briefly discuss 3 major topics: \textit{operability}, \textit{simplicity} and \textit{evolvability}.
 
-\subsection{Operability}
+\subsubsection{Operability}
 \label{tf_nfreq_maintainability_operability}
 The main goal of operability should be to make operations easy to keep the system running smoothly, this means making routine tasks easy and enable operations ressources to use their time for important tasks. This can be achieved by:
 \begin{itemize}
@@ -325,7 +330,7 @@ The main goal of operability should be to make operations easy to keep the syste
 			\item self-healing if possible, but also possibilities to override for operators\\[0.5 cm]
 \end{itemize}
 
-\subsection{Simplicity}
+\subsubsection{Simplicity}
 \label{tf_nfreq_maintainability_simplicity}
 When you start a development project everything is pretty simple and probably well-documented but later on with multiple developers, features, services and servers, it gets more complex, hard to understand by a developer and especially more difficult to handle by administrators. As a lot of issues caused by this are not specific to data-systems we will focuse on complexity and abstraction, as reducing complexity should be the main goal when devloping distributed data-systems. Making a system less complex doesn't require reducing functionaility, it's more about removing unnecessary complexity.\\
 For instance if your data-system is crunching a lot of data for a very plain purpose, like parsing web server log files for analytical purpose to get to know how many people have visited your website - you could do this counting in Java (MapReduce) but this will probably be about 50 lines of code, a lot of libraries, testing and dependencies - making operations more difficult in the same way. If you would do this using Hive on HDFS your done with a one-line SQL statement.\\
