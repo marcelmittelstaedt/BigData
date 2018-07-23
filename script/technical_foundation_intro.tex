@@ -143,6 +143,7 @@ To get an idea what \textit{load} of a data system actually means, how it could 
 	\label{schema_ebay_2002}
 \end{figure}
 
+
 So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} but to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure \ref{schema_ebay_2002} on page \pageref{schema_ebay_2002}. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
 Later on they segmented whole databases into functional areas like hosts for item, user, account or transaction data as well as partitioned the data by typical usage characteristics to scale horizontally.\\
 
