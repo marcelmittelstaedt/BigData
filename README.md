@@ -3,8 +3,9 @@ Here you can find all materials regarding the lecture "*BIG DATA - An Introducti
 
 *This lecture will give you a brief introduction to so what is called ’Big Data’. We will quickly refresh the basics about databases, data models and data processing you have learned so far and compare those to the distributed world of Big Data. After that we will take a deep dive into the foundations of distributed data stor- ages and data processing as well as the belonging concepts of reliability, scalability, replication, partitioning, batch and stream processing.
 Later on we will take a look at the most common used software and frameworks (mostly the hadoop ecosystem).
-At the end, as you know the basic concepts and you are able to setup and work with distributed environments and huge data sets, there will be a short introduction to data science.
-At the end of each lesson, there will be some hands-on exercises, which we will start together and which have to be  nished till the next week. This lecture will only be about 36 hours in 12 weeks (1 slot each week), which is very little time to cover such an extensive topic. So pay close attention and if you can’t keep up, feel free to ask questions at the end of each lesson.*
+At the end, as you know the basic concepts and you are able to setup and work with distributed environments and huge data sets, there will be a short introduction to data science.*
+
+At the end of each lesson, there will be some hands-on exercises, which we will start together and which have to be  nished till the next week. This lecture will only be about 36 hours in 12 weeks (1 slot each week), which is very little time to cover such an extensive topic. So pay close attention and if you can’t keep up, feel free to ask questions at the end of each lesson.
 
 You can find here:
 * **the script** (https://github.com/marcelmittelstaedt/BigData/tree/master/script)
