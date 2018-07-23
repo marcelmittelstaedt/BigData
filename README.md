@@ -24,3 +24,9 @@ git pull
 ```
 
 If you  find any mistakes or misspellings feel free to send me a mail (mittelstaedtmarcel@googlemail.com) or if you are able to, commit a push request.
+
+## Author
+Marcel Mittelstädt
+Head of Data Architecture and Development, ProSiebenSat.1 Media SE
+mittelstaedtmarcel@googlemail.com
+www.marcel-mittelstaedt.com
