@@ -1,5 +1,5 @@
 # BigData
-Here you can find all materials regarding the lexture "BIG DATA - An Introduction To The Fields Of Data Engineering, Development And Architecture Of Data-Intensive Applications." at the Cooperative State University Baden-Wuerttemberg in Stuttgart.
+Here you can find all materials regarding the lexture "*BIG DATA - An Introduction To The Fields Of Data Engineering, Development And Architecture Of Data-Intensive Applications.*" at the Cooperative State University Baden-Wuerttemberg in Stuttgart.
 
 This especially means:
 * **the script** (https://github.com/marcelmittelstaedt/BigData/tree/master/script)
