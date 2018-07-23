@@ -1,4 +1,4 @@
-\chapter{Foundation Of Distributed Data Systems}
+\chapter{Fundamentals Of Distributed Data Systems}
 \label{chapter_technical_foundation}
 \setlength{\epigraphwidth}{0.95\textwidth}
 \setlength\epigraphrule{0pt}
@@ -139,11 +139,11 @@ To get an idea what \textit{load} of a data system actually means, how it could 
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=0.4\textwidth]{Ebay_2002.png}
-	\caption{Schema - Ebay Architecture April 2001 - December 2002}
+	\caption{Schema - Architecture Ebay.com April 2001 - December 2002}
 	\label{schema_ebay_2002}
 \end{figure}
 
-So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure \ref{schema_ebay_2002} on page \pageref{schema_ebay_2002}. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
+So ebay added an additional server to not just elmininate the SPOF\abk{SPOF}{Single Point Of Failure}\footnote{\cite{WPSPOF}, Single Point Of Failure} but to be able to failover but also they have splitted the database to be able to logically partition it into separate instances and in this way be able to scale horizontally. This was achieved in 2001 by splitting items by categories, as you can see in Figure \ref{schema_ebay_2002} on page \pageref{schema_ebay_2002}. In this simple way it was possible to distribute the load (mostly page requests for items) in an ``equal'' way to different physical nodes.
 Later on they segmented whole databases into functional areas like hosts for item, user, account or transaction data as well as partitioned the data by typical usage characteristics to scale horizontally.\\
 
 They obviously did furher optimizations at the whole data system to be able to cope with the increasing load, like disabling transactions, moving CPU-intensive\abk{CPU}{Central Processing Unit}\footnote{CPU, a processor or processing unit is an electronic circuit which performs operations on some external data source, usually memory or some other data stream is called central processing unit} work to the application tier (e.g. joins, referential integrity or sorting), extensive use of prepared statements...but as this techniques are not mainly specific for distributed systems and some of them not even recommened nowadays, we won't focuse on them within this lecture.\\
@@ -181,7 +181,7 @@ But how to answer them? Therefore we need performance numbers. In case of data s
 			\item data processed (in case of Apache Hadoop and MapReduce terabytes of data within several seconds)\\
 \end{itemize}
 
-or if your buidling a data-system which works as the backend of a end-user facing application like a website, it's more about the \textbf{response time}, which means the time between sending a request and receiving the response. For instance if we think about the example of ebay.com within the previous chapters, as of 2016 they had 1 billion items accessible at any time, needed to serve 2 billion page requests each day and had to fulfill each of them within fractions of a second. \\
+or if your buidling a data-system which works as the backend of a end-user facing application like a website, it's more about the \textbf{response time}, which means the time between sending a request and receiving the response. For instance if we think about the example of ebay.com within the previous chapters, as of 2012 they had 1 billion items accessible at any time, needed to serve 2 billion page requests each day and had to fulfill each of them within fractions of a second\footnote{\cite{EBAY2012}, https://hughewilliams.com/2012/06/26/the-size-scale-and-numbers-of-ebay-com/}. \\
 
 Regardless of throughput or response time - if we think about performance we don't think about a single number, but a distribution of values that we can measure. If you will repeat the same page request, read or writes on the same data system: response time and throughput will inevitable vary somehow. There are simply too many factors you usually cannnot contain:
 \begin{itemize}
@@ -300,7 +300,7 @@ We have been talking a lot about reliability so far, but what about the most unr
 			\item measuring and monitoring (e.g. performance metrics, error rates) allows to check wether assumptions or constraints are violated at an early stage \\[0.5 cm]
 \end{itemize}
 
-To sum up the last chapters: why do wee need reliability? Reliability is not just a major topic for stock exchanges, air traffic control or military. Failures of a data-system can cause data loss, lost productivity or sales loss and therefore huge costs and loss of revenue. There are special circumstances when you may choose to reduce reliability for the sake of time, development effort or operational costs (e.g. \textit{prototyping}), but you need to be very conscious and it's inevitable that at some point in the future you will need to invest the the saved effort, time and costs and probably a multiple of what it would have been before.\\[1.0 cm]
+To sum up the last chapters: why do wee need reliability? Reliability is not just a major topic for stock exchanges, air line reservations or military. Failures of a data-system can cause data loss, lost productivity or sales loss and therefore huge costs and loss of revenue. There are special circumstances when you may choose to reduce reliability for the sake of time, development effort or operational costs (e.g. \textit{prototyping}), but you need to be very conscious and it's inevitable that at some point in the future you will need to invest the the saved effort, time and costs and probably a multiple of what it would have been before.\\[1.0 cm]
 \hspace*{4mm}%
 \fbox{%
   \hspace*{1.5mm}\hspace*{-1\fboxsep}%
@@ -343,10 +343,104 @@ However finding useful abstractions is not that easy and needs a lot of experien
 \label{tf_storageconcepts}
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
+\newpage
 
 \section{Data Models And Access}
 \label{tf_dma}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+Data Models are one of the most crucial part of any data-system as they significantly influence actually everything: development and required skills, operations, backends and frontends as well. \\
+For instance, if you choose a document oriented data store (e.g. MongoDB) to serve a web-based application, as it is pretty easy to build a REST API on top of it and JSON data and JavaScript Frontends (e.g. based on AngularJS) are a perfect match but don't think about how the data will be queried later - you may run into a lot of trouble. For example if your data consist of many business objects which are highly complementary and the frontend usually needs multiple business objects within one request, you're probably out of luck as document-oriented storages perform pretty well when only reading from one collection but not at joining them. You could probably put all related business objects in one document, but as this is unnecesessarily redundant it will burst your data storage very soon. \\
+To conclude: there are many different kinds of data models and every data model has it strengths but weaknesses as well. Some are easy to use - some not, some operations using them will be fast - others definitely not, some are very storage efficient - some note... As you can see it's not that easy to decide which data model to use as it has a profound effects on the whole data-system you are building, even that far that a wrong decision could be a show stopper at some time in development.\\
+It needs a lot of experience and very forward-looking to choose a data model that fits best to your data-system. Within the next chapters we will talk about the most common data models (\textit{relational}, \textit{document-oriented}, \textit{graph}), how to access them {\textit{SQL}, \textit{MapReduce}, \textit{SPARQL}), how they differ, advantages and disadvantages. \\
+At the end you should have a basic understanding on how they work and which of them fits best to a certain problem.
+
+\subsection{Data Models}
+\label{tf_dma_datamodels}
+
+\subsubsection{Relational Data Model}
+\label{tf_dma_datamodels_rdm}
+
+Firstoff we will take a look at the relational data model, originally introduced by Edgar Frank Codd in 1970\footnote{\cite{CODDRDM}, `A Relational Model of Data for Large Shared Data Banks'' - IBM Research Laboratory, San Jose, California}. \\[0.5 cm]
+\hspace*{4mm}%
+\fbox{%
+  \hspace*{1.5mm}\hspace*{-1\fboxsep}%
+  \parbox{0.08\textwidth + 5mm - 2\fboxsep}{%
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=\linewidth]{gear_brain.png}
+\end{minipage}
+  }%
+}\hspace*{4mm}%
+\begin{minipage}{0.8\textwidth}\raggedright
+The \textbf{relational model} is an approach to managing data using a structure and language consistent with first-order predicate logic where all data is represented in terms of tuples and grouped into relations. 
+\end{minipage}\\[0.5 cm]
+
+Having its roots in the 1970's the relational data model had the idea to hide implementation details (e.g. internal representation of data in a data store) from developers by providing a cleaner, \textit{declarative} and \textit{read-on-schema} interface for specifying data and querying it. Developers can state what information the database contains and what information they want from it - the database itself will take care of describing, storing and retrieving data for developers. As you have already learned the basic about relational databases, indices, concepts like normalization and much more we will take a quick look at an example and afterwards conclude about advantages and disadvantages compared to other data models. \\
+
+Let's take a look at figure \ref{schema_facebook_relational_model} on page \pageref{schema_facebook_relational_model} as an example. Here you can see how a Facebook profile could be represented in a very simple (and not fully normalized) relational data model. 
+The table \lstinline{user} works as the main entity, as it's the profile page of a user. As a user is unique we also have a unique identifier (\lstinline{id}) as well as some information regarding the user within the same table (e.g. \lstinline{first} and \lstinline{last_name} or who they are \lstinline{married_to}). 
+People may have worked for different companies (table \lstinline{companies}), lived in several cities {table \lstinline{cities}} or visited more than one university (table \lstinline{universities}) so we put that into separate tables including a foreign key (\lstinline{user_id}) of the referring table {\lstinline{user}}.\\
+
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=1\textwidth]{relational_model_zuckerberg.png}
+	\caption{Schema - Facebook Profile As Relational Model}
+	\label{schema_facebook_relational_model}
+\end{figure}
+
+\newpage
+
+Relations are represented by \textit{tables} and tuples are represented by \textit{rows}. Rows can easily be inserted or fetched all-at-once, by using an id or a \textit{primary}/\textit{foreign key} unlike \textit{document-oriented} data models, where you:
+\begin{itemize}
+			\item sometimes need to make use of access paths,
+			\item need to think about nested structures,
+			\item need to worry about unknown fields as those systems are usually \textit{schema-on-read} or 
+			\item or intensively need to think about possible performance issues and how the system will probably execute your query as the execution engine is usually not that mature as the one of a relational system,
+			\item it's more difficult to understand how the systems works, as sometimes you don't even have a query-explain feature like in relational databases, so you won't be able to investigate or guess in advance how it will behave in detail during execution.\\ 
+\end{itemize}
+But as relational data models are also mostly used by applications, we need to talk about a frequently discussed issue: \textit{object-orientation}. As applications are \textit{object-oriented} you need to make use of a translation layer between an applications and relational model to enable the applications to make use of the data. There are many frameworks available to serve this translation called ORM\abk{ORM}{Object-Relational-Mapper}\footnote{ORM, Object-relational mapping is a programming technique for converting data between incompatible type systems using object-oriented programming languages.}, e.g. Hibernate\footnote{\cite{ORMHBN}, http://hibernate.org/} in case of Java or SQLAlchemy\footnote{\cite{ORMSQLAL}, https://www.sqlalchemy.org/} in case of Python to name only 2 of them. Those frameworks will require additional code, skill and development time, as systems using the document-oriented model are regularly used without additional frameworks for data translation, e.g. an AngularJS application using MongoDB. \\
+But systems using a relational model are mostly more resilient as they usually gained several years or even decades of research, experience and development time, while document-oriented that are still widely used today just started in the early 2000's.\\
+For instance many of them have highly sophisticated query optimizer which automatically decide which part of the query needs to be executed when, in which order and which index {e.g. \lstinline{user_id} of the previous example} is probably the best one to use - most of the document-oriented systems don't even have something that is worth to be called a query optimizer as their capabilities are far behind the relational ones. \\
+But that's also due to the fact that relational and document-oriented data models are completely different in terms of relationship implementation: both of them are able to represent \textit{many-to-one} or \textit{many-to-many} relations but in a different manner. \\
+Relational data models make use of \textit{primary} and \textit{foreign keys} which can easily be used for indices, document-oriented data models need to make use of nested structures (most commonly used) or \textit{document references} and joins to other collections (e.g. \lstinline{\$lookup} in MongoDB\footnote{\cite{MDBLKP}, https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/}, \lstinline{populate()} in Mongoose\footnote{\cite{MGPPL}, http://mongoosejs.com/docs/populate.html} or Joins in RethinkDB\footnote{\cite{RDBJN}, https://www.rethinkdb.com/docs/table-joins/}) - both of them are resulting in expensive IO and CPU operations as either you need to make use of features that are extremely immature compared to their relational counterpart or the whole document needs to be read, which can also be very wasteful on large documents. \
+
+This behaviour of document-oriented systems also applie for writes, as they usually require to rewrite the whole document in document-oriented data-systems. 
+But to be fair, most document-oriented systems weren't initially designed with serving relationale dependencies or querying in mind, but rather for the sake and benefits of: 
+\begin{samepage}
+\begin{itemize}
+		\item being object oriented, 
+		\item easy to be altered, 
+		\item  being semi-/unstructured and schema-``free''.\\
+\end{itemize}
+\end{samepage}
+An in this way being the whole opposite of the relational data model.
+
+
+\subsubsection{Document Oriented Data Model}
+\label{tf_dma_datamodels_dodm}
+
+Text...
+
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=1\textwidth]{document_oriented_data_model_zuckerberg.png}
+	\caption{Schema - Facebook Profile As Document Oriented Model}
+	\label{schema_facebook_document_oriented_model}
+\end{figure}
+
+
+\subsubsection{Graph Data Model}
+\label{tf_dma_datamodels_gdm}
+
+\subsection{Data Access}
+\label{tf_dma_dataaccess}
+
+\subsubsection{SQL}
+\label{tf_dma_dataaccess_sql}
+
+\subsubsection{MapReduce}
+\label{tf_dma_dataaccess_mr}
+
+\subsubsection{SPARQL}
+\label{tf_dma_dataaccess_sparql}
 
 \section{Challenges Of Distributed Data Systems}
 \label{tf_dds}

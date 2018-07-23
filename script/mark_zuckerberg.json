@@ -1,0 +1,19 @@
+{
+	"id": 1,
+	"first_name" : "Mark",
+	"last_name" : "Zuckerberg",
+	"is_verified" : "true",
+	"married_to" : 4711,
+	...
+	"universities" : [
+		{"university_name" : "Harvard University", "subject" : "Computer Science"}
+	],
+	"companies" : [
+		{"company_name" : "Facebook"},
+		{"company_name" : "Chan Zuckerberg Initiative"}
+	],
+	"cities" : [
+		{"city_name" : "Palo Alto", "status" : "living"},
+		{"city_name" : "Dobbs Ferry", "status" : "born"}
+	]
+}, ...
