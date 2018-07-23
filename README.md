@@ -1,5 +1,5 @@
 # BigData
-Here you can find all materials regarding the lecture "*BIG DATA - An Introduction To The Fields Of Data Engineering, Development And Architecture Of Data-Intensive Applications.*" at the Cooperative State University Baden-Wuerttemberg in Stuttgart.
+Here you can find all materials regarding the lecture "*BIG DATA - An Introduction To The Fields Of Data Engineering, Development And Architecture Of Data-Intensive Applications.*" at the *Cooperative State University Baden-Wuerttemberg* in Stuttgart.
 
 *This lecture will give you a brief introduction to so what is called ’Big Data’. We will quickly refresh the basics about databases, data models and data processing you have learned so far and compare those to the distributed world of Big Data. After that we will take a deep dive into the foundations of distributed data stor- ages and data processing as well as the belonging concepts of reliability, scalability, replication, partitioning, batch and stream processing.
 Later on we will take a look at the most common used software and frameworks (mostly the hadoop ecosystem).
