@@ -1,10 +1,10 @@
-\chapter{Fundamentals Of Distributed Data Systems}
+\chapter{Fundamentals Of Distributed Data-Systems}
 \label{chapter_technical_foundation}
 \setlength{\epigraphwidth}{0.95\textwidth}
 \setlength\epigraphrule{0pt}
 \epigraph{\itshape ``I'm not telling you it's going to be easy - I'm telling you it's going to be worth it.''}{--- Arthur L. Williams Jr., \textit{Founder of Primerica Financial Services}}
 
-In this chapter we will go trough the foundation of data systems, requirements and concepts which apply to any (data-driven) system. This covers in particular following topics:
+In this chapter we will go trough the foundation of data-systems, requirements and concepts which apply to any (data-driven) system. This covers in particular following topics:
 \begin{samepage}
 \begin{itemize}
 	\item Section \ref{tf_nfreq} Requirements of \textbf{\nameref{tf_nfreq}}, e.g. 
@@ -28,7 +28,7 @@ In this chapter we will go trough the foundation of data systems, requirements a
 At the end you will have a basic understanding about the difference between common and distributed systems and databases, the basic concepts of each of them and which one theoretically fits best to solve a certain problem.
 A more hands-on deep-dive into related software, frameworks as well as specific problems and use cases will be demonstrated later in chapter \ref{chapter_software_frameworks} \nameref{chapter_software_frameworks}.
 
-\section{Data-Driven Systems}
+\section{Non-Functional Requirements Of Data-Systems}
 \label{tf_nfreq}
 When we think about data-driven systems, we mostly think about the same requirements we expect of any other data system we already know:
 \begin{itemize}
@@ -514,7 +514,7 @@ Applications written in this paradigm are automatically parallized and executed 
 \item inter-node communication and much more.\\
 \end{itemize}
 \end{samepage}
-This enables programmers, without any experience with parallel or distributed systems, at minimum effort, to easily utilize the computing ressources of distributed data-system and build data-driven applications that are highly scalable. 
+This enables programmers, without any experience with parallel or distributed systems, at a minimum effort, to easily utilize the computing ressources of distributed data-system and build data-driven applications that are highly scalable. 
 
 \begin{lstlisting}[aboveskip=1ex, belowskip=1ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MapReduce Example - Word Count, label=min_mapreduce, float,language=java]
 map(String key, String value):
