@@ -476,7 +476,6 @@ Another disadvantage are updates, as the data-system usually needs to rewrite th
 \end{lstlisting}
 MongoDB is even that optimized, that no rewrite of the whole document is caused. But if you add another field, which causes the document to increase in size, it will no longer fit into the previously allocated space, the whole document needs to be rewritten anyway\footnote{\cite{MDBIP}, https://www.mongodb.com/blog/post/fast-updates-with-mongodb-update-in-place}.\\
 
-
 \textbf{Application Code Simplicity}\\
 Building a data-driven application obviously requires development and therefore application code that handles all interaction with the used data-system. Using a document-oriented data-system, where typically entire documents are loaded and written, usually requires less code within the application itself compared to relational data-systems where several tables need to queried, joined or updated at the same time. But in the same way it's a significant disadvantage of document-oriented data-systems, for instance if you would like to access a nested item within a document, or even the n-th tuple within the nested item, it often requires more code than an appropriate SQL would need. 
 On the other way, just querying one single relational table requires way more code than querying one document, as the relational data model is not a natural fit to the world of object oriented programming languages. You need to write a lot of mappings to map the data to your application objects or use an ORM framework (as previously discusses) which also adds a lot of additional code in terms of libraries to your application. The document-oriented data model is a much more natural fit to objects uses in object-oriented programming languages and require less code to be linked to an objects, especially in the environment of data-intensive web applications, which for instance frequently make use JSON.
@@ -489,17 +488,50 @@ There is no universal answer to the question which data model leads to more or l
 \label{tf_dma_datamodels_gdm}
 
 Lorem Ipsum...
-
+\newpage
 \subsection{Data Access}
 \label{tf_dma_dataaccess}
 
 \subsubsection{SQL}
 \label{tf_dma_dataaccess_sql}
 
-SQL
+Let's take a look at SQL\abk{SQL}{Structured Query Language}\footnote{SQL, Structured Query Language}, originally introduced as ``SEQUEL'' by Donald D. Chamberlin and Raymond F. Boyce in 1974\footnote{\cite{SQLIBM}, ``SEQUEL: A STRUCTURED QUERY LANGUAGE'' - IBM Research Laboratory, San Jose, California} and inspired by Edgar Frank Codd's relational data model in 1970\footnote{\cite{CODDRDM}, `A Relational Model of Data for Large Shared Data Banks'' - IBM Research Laboratory, San Jose, California}. Despite not entirely adhering to the relational model as described by Codd, it became the most widely used database language and even supported in a limited way by NoSQL data-systems like Cassandra (\textit{CQL}\footnote{\cite{CQL}, http://cassandra.apache.org/doc/latest/cql/}) or Hadoop (\textit{HiveQL\footnote{\cite{AHW}, https://hive.apache.org/}}).
+Designed for handling structured data and making it easily accessible to users and application code, it quickly became standard (ANSI 1986, ISO 1987). It obviously has been revised several times since then, to include a larger set of features but it's still used by an kind of relational data-system. Despite the fact that most SQL code is not completely portable among different, especially commercial, relational data-systems.\\
+SQL is a set-based and declarative programming language unlike imperative or mixed-up programming languages, paradigms or approaches for accessing data (e.g. MapReduce, Spark). An imperative programming language forces the data-system to perform certain operation in a certain order. Imagine any application code you have written so far, for instance in Java, C++ or Python, the code will be executed line by line, doing some calculations, evaluating conditions and probably looping around several times. A declarative language like SQL (or programming languages like \textit{Prolog} or \textit{Lisp}, or even build languages like \textit{make}/\textit{cmake}) is usually more easy to work with than an imperative language. In case of SQL it is due to the fact, that it hides implementation details of the data-system, you usually do not need to think a lot about how the data is stored or retrieved as the data-system will take care about this as well as doing it with the best performance possible (\textit{query optimizer}).
+Declarative languages are also easier to parallize in terms of horizontal scalability, as they only specify the pattern of the result, not the algorithm used to get the result. Whereas imperative programming languages and approaches are way more complicated to parallelize across multiple CPUs or nodes. As they require a lot of effort and attention, as imperative code specifies operations that need to happen in a specific order, need to be kept in-sync, are dependent of the results of previous steps and much more.\\
+
 
 \subsubsection{MapReduce}
 \label{tf_dma_dataaccess_mr}
+\textit{MapReduce} is a programming paradigm and an associated implementation for processing and generating large data sets in parallel and distributed on a cluster, originally introduced by Jeffrey Dean and Sanjay Ghemawat (Google Inc.) in 2004\footnote{\cite{GOOMR}, ``MapReduce: Simplified Data Processing on Large Clusters'' - Google Inc.}. The paradigm is based on specifying a \textit{map} function, which performs filtering and sorting, resulting in an intermediate set of key/value pairs and a \textit{reduce} function that merges all intermediate values associated with the same key (e.g. sum all values).
+Applications written in this paradigm are automatically parallized and executed on several nodes of a cluster. The runtime system (e.g. YARN\footnote{\cite{YARNPP}, ``Apache Hadoop YARN: Yet Another Resource Negotiator'' - The Hong Kong University Of Science And Technology} in case of Hadoop) takes care of: 
+\begin{samepage}
+\begin{itemize}
+\item the details of providing and partitioning the input data, 
+\item scheduling the application code execution across all cluster nodes, 
+\item saving intermediate states,
+\item handling node failures,
+\item inter-node communication and much more.\\
+\end{itemize}
+\end{samepage}
+This enables programmers, without any experience with parallel or distributed systems, at minimum effort, to easily utilize the computing ressources of distributed data-system and build data-driven applications that are highly scalable. 
+
+\begin{lstlisting}[aboveskip=1ex, belowskip=1ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MapReduce Example - Word Count, label=min_mapreduce, float,language=java]
+map(String key, String value):
+	// key: document name
+	// value: document contents
+	for each word w in value:
+		EmitIntermediate(w, "1");
+
+reduce(String key, Iterator values):
+	// key: a word
+	// values: a list of counts
+	int result = 0;
+	for each v in values:
+		result += ParseInt(v);
+	Emit(AsString(result));
+\end{lstlisting}
+
 
 \subsubsection{SPARQL}
 \label{tf_dma_dataaccess_sparql}

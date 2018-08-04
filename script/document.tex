@@ -69,15 +69,15 @@
 
 \usepackage{nomencl}
 \let\abk\nomenclature
-\renewcommand{\nomname}{Abkürzungsverzeichnis}
+\renewcommand{\nomname}{List Of Abbreviations}
 \setlength{\nomlabelwidth}{.20\hsize}
 \renewcommand{\nomlabel}[1]{#1 \dotfill}
 \setlength{\nomitemsep}{-\parsep}
 \makenomenclature
 % makeindex hauptdatei.nlo -s nomencl.ist -o hauptdatei.nls erst Latex dan Konsole dann Latex
 
-\renewcommand\lstlistingname{Auszug}
-\renewcommand\lstlistlistingname{Auszugverzeichnis}
+\renewcommand\lstlistingname{Code Snippet}
+\renewcommand\lstlistlistingname{List Of Code Snippets}
 \def\lstlistingautorefname{Ausz.}
 
 %%%------------------------------------------------------------------------------%%%
@@ -97,7 +97,7 @@ float=hbp,%
 language=Java, %
 basicstyle=\ttfamily\small, %
 identifierstyle=\color{colIdentifiers}, %
-keywordstyle=\color{colKeyWords}\bf, %
+keywordstyle=\color{colKeyWords}\textbf, %
 stringstyle=\color{colComments}, %
 commentstyle=\color{lightgreen}, %
 columns=flexible, %
