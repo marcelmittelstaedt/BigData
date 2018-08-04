@@ -414,10 +414,44 @@ But to be fair, most document-oriented systems weren't initially designed with s
 An in this way being the whole opposite of the relational data model.
 
 
-\subsubsection{Document Oriented Data Model}
+\subsubsection{NoSQL Data Model}
 \label{tf_dma_datamodels_dodm}
 
-Text...
+As we have discussed the relational data model in the previous chapter we will now take a closer look on non-relational data models, probably known as \textit{NoSQL}. \\
+Even due to the fact that there have been some approaches and databases in the past (back to 1960's), the term \textit{NoSQL} and data-systems using it, gained their popularity in the early twenty-first century. The NoSQL wave was initially triggered by the emerging wave of \textit{Web 2.0} companies like Facebook, Google or Amazon, whose data-systems needed to cope with data sizes, throughput, response times and the need of high scalabilty, which could not be handled by using traditional relational data-systems anymore\footnote{\cite{IBMNS}}. Beside that the limitations of the relational data model for \textit{Web 2.0} kind of data, probably was on of the biggest issue, log files and textual data of social media websites or e-commerce shops are not very structured and even if they were, they probably changed their structure very frequently over time. \\
+NoSQL data-systems like HBase, BigTable or Cassandra emerged by those needs, e.g.:
+\begin{samepage}
+\begin{itemize}
+\item \textbf{Cassandra}, initially developed by Avinash Lakshman and Prashant Malik (Facebook employees) because of the need to solve the inbox search problem of the Facebook messenger\footnote{\cite{FBISP}, https://www.facebook.com/note.php?note\_id=24413138919} and later on released to be \textit{OpenSource} in 2008 or 
+\item \textbf{BigTable}, initially developed by Google in 2004 to support several data intensive applications of google, such as web-indexing, GoogleMaps or GoogleMail and later on released as a public service in 2015\footnote{\cite{BTREL}, https://cloud.google.com/bigtable/docs/release-notes}.\\
+\end{itemize}
+\end{samepage}
+
+As you can see NoSQL data-systems are increasingly used by BigData and real-time web and analytical applications as they can cope better with frequently changing data structures and are easier to scale horizontally, compared to their relational counterpart.\\
+
+NoSQL data-systems are somethimes also called \textit{``Not only SQL''} to emphasize that they may support SQL-like query languages, even if their storage engine has ``nothing'' in common with traditional relational data-systems, e.g.:\\
+\begin{samepage}
+\begin{itemize}
+\item \textbf{Hive}, initially developed by Facebook, is an abstraction layer to access data on a distributed file system (e.g. Hadoop HDFS or Amazon S3) without the need of programming MapReduce jobs by using SQL-like queries (\textit{HiveQL\footnote{\cite{AHW}, https://hive.apache.org/}}) and \textit{schema-on-read} or 
+\item \textbf{Cassandra}, initially developed by Facebook as a NoSQL distributed key-value data store, which also provides a SQL-like query language, called \textit{CQL}\footnote{\cite{CQL}, http://cassandra.apache.org/doc/latest/cql/}.\\[0.5 cm]
+\end{itemize}
+\end{samepage}
+
+
+\hspace*{4mm}%
+\fbox{%
+  \hspace*{1.5mm}\hspace*{-1\fboxsep}%
+  \parbox{0.08\textwidth + 5mm - 2\fboxsep}{%
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=\linewidth]{gear_brain.png}
+\end{minipage}
+  }%
+}\hspace*{4mm}%
+\begin{minipage}{0.8\textwidth}\raggedright
+\textbf{NoSQL} in terms of BigData, is a theorem for managing data using document-oriented, key-value or graph structures, where all data is represented in terms of documents, key-value pairs, graphs (nodes, edges, properties) or mixed approaches.
+\end{minipage}\\[0.5 cm]
+
+Let's take a another look at the example in Figure \ref{schema_facebook_document_oriented_model} on page \pageref{schema_facebook_document_oriented_model}, which we already discussed by regards of the relational data model in chapter \textit{\ref{tf_dma_datamodels_rdm} \nameref{tf_dma_datamodels_rdm}}. Here you can see how the same Facebook profile could be represented in a very simple document-oriented data model (e.g. \textit{JSON}\abk{JSON}{JavaScript Object Notation}\footnote{\cite{JSONW}, JSON (JavaScript Object Notation), a lightweight data-interchange format, easy for humans to read/write and machines to parse/generate.}). Representing a data structure like a (Facebook) profile, which is mostly a self-contained document, using JSON could be vary appropriate. As you can see in this case the document structure has a better \textit{locality} than the relational structure, where you would need to fetch rows from multiple tables and join them. Using the document-oriented structure, you just need to fetch one document as all the information you need to create the profile page, are at one place. The document-oriented structure allows you to easily access previously \textit{normalized} data (\textit{one-to-many relationship}), like \lstinline{companies} a person worked for or \lstinline{cities} a person lived in, just by it's explicit tree structure.\\
 
 \begin{figure}[ht]
 	\centering
@@ -426,15 +460,43 @@ Text...
 	\label{schema_facebook_document_oriented_model}
 \end{figure}
 
+Let's have a closer look on 3 topics often discusses as advantages of the document-oriented data model:\\
+
+\textbf{Schema Flexibility}\\
+Most document-oriented data-systems do not enforce a defined schema unlike the relational data model. For instance if we take look at Figure \ref{schema_facebook_document_oriented_model} arbitrary keys and values, e.g. additional information like interests or favourite movies could be added to the document without causing any issues. But if your reading documents later on, you have no guarantee wether a certain document contains a required field or not, instead you need to be sure or make use of additional operators, for instance the \lstinline{$exists} operator in case of MongoDB to check wether a required field exists or not\footnote{\cite{MDBEX}, https://docs.mongodb.com/manual/reference/operator/query/exists/}. \\
+NoSQL data-systems are often called \textit{schemaless}, which is wrong, as the engine which is processing the data usually assumes some kind of structure. This is called \textit{schema-on-read}, the structure of the data is implicit and only interpreted when the data is read, whereas traditional relational data-systems are \textit{schema-on-write} and explicit forcing the engine to ensure all data which will be written is conform to the schema. This approach is very valuable in case an application wants to change the format of it's data on a regular base. In case of a relational data-system you would need to run an \lstinline{ALTER TABLE} or even \lstinline{CREATE TABLE} statement, which are highly IO and CPU intensive operations. As a very drastic example, if you run an \lstinline{ALTER TABLE} statement in MySQL, this will not only cause a lock for \lstinline{INSERT} and \lstinline{UPDATE} statements on the same table (if not using InnoDB), but also copying the entire table, which could take even hours depending on the size of the table\footnote{\cite{MYSQLAT}, https://dev.mysql.com/doc/refman/5.5/en/alter-table.html}.\\
+To sum up, in case the data your data-system needs to store is heterogenous, whereby not all records share the exact same structure and/or the schema will frequently change for a subset or all of the data, \textit{schema-on-read} is an appropriate approach.\\
+
+\textbf{Data Locality}\\
+As \textit{schema-on-read} data is usually represented (\textit{encoded}) as a single document (e.g. JSON or CSV\abk{CSV}{Comma-Separated Values file}\footnote{CSV, a text file that uses a comma to separate values}) or as their binary/serialized counterpart (e.g. Avro\footnote{\cite{AVRO}, https://avro.apache.org/} or ORC\footnote{\cite{ORC}, https://orc.apache.org/}) and your application often needs to access the entire or a large part of the document, there is a huge performance advantage in terms of \textit{storage locality} compared to relational data models, which need to read and join multiple tables (e.g. compare Figure \ref{schema_facebook_relational_model} on page \pageref{schema_facebook_relational_model}) requiring probably more IO (e.g. disk seeks and reads) and CPU time (e.g. join operation).
+But this could also be a pitfall, the advantage only applies if you need a large part of the required document at the same time, as the data-system usually needs to load the whole document, even if you only need one value, which could be vary expensive on large documents. 
+Another disadvantage are updates, as the data-system usually needs to rewrite the whole document, even if you only change one value. As an example, if you update a field in MongoDB, e.g. incrementing a counter:
+\begin{lstlisting}[language=bash,frame=none,numbers=none,xleftmargin=0.05\textwidth,xrightmargin=0.05\textwidth]
+ db.some_collection.update( { _id : ... }, { $inc : { y : 2 } } );
+\end{lstlisting}
+MongoDB is even that optimized, that no rewrite of the whole document is caused. But if you add another field, which causes the document to increase in size, it will no longer fit into the previously allocated space, the whole document needs to be rewritten anyway\footnote{\cite{MDBIP}, https://www.mongodb.com/blog/post/fast-updates-with-mongodb-update-in-place}.\\
+
+
+\textbf{Application Code Simplicity}\\
+Building a data-driven application obviously requires development and therefore application code that handles all interaction with the used data-system. Using a document-oriented data-system, where typically entire documents are loaded and written, usually requires less code within the application itself compared to relational data-systems where several tables need to queried, joined or updated at the same time. But in the same way it's a significant disadvantage of document-oriented data-systems, for instance if you would like to access a nested item within a document, or even the n-th tuple within the nested item, it often requires more code than an appropriate SQL would need. 
+On the other way, just querying one single relational table requires way more code than querying one document, as the relational data model is not a natural fit to the world of object oriented programming languages. You need to write a lot of mappings to map the data to your application objects or use an ORM framework (as previously discusses) which also adds a lot of additional code in terms of libraries to your application. The document-oriented data model is a much more natural fit to objects uses in object-oriented programming languages and require less code to be linked to an objects, especially in the environment of data-intensive web applications, which for instance frequently make use JSON.
+But there are also cases like \textit{many-to-many} relationships where a document-oriented data model will force you to write a lot of code. As we already discussed, document-oriented data-systems usually suffer and performing joins between different collections/entities, it's possible to reduce the need for joins by strictly denormalizing data - suffering all the disadvantages we have already discussed - or by moving the join operation from the data-system to the application code. This will in some way speed things up, but in the other way slow things down, as the application usually will not be as fast as a join within a database. This will also cause additional load on the application side as well as more complexity within the application code itself, as it needs to take care about everything the data-system would usually do.\\
+
+There is no universal answer to the question which data model leads to more or less application code, as it highly dependends on the data itself, kinds of relationships, how the data is usually queried, which operations need to be run on the data-system and many more factors.
+
 
 \subsubsection{Graph Data Model}
 \label{tf_dma_datamodels_gdm}
+
+Lorem Ipsum...
 
 \subsection{Data Access}
 \label{tf_dma_dataaccess}
 
 \subsubsection{SQL}
 \label{tf_dma_dataaccess_sql}
+
+SQL
 
 \subsubsection{MapReduce}
 \label{tf_dma_dataaccess_mr}
