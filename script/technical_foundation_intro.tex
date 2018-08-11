@@ -596,7 +596,7 @@ result = [ ("und", 4), ("ich",2), ("heiße",2), ("an", 2), ("da",1),
 		("herum",1) ]
 \end{lstlisting}
 
-sdf\footnote{\cite{HDPSS}, https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/PluggableShuffleAndPluggableSort.html}
+Now that we know how \textit{Map} and \textit{Reduce} work in Detail, let's have a look at the whole process using the previous example. 
 
 \begin{figure}[ht]
 	\centering
@@ -604,6 +604,34 @@ sdf\footnote{\cite{HDPSS}, https://hadoop.apache.org/docs/stable/hadoop-mapreduc
 	\caption{Schema - MapReduce Phases (Word Count Example)}
 	\label{schema_map_reduce_phases_wordcount}
 \end{figure}
+
+Figure \ref{schema_map_reduce_phases_wordcount} on page \pageref{schema_map_reduce_phases_wordcount} illustrates the whole process required to run MapReduce, usually managed and executed by framework and ressource manager like YARN in case of Apache Hadoop:\\
+\begin{itemize}
+\item \textbf{Input Phase:} Read Input, usually from a distributed file system (e.g. HDFS, GoogleFS or Amazon S3), divide input into parts of appropriate size and generate key/value pairs. As data on a distributed file system is already arranged in blocks (e.g. 128 MB as default per block on Apache Hadoop), the split size of the data passed to each \lstinline{map} process is commonly equal, but can usually be customized within a MapRecude program. For the purpose of simplicity, the example data is to small, whereby documents doesn't need to be split up. 
+\item \textbf{Map Phase:} As already discussed, each \lstinline{map} function gets multiple key/value pairs and processes each of them separately. All Map processes run indepently of each other, faciliating the whole processing to run concurrently on multiple nodes. In our example resulting in to several lists of words with an associated count of one and represented as key/values pairs.
+\item \textbf{Sort\&Shuffle Phase:} Phase in between Map and Reduce with the purpose of transferring data from \lstinline{map} to \lstinline{reduce} processes efficiently, which is usually done automatically by the MapReduce framework. All output produced by the \lstinline{map} processes is grouped and sorted by their key, partioned and distributed to the \lstinline{reduce} processes. A common way of partitioning is to hash the keys and use the hash value \textit{modulo} amount of reduce processes to achieve an evenly distribution of load among all nodes of a cluster (the total number of partitions is equal to the number of reduce processes). Usually you do not need to make use of the frameworks default \textit{Shuffle}, \textit{Sort} and \textit{Partitioning}, for instance using Hadoop you could implement your own ones\footnote{\cite{HDPSS}, https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/PluggableShuffleAndPluggableSort.html}, but as those parts are centerpieces in case of the whole MapReduce performance, think twice about not using the default ones.
+\item \textbf{Reduce Phase:} As already discussed, each \lstinline{reduce} function gets called once for each unique key. All Reduce processes run indepently of each other, faciliating the whole processing to run concurrently on multiple nodes. In this way the \lstinline{reduce} functions iterates through all values associated to a key and produces zero or more output. In case of the WordCount example an increment happens for each value (count) associated to the same key (word).
+\item \textbf{Output Phase:} The output of all \lstinline{reduce} processes are collected and consolidated by the MapRedcue framework and usually written to a distributed file system.\\
+\end{itemize}
+
+Beside the listed phases, most MapReduce frameworks also make use of a phase called \textbf{combiner}, which happens between \textit{Map} phase and \textit{Sort\&Shuffle} phase. The \textit{combiner} is also known as a ``mini-reducer'', it takes the intermediate output of the \lstinline{map} processes - shuffles, sorts and reduces them partly by combining key/value pairs with the same key. In case of our WordCount example (Figure \ref{schema_map_reduce_phases_wordcount} on page \pageref{schema_map_reduce_phases_wordcount}) the output of the first mapper wouldn't be:
+\begin{lstlisting}[aboveskip=2ex, belowskip=2ex,emphstyle=\underbar, breaklines=true,frame=none,numbers=none,xleftmargin=0.05\textwidth,xrightmargin=0.05\textwidth,showstringspaces=false,language=java]
+[ ("da",1), ("steh",1), ("ich",1), ("nun",1), ("ich",1), ("armer",1), ("tor",1) ];
+\end{lstlisting}
+
+but:
+\begin{lstlisting}[aboveskip=2ex, belowskip=2ex,emphstyle=\underbar, breaklines=true,frame=none,numbers=none,xleftmargin=0.05\textwidth,xrightmargin=0.05\textwidth,showstringspaces=false,language=java]
+[ ("da",1), ("steh",1), ("ich",2), ("nun",1), ("armer",1), ("tor",1) ];
+\end{lstlisting}
+
+As we can see, the combiner reduces the intermediate result of the first \lstinline{map} process as it combines both entries for key \textit{``ich''} to one entry and by that the amount of data which needs to be written to disk and/or transferred to and processed by the \lstinline{reduce} processes. This reduces network bandwith usage, reduces network congestion, increases reducers performance and in this way speeds up the whole MapReduce execution time.
+\newpage
+Speaking about performance, MapReduce programs aren't designed for the purpose of being fast, but to handle huge amounts of data in a scalable way, this means amounts of data, that won't fit entirely into the main memory of a single server (in this case, any database will probably be faster than MapReduce). Also most MapReduce frameworks are designed for being able to recover from failure of entire nodes within the cluster, during the execution of a long running MapReduce program. This is achieved by writing intermediate results to the distributed file system, which is I/O expensive and only pays off when the computation involves many computers and a long runtime of the MapReduce program. \\
+The main goal of this model is to only have to write the \lstinline{map} and \lstinline{reduce} functions and to exploit the optimized sort\&shuffle operation. The \textit{Sort\&Shuffle} phase is a crucial part of MapReduce as the partition function and the amount of data produced by the \lstinline{map} function has a huge impact on the overall performance and scalability. When developing a MapReduce program, you need to make a tradeoff between computation and communication costs. For instance: the \textit{reduce} phase needs sorting upfront (grouping and sorting of the \textit{keys}), which has nonlinear complexity. This could imply to make use of small partition sizes to reduce computation time required for sorting, but would also result into a large number of \lstinline{reduce} processes and therefore a lot of time-consuming I/O operations and network congestion.\\
+Also mind that \lstinline{map} and \lstinline{reduce} functions are very pure functions, they are very restricted in what they can do and whot not. Which for instance means they cannot perform additional asynchronous operations like queries to other data systems like databases or APIs, as this wouldn't allow MapReduce to run those functions on any node of a cluster in any order and in this way to \textit{scale horizontally}.\\
+
+As MapReduce is kind of a low-level programming model, it is most likely you will also make use of higher-level APIs and query languages such as Hive, as they will translate your queries into low-level MapReduce operations, without you having to write them. 
+
 
 \subsubsection{SPARQL}
 \label{tf_dma_dataaccess_sparql}
