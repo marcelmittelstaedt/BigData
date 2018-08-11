@@ -517,7 +517,7 @@ Applications written in this paradigm are automatically parallized and executed 
 \end{samepage}
 This enables programmers, without any experience with parallel or distributed systems, at a minimum effort, to easily utilize the computing ressources of distributed data-system and build data-driven applications that are highly scalable. \\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=1ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MapReduce Example - Word Count, label=min_mapreduce, float,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=1ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MapReduce Example - \textit{Word Count}, label=min_mapreduce, float,language=java]
 map(String key, String value):
 	// key: document name
 	// value: document content
@@ -543,7 +543,7 @@ The returns of all \lstinline{reduce} processes are collected as the desired res
 \newpage
 Let's take a deeper look at the previous example and how the paradigm would work in detail, given the documents below:\\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MR Example - \textit{Word Count (Input Documents)}, label=min_mapreduce_documents,language=java]
 document1 = "Da steh ich nun, ich armer Tor!";
 document2 = "Und bin so klug als wie zuvor;";
 document3 = "Heiße Magister, heiße Doktor gar";
@@ -554,7 +554,7 @@ document6 = "Meine Schüler an der Nase herum.";
 
 Which would result into 6 processes executing the \lstinline{map} function (special characters removed ahead as well as converting everything to lower-case to avoid duplicates):\\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MR Example - \textit{Word Count (\lstinline{map()} Calls)}, label=min_mapreduce_documents,language=java]
 map(document1, "da steh ich nun ich armer tor");
 map(document2, "und bin so klug als wie zuvor");
 map(document3, "heiße magister heiße doktor gar");
@@ -565,7 +565,7 @@ map(document6, "meine schüler an der nase herum");
 
 Creating the following partial results:\\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MR Example - \textit{Word Count (Partial \lstinline{map()} Results)}, label=min_mapreduce_documents,language=java]
 p1 = [	("da",1), ("steh",1), ("ich",1), ("nun",1), ("ich",1), 
 				("armer",1), ("tor",1) ];
 p2 = [ ("und",1), ("bin",1), ("so",1), ("klug",1), ("als",1), 
@@ -577,7 +577,7 @@ p6 = [	("meine",1), ("schüler",1), ("an",1), ("der",1), ("nase",1),
 
 Those partial results calculated by the \lstinline{map} processes will be collected (if they have the same key/word) and handled over to the \lstinline{reduce} processes, which summarize the partial results:\\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MR Example - \textit{Word Count (\lstinline{reduce()} Calls)}, label=min_mapreduce_documents,language=java]
 reduce("da", [1]); // = ("da", 1)
 reduce("ich", [1,1]); // = ("ich", 2)
 reduce("und", [1,1,1,1]); // = ("und", 4)
@@ -586,7 +586,7 @@ reduce("und", [1,1,1,1]); // = ("und", 4)
 
 At the end, the desired output could look like:\\
 
-\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false,language=java]
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=MR Example - \textit{Word Count (Final Result)}, label=min_mapreduce_documents,language=java]
 result = [ ("und", 4), ("ich",2), ("heiße",2), ("an", 2), ("da",1), 
 		("steh",1), ("nun",1), ("armer",1), ("tor",1), ("bin",1), ("so",1), 
 		("klug",1). ("als",1), ("wie",1), ("zuvor",1), ("magister",1), 
@@ -596,7 +596,14 @@ result = [ ("und", 4), ("ich",2), ("heiße",2), ("an", 2), ("da",1),
 		("herum",1) ]
 \end{lstlisting}
 
-Lorem Ipsum
+sdf\footnote{\cite{HDPSS}, https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/PluggableShuffleAndPluggableSort.html}
+
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=1\textwidth]{map_reduce_phases_schema.png}
+	\caption{Schema - MapReduce Phases (Word Count Example)}
+	\label{schema_map_reduce_phases_wordcount}
+\end{figure}
 
 \subsubsection{SPARQL}
 \label{tf_dma_dataaccess_sparql}
