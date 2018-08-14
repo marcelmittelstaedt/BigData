@@ -628,7 +628,7 @@ As we can see, the combiner reduces the intermediate result of the first \lstinl
 \newpage
 Speaking about performance, MapReduce programs aren't designed for the purpose of being fast, but to handle huge amounts of data in a scalable way, this means amounts of data, that won't fit entirely into the main memory of a single server (in this case, any database will probably be faster than MapReduce). Also most MapReduce frameworks are designed for being able to recover from failure of entire nodes within the cluster, during the execution of a long running MapReduce program. This is achieved by writing intermediate results to the distributed file system, which is I/O expensive and only pays off when the computation involves many computers and a long runtime of the MapReduce program. \\
 The main goal of this model is to only have to write the \lstinline{map} and \lstinline{reduce} functions and to exploit the optimized sort\&shuffle operation. The \textit{Sort\&Shuffle} phase is a crucial part of MapReduce as the partition function and the amount of data produced by the \lstinline{map} function has a huge impact on the overall performance and scalability. When developing a MapReduce program, you need to make a tradeoff between computation and communication costs. For instance: the \textit{reduce} phase needs sorting upfront (grouping and sorting of the \textit{keys}), which has nonlinear complexity. This could imply to make use of small partition sizes to reduce computation time required for sorting, but would also result into a large number of \lstinline{reduce} processes and therefore a lot of time-consuming I/O operations and network congestion.\\
-Also mind that \lstinline{map} and \lstinline{reduce} functions are very pure functions, they are very restricted in what they can do and whot not. Which for instance means they cannot perform additional asynchronous operations like queries to other data systems like databases or APIs, as this wouldn't allow MapReduce to run those functions on any node of a cluster in any order and in this way to \textit{scale horizontally}.\\
+Also mind that \lstinline{map} and \lstinline{reduce} functions are very pure functions, they are very limited in what they can do and what not. Which for instance means they cannot perform additional asynchronous operations like queries to other data systems like databases or APIs, as this wouldn't allow MapReduce to run those functions on any node of a cluster in any order and in this way to \textit{scale horizontally}.\\
 
 As MapReduce is kind of a low-level programming model, it is most likely you will also make use of higher-level APIs and query languages such as Hive, as they will translate your queries into low-level MapReduce operations, without you having to write them. 
 
@@ -636,22 +636,103 @@ As MapReduce is kind of a low-level programming model, it is most likely you wil
 \subsubsection{SPARQL}
 \label{tf_dma_dataaccess_sparql}
 
+\newpage
+
 \section{Challenges Of Distributed Data Systems}
 \label{tf_dds}
+Einleitungstext XXX
+
+\subsection{Replication}
+\label{tf_dds_replication}
+Replication is the process of continuously copying data (usually via network) from one part of a data-system to one or multiple others and keeping them in-sync. This serves the purpose of, e.g.:
+\begin{itemize}
+\item \textbf{Availability and Redundancy:} Even if some parts or nodes fail the whole data-system is able to continue working, as it can make of another replica.
+\item \textbf{Scalability and Performance:} Using multiple replicas, for instance increases read performance and throughput as read queries can be distributed to any node of a replica set or even be handled concurrently by multiple nodes of the same replica set.
+\item \textbf{Reliability:} Using multiple replicas stored in different data centers and locations, the data-system even continues to run during a catastrophe like an earthquake, typhoon or just a construction worker, having a bad day and cutting of the power link of one of your data centers.Reduce 
+\item \textbf{Low Latency: } Keeping replicas of a data-system geographically close to users or consuming applications reduces latency (e.g. in case of a multi-national webshop, having a replica in every country). \\
+\end{itemize}
+
+But all of those advantages come at a price: keeping data replicated, requires a lot of overhead, especially on non-read queries like inserting, updating or deleting data. If the data set won't change, it's just about copying the data to all replicas but if we need to handle changes for the replicated data it gets difficult. Keeping all replicas in-sync even by using unreliable ressources like network, is a tough thing to to, as there are a lot of potential issues specific to those setups like failed replicas, partial network outages, concurrency and conflicts that need to be taken into consideration.  \\
+We will discuss common approaches (\textit{single-leader}, \textit{multi-leader}, \textit{leaderless}) for replication as well as accompanied challenges within this chapter. For the sake of simplicity we will not think about \textit{partitioning} right now, assume a dataset which fits entirely on a single node and get back to partitioning within the next chapter \ref{tf_dds_partitioning}.
+
+\subsubsection{Single-Leader Replication}
+\label{tf_dds_replication_single_leader}
+Single-Leader Replication is the most simple approach for achieving replication and already used by a lot of relational data-systems, like MySQL\footnote{\cite{MYSQLREP}, https://dev.mysql.com/doc/refman/8.0/en/replication.html} or PostgreSQL\footnote{\cite{PSQLREP}, https://www.postgresql.org/docs/9.6/static/runtime-config-replication.html} but also NoSQL data-systems like MongoDB\footnote{\cite{MDBREP}, https://docs.mongodb.com/manual/replication/} or RethinkDB\footnote{\cite{RDBREP}, https://www.rethinkdb.com/docs/architecture/}.\\
+The Single-Leader replication (also known as \textit{Primary/Secondary} or \textit{Master/Slave} replication) consists of two types of replicas:\\
+\begin{itemize}
+\item \textbf{Leader:} Dedicated processing node, usually also a replica and also known as \textit{primary} or \textit{master}. The leader node serves read as well as write queries, is responsible for persisting changes locally and propagates changes (e.g. by using replication logs or change streams) to follower nodes.
+\item \textbf{Follower:} Follower (also known as \textit{secondary}, \textit{slave} or \textit{hot-standby}) are dedicated for serving read queries only. They receive changes from the leader node and update their local replica accordingly to and in the same order as the replication log provided by the leader.\\
+\end{itemize}
+
+Let's take a look at Figure \ref{schema_replication_sl_read} on page \pageref{schema_replication_sl_read}, which illustrates the communication between every part of the data-system, with regards to the \textit{user}, the \textit{leader} and the \textit{followers} (y-axis) and the time (x-axis). As you can see a user is able to query and receive data from any replica within the replica set, it does not matter wether the node is a \textit{leader} or \textit{follower}, any option is possible.
+
+\begin{figure}[H]
+	\centering
+  \includegraphics[width=0.8\textwidth]{replication_schema_sl_read.png}
+	\caption{Schema - Single-Leader Replication - Read}
+	\label{schema_replication_sl_read}
+\end{figure}
+
+Write operations as shown in Figure \ref{schema_replication_sl_write} are not that easy to handle, as only the \textit{leader} is allowed to process write queries. The leader processes the requests and propagates it afterwords to all followers. When all followers have succeeded in processing the write query, the leader reports success to the user as well as making the data change visible to all other users.
+
+\begin{figure}[H]
+	\centering
+  \includegraphics[width=0.8\textwidth]{replication_schema_sl_write.png}
+	\caption{Schema - Single-Leader Replication - Write}
+	\label{schema_replication_sl_write}
+\end{figure}
+\newpage
+
+This is also calles \textit{synchronous} replication. This is usually configurable using relational databases but could also be hardcoded sometimes. There are 3 kinds of replication:\\
+\begin{itemize}
+\item \textbf{Synchronous:} As illustrated in Figure \ref{schema_replication_sl_write}, using synchronous replication, the leader waits for followers to succeed before reporting success to the user.
+\item \textbf{Semi-Synchronous:} As illustrated in Figrue \ref{schema_replication_sl_synchronous}, using semi-synchronous replication, the leader waits for one replica to report success, before reporting success to the user.
+\item \textbf{Asynchronous:} The leader does not wait for any follower to report success, before reporting success to a user.\\
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_sl_synchronous.png}
+	\caption{Schema - Single-Leader Replication - Synchrony}
+	\label{schema_replication_sl_synchronous}
+\end{figure}
+
+\textbf{Synchronous} replication ensures that all follower have an up-to-date copy of the data that is shared with the leader, which is a great advantage, as any follower could take over if the leader crashs. But this comes at a price: latency and fault tolerance. If there are networks latencies, they will directly affect the write performance, as the leader needs to wait for the follower to finish. If the follower crashs, the leader won't be able to process the write query at all and waits till the replica gets available again. Even if everything is working smoothely, it will still be slower than any other replications type, as followers still add additional processing time to write queries.\\
+As you can see it usually does not make any sense to keep the whole data-system synchronous, as the failure of one node would cause the whole data-system to basically stop working. In practise it's common to make use of \textbf{semi-synchronous} replication, which means one follower is running synchronous to the leader and all other follower are running asynchronous. If the synchronous follower gets slow or crashs, one of the other asynchronous follower takes over and becomes synchronous. In this way it is guaranteed that at least two nodes store a replica which is up-to-date. This approach is much faster than the synchronous one, as one follower response is received much faster than all and probability is high, that at least one follower will be slow.\\
+But there are also data systems which are completely \textbf{asynchronous} and in this way not guaranteed to ensure durability. If the leader crashs and cannot be recovered, any write requests processed but not replicated to followers, are lost. Even this is not widely used, there are cases it makes sense, as the write performance is incredibly fast and the leader can still process requests, even if all followers have failed.
+
+\begin{figure}[H]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_sl_replication_lag.png}
+	\caption{Schema - Single-Leader Replication - Replication Lag}
+	\label{schema_replication_sl_replication_lag}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_sl_monotonic_reads.png}
+	\caption{Schema - Single-Leader Replication - Monotonic Reads}
+	\label{schema_replication_sl_monotonic_reads}
+\end{figure}
+
+\subsubsection{Multi Leader Replication}
+\label{tf_dds_replication_multi_leader}
+Text
+
+\subsubsection{Leaderless Replication}
+\label{tf_dds_replication_leaderless}
+Text
+
+\newpage
+\subsection{Partitioning}
+\label{tf_dds_partitioning}
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-	\subsection{Partitioning}
-	\label{tf_dds_partitioning}
-	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-	\subsection{Replication}
-	\label{tf_dds_replication}
-	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+\subsection{Transactions}
+\label{tf_dds_transactions}
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-	\subsection{Transactions}
-	\label{tf_dds_transactions}
-	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-
-	\subsection{Consistency}
-	\label{tf_dds_consistency}
-	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+\subsection{Consistency}
+\label{tf_dds_consistency}
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
