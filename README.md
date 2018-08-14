@@ -9,9 +9,9 @@ At the end of each lesson, there will be some hands-on exercises, which we will 
 
 ## Materials 
 * [**Script**](https://github.com/marcelmittelstaedt/BigData/tree/master/script/document.pdf)
-* **slides** presented within the lecture (https://github.com/marcelmittelstaedt/BigData/tree/master/slides)
-* **exercises** and **solutions** (https://github.com/marcelmittelstaedt/BigData/tree/master/exercises)
-* **docker images**, **scripts** as well as **sample data sets** (https://github.com/marcelmittelstaedt/BigData/tree/master/script)
+* [**slides**](presented within the lecture (https://github.com/marcelmittelstaedt/BigData/tree/master/slides)
+* [**Exercises**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises) and [**solutions**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises)
+* [**Docker Images**](https://github.com/marcelmittelstaedt/BigData/tree/master/script), [**Scripts**](https://github.com/marcelmittelstaedt/BigData/tree/master/script)) as well as [**Sample Data Sets**](https://github.com/marcelmittelstaedt/BigData/tree/master/script)
 
 
 You can just download everything directly or install git and get everything by using:
