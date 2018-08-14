@@ -8,7 +8,7 @@ At the end, as you know the basic concepts and you are able to setup and work wi
 At the end of each lesson, there will be some hands-on exercises, which we will start together and which have to be  nished till the next week. This lecture will only be about 36 hours in 12 weeks (1 slot each week), which is very little time to cover such an extensive topic. So pay close attention and if you can’t keep up, feel free to ask questions at the end of each lesson.
 
 ## Materials 
-* **the script** [link](https://github.com/marcelmittelstaedt/BigData/tree/master/script/document.pdf)
+* [**Script**] (https://github.com/marcelmittelstaedt/BigData/tree/master/script/document.pdf)
 * **slides** presented within the lecture (https://github.com/marcelmittelstaedt/BigData/tree/master/slides)
 * **exercises** and **solutions** (https://github.com/marcelmittelstaedt/BigData/tree/master/exercises)
 * **docker images**, **scripts** as well as **sample data sets** (https://github.com/marcelmittelstaedt/BigData/tree/master/script)
