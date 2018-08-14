@@ -9,7 +9,7 @@ At the end of each lesson, there will be some hands-on exercises, which we will 
 
 ## Materials 
 * [**Script**](https://github.com/marcelmittelstaedt/BigData/tree/master/script/document.pdf)
-* [**slides**](presented within the lecture (https://github.com/marcelmittelstaedt/BigData/tree/master/slides)
+* [**Slides**](https://github.com/marcelmittelstaedt/BigData/tree/master/slides) presented within the lecture
 * [**Exercises**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises) and [**Solutions**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises)
 * [**Docker Images**](https://github.com/marcelmittelstaedt/BigData/tree/master/script), [**Scripts**](https://github.com/marcelmittelstaedt/BigData/tree/master/script) as well as [**Sample Data Sets**](https://github.com/marcelmittelstaedt/BigData/tree/master/script)
 
