@@ -750,13 +750,58 @@ In a data-system without frequently changing datasets, it is easily done by just
 \subsubsubsection{Outages Of Nodes}
 As we have already spoken about adding new nodes to a cluster, it is also important to speak about the challenge of handling node outages.\\
 
+\textbf{Follower Outage:}\\
+As previously discussed, follower nodes make use of repliation logs to stay in-sync with the leader. Those replication logs and processing state (usually timestamp, number or position of event within replication log) are usually stored on the follower, for instance in case of MongoDB \textit{OpLog} (stored locally in a collection called \lstinline{local.oplog.rs}\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/}) or in case of MySQL relay logs\footnote{\cite{MYSQLRL}, https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html}. If a follower node crashes and gets back up again or recovers from an network issue, it can just start right away where it stopped before the outage occured. It can connect to the leader and request all dataset changes that have happende during the time of outage or which are newer than the last entry of the replication log before the outage. As soon as the new follower successfully processed all missing data changes and is up-to-date, it can start working again like before, processing changes from the leader as they happen.\\
+
+\textbf{Leader Outage:}\\
+Handling an outage of a leader is not that easy, as a \textit{Failover} needs to happen: one of the replica follower nodes needs to be promoted as the new leader, all other follower nodes need to consume the replication log from the new leader and and clients need to send their write requests to the new leader as well. A Failover can be performed manually (e.g. in case of maintenance of the leader node) or automatically, which would require following 3 steps:\\
+
+\begin{enumerate}
+\item \textbf{Determining Leader Failure:} As there are a lot of thing that can potentially go wrong (e.g. network, power-supply or disk outages), data-systems as well as many high-available systems make use of timeouts to identify wether a node has failed. All nodes of a data-system usually send messages (also known as \textit{Heartbeat}) between each other and if a node does not respond within a defined timeframe (e.g. 60 seconds) it is declared dead. \\
+But the timeout approach also has pitfalls, for instance if the outage happened because of heavy network \textit{load}, a failover process will even increase the network load and make the whole situation much worse. This is also a reason some operation teams do not make use of automatic failover.
+\item \textbf{Evaluating New Leader:} There are different approaches to evaluating a new leader, most common the new leader is chosen by the majority of the remaining replica nodes or by a controller node (e.g. an \textit{Arbiter} node in case of MongoDB\footnote{\cite{MDBARB}, https://docs.mongodb.com/manual/core/replica-set-arbiter/}). The best candidate is obviously the one containing the most recent updates from the old leader.\\
+This approach has pitfalls, for instance if the cause of the outage was a network split, leaving nodes in two separate networks, not able to communicate with each other. You could end up in a \textit{split-brain} scenario, where there is a leader in each network, thinking it is the only leader, processing write requests and in this way corrupting all data.
+\item \textbf{Reconfiguration:} As soon as the new leader is elected, all clients need to send their write requests to the new leader and all followers need to receive their replication log from the new leader as well. If the old leader gets back up again, it needs to be ensured it recognizes the new leader and will become a follower.
+\end{enumerate}
 
 \subsubsubsection{Types Of Replication Logs}
-As we have already 
+As we have already spoken a lot about replication logs, let's discuss 3 of the most common approaches:\\
+
+\textbf{Statement-Based:}\\
+Statement-based replication is the most simple approach, the leader processes and afterwards adds every write request (e.g. \lstinline{INSERT}, \lstinline{UPDATE} or \lstinline{DELETE} statements in case of a relational data model) to the replication log. Those statements are later on executed by all replica follower nodes (like the leader did). This approach has some pitfalls as you can guess:\\
+\begin{itemize}
+\item How to handle non-deterministic functions within a write request (like \lstinline{RAND()}, \lstinline{USER()} or \lstinline{NOW()} used in an SQL query) or external functions like StoredProcedures, Triggers or user-defined functions?\\
+The leader node would need to replace those non-deterministic functions with deterministic values (like the return value of the called function).
+\item What if statements depend on other data, like in an \lstinline{UPDATE ... WHERE ...} statement. \\
+This requires all statements to be executed within the exact same order, otherwise they will end up in different results.\\
+\end{itemize}
+As there are a lot more potential issues that need to be taken care of, today most data-systems make use of other replication log types. For instance MySQL previously made use of statement-based replication but switched to logical (row-based) replication\footnote{\cite{MYSQLRF}, https://dev.mysql.com/doc/refman/8.0/en/replication-formats.html}. But MySQL also still supports a mixed approach\footnote{\cite{MYSQLMR}, https://dev.mysql.com/doc/refman/8.0/en/binary-log-mixed.html}, which (depending of the statement) dynamically decides whether to use statement- or row-based replication. This serves the purpose of still getting the advantages of statement-based replication, like less data that needs to be written to the replication logs, which increases overall performance, especially restoring data from backups/snapshots is done more quickly.\\
+
+\textbf{WAL (Write-Ahead-Log):}\\
+Using the write-ahead-log approach, the leader logs all IO data changes to a WAL (e.g. (re-)writes of disk blocks, appends to files, etc.), writes the WAL to disk and sends it to all followers. When a follower processes this log file, it builds an exact same copy of the data structures as found at the leader.\\
+Using WAL results in significantly reduced IO (disk writes), because only the log file needs to be flushed to disk to guarantee that a transaction is committed, rather than every statement or data file changed by the transaction. The main disadvantage of this approach is the dependence to the used storage engine, as the WAL is very low-level and defines which byte has changed within which disk block. This makes it impossible to run different versions of a data-system or storage engine on leader and follower nodes and also increases complexity of maintenance tasks, especially rolling-upgrades of single nodes within a data-system are not possible any more, making downtimes inevitable.\\
+Write-Ahead-Logs are for instance used by data-systems like ArangoDB\footnote{\cite{ARANGOWAL}, https://docs.arangodb.com/3.3/Manual/Architecture/WriteAheadLog.html} or PostgreSQL\footnote{\cite{PSQLWAL}, https://www.postgresql.org/docs/9.6/static/wal-intro.html}.\\
+
+
+\textbf{Logical Log Replication:}\\
+Another approach for replication logs is logical (row-based) replication and unlike WAL it is decoupled from the storage engine. In case of a relational data-system a logical replication log contains records describing changes of a dataset in a row-based way:\\
+\begin{itemize}
+\item \textbf{INSERT:} The log contains one record with all values for each inserted row.
+\item \textbf{UPDATE:} The log contains one record for each updated row as well as all new values and an information to uniquely identify the updated row (e.g. primary key).
+\item \textbf{DELETE:} The log contains one record for each row to be deleted as well as information to uniquely identify the row to be deleted (e.g. primary key).\\
+\end{itemize}
+
+As this approach is decoupled from the underlying storage engine (unlike WAL), it is impossible to run different versions of the data-system or storage engine on leader and follower nodes and in this way to do rolling-upgrades without the data-system having any downtime.
 
 \subsubsection{Multi Leader Replication}
 \label{tf_dds_replication_multi_leader}
-Text
+Einleitungstext ...
+
+
+\subsubsubsection{Conflicts}
+
+\subsubsubsection{Topologies}
+
 
 \subsubsection{Leaderless Replication}
 \label{tf_dds_replication_leaderless}
