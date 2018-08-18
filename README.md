@@ -31,7 +31,7 @@ If you  find any mistakes or misspellings feel free to send me a mail (contact@m
 * **Co-Founder**, DataWhizz, [www.datawhizz.io](http://www.datawhizz.io/)
 * **University Lecturer**, Cooperative State University Baden-Wuerttemberg, [www.dhbw.de](http://www.dhbw.de/)
 
-**Contact**
+**Contact:**
 * contact@marcel-mittelstaedt.com
 * [www.marcel-mittelstaedt.com](http://www.marcel-mittelstaedt.com/)
 
