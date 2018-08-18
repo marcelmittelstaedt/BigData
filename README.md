@@ -26,11 +26,11 @@ git pull
 If you  find any mistakes or misspellings feel free to send me a mail (contact@marcel-mittelstaedt.com) or if you are able to, commit a push request.
 
 ## Author
-Marcel Mittelstädt
+**Marcel Mittelstädt**
 
-* Head of Data Architecture and Development, ProSiebenSat.1 Media SE, [www.prosiebensat1.com](https://www.prosiebensat1.com/)
-* Co-Founder, DataWhizz, [www.datawhizz.io](http://www.datawhizz.io/)
-* University Lecturer, Cooperative State University Baden-Wuerttemberg, [www.dhbw.de](http://www.dhbw.de/)
+* **Head of Data Architecture and Development**, ProSiebenSat.1 Media SE, [www.prosiebensat1.com](https://www.prosiebensat1.com/)
+* **Co-Founder**, DataWhizz, [www.datawhizz.io](http://www.datawhizz.io/)
+* **University Lecturer**, Cooperative State University Baden-Wuerttemberg, [www.dhbw.de](http://www.dhbw.de/)
 
 contact@marcel-mittelstaedt.com
 
