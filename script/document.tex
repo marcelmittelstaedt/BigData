@@ -76,6 +76,7 @@
 \renewcommand{\nomlabel}[1]{#1 \dotfill}
 \setlength{\nomitemsep}{-\parsep}
 \makenomenclature
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
 % makeindex hauptdatei.nlo -s nomencl.ist -o hauptdatei.nls erst Latex dan Konsole dann Latex
 
 \renewcommand\lstlistingname{Code Snippet}
@@ -148,7 +149,7 @@ captionpos=b%
 
 \newpage
 \include{preface}
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{4}
 \tableofcontents % Inhaltsverzeichnis
 
 
@@ -159,7 +160,7 @@ captionpos=b%
 
 \pagenumbering{arabic}
 \setcounter{table}{1}
-\setcounter{secnumdepth}{3}
+\setcounter{secnumdepth}{4}
 \pagestyle{fancy}
 \fancypagestyle{plainn}
 {
