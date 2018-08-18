@@ -791,18 +791,104 @@ Another approach for replication logs is logical (row-based) replication and unl
 \item \textbf{DELETE:} The log contains one record for each row to be deleted as well as information to uniquely identify the row to be deleted (e.g. primary key).\\
 \end{itemize}
 
-As this approach is decoupled from the underlying storage engine (unlike WAL), it is impossible to run different versions of the data-system or storage engine on leader and follower nodes and in this way to do rolling-upgrades without the data-system having any downtime.
+As this approach is decoupled from the underlying storage engine (unlike WAL), it is impossible to run different versions of the data-system or storage engine on leader and follower nodes and in this way to do rolling-upgrades without the data-system having any downtime.\\
 
+Let's take a look at an example using MongoDB. At first we switch to our desired collection (\lstinline{user}) on database \lstinline{test}, then we insert a new document containing \lstinline{user_id:1} and afterwords extending the same document by the value \lstinline{married_to:4711}:
+
+\begin{lstlisting}[aboveskip=2ex, belowskip=2ex,emphstyle=\underbar, breaklines=true,frame=none,numbers=none,xleftmargin=0.01\textwidth,xrightmargin=0.01\textwidth,showstringspaces=false,language=java]
+$ use test
+ switched to db test
+$ db.user.insert({user_id:1})
+$ db.user.update({user_id:1}, {$set : {married_to:4711}})
+\end{lstlisting}
+
+This would lead to following replication log entries within MongoDB \textit{Oplog} (\lstinline{local.oplog.rs} collection):
+\begin{lstlisting}[aboveskip=2ex, belowskip=2ex,emphstyle=\underbar, breaklines=true,frame=none,numbers=none,xleftmargin=0.01\textwidth,xrightmargin=0.01\textwidth,showstringspaces=false,language=java]
+$ use local
+switched to db local
+$ db.oplog.rs.find()
+{ 	
+	"ts" : { "t" : 1534616696000, "i" : 1 }, 
+	"h" : NumberLong("1342870845645633201"), 
+	"op" : "i", 
+	"ns" : "test.user", 
+	"o" : { 
+		"_id" : ObjectId("4cb35859543cc1f4f9f7f85d"), 
+		"user_id" : 1 
+	} 
+}
+{ 	
+	"ts" : { "t" : 1534616699000, "i" : 1 }, 
+	"h" : NumberLong("1233487572903545434"), 
+	"op" : "u", 
+	"ns" : "test.user", 
+	"o2" : {
+	 	"_id" : ObjectId("4cb35859543cc1f4f9f7f85d") 
+	}, 
+  	"o" : { 
+  		"$set" : { "married_to" : 4711 } 
+  	} 
+}
+\end{lstlisting}
+
+Whereas: 
+\begin{itemize}
+\item \textbf{\lstinline{ts}} is the timestamp, when the operation occured.
+\item \textbf{\lstinline{h}} is a unique ID of the operation. Each operation has a different value within this field.
+\item \textbf{\lstinline{op}} indicates the operation to be done. (i = insert, u = update, d = delete)
+\item \textbf{\lstinline{ns}} defines the database and collection affected by this operation (in our case database \lstinline{test} and collection \lstinline{user})
+\item \textbf{\lstinline{o/o2}} the operation to do or in case of an insert (\lstinline{o2}) the document affected by the operation (using the docuent id).\\
+\end{itemize}
+
+If we would update multiple rows at once, MongoDB would create an entry for each row affected within the Oplog replication log.
+
+\newpage
 \subsubsection{Multi Leader Replication}
 \label{tf_dds_replication_multi_leader}
-Einleitungstext ...
+As we have discussed Leader-based replication within the last chapter we have already noticed the biggest weakness: we have only one leader. All write requests must go through it (strongly limiting write \textit{scalability}) and if the leader is suffering a network outage, we are not able to process write requests anyhow. A multi-leader replication  mitigates those issues, as it allows multiple (leader) nodes to accept write requests. The basic replication idea of \textit{leader} and \textit{follower} nodes stays the same: each leader processing write requests needs to propagate those changes to all followers as well as each leader acts as a follower to the other leader nodes. The multi-leader replication is also known as \textit{Multi-Master}, \textit{Active/Active} or \textit{Master/Master} replication.
 
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_ml_replication.png}
+	\caption{Schema - Multi-Leader Replication Example}
+	\label{schema_replication_ml_replication}
+\end{figure}
+
+Figure \ref{schema_replication_ml_replication} illustrates an example of multi-leader replication setup. As you can see there are multiple leaders, which are able to process read requests as well as multiple follower nodes which serve the purpose of processing read requests. Using this approach approach we are able to achieve a better write \textit{performance} (\textit{horizontal scalability}) as multiple nodes are able serve read requests. In the same way the whole data-system is way more \textit{fault-tolerant} as if a single leader node suffers an outage there are still other leader nodes available for serving write requests (while another follower node is already in the process of being elected, replicating and replacing the old leader node).\\
+Implementations of multi-leader replication can be found at CouchDB\footnote{\cite{CDBMM}, http://docs.couchdb.org/en/2.1.2/replication/intro.html}, PostgreSQL (using BDR\abk{BDR}{Bi-Directional Replication}\footnote{\cite{PSQLBDR}, https://www.2ndquadrant.com/en/resources/postgres-bdr-2ndquadrant/}) or MySQL (using Tungsten Replicator\footnote{\cite{TNGSTNREP}, https://github.com/continuent/tungsten-replicator} or MYSQL native multi-source implementation, which is very limited and does not even provide any conflict detection or resolution\footnote{\cite{MYSQLMS}, https://dev.mysql.com/doc/refman/5.7/en/replication-multi-source-overview.html}).\\
+As also illustrated in Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication} a multi-leader is a perfect match for setting up data-systems on multiple data-centers and getting data for read as well as write requests geographically close to users and consumer applications. But there is also a big downside using multi-leader setups, as multiple nodes are able to process write requests we need to think about conflicting write requests involving the same dataset to be changed within the same time. We will discuss this within the next chapter.
 
 \subsubsubsection{Conflicts}
+Write conflicts within multi-leader setups happen if the same dataset is being edited in parallel using multiple leader nodes. Imagine editing the same line of a document within Google Docs simultanously: user 1 is working on a leader node based in Frankfurt and user 2 is working on a leader node in Berlin. Each write gets processed successfully on each leader but later at the asynchronous replication between the two leader nodes a conflict will arise. This won't happen if you are using a single-leader replication. One could think about making the write requests and conflict detection synchronous, but this would be foolish as you would abandon the main benefit of multi-leader replication: \textit{horizontal} write \textit{scalability}, as multiple nodes are able to process write requests. But how to handle write conflicts?\\
+Well the best approach would be to avoid those conflicts, for instance this could be done by the application using the data-system. Thinking about our Google Docs example: if the application would ensure that both users are pushing their write requests to the same leader, write conflicts will no longer occur.\\
+But what if the application is not able to prevent those write conflicts? Let's dicsuss some common approaches for conflict resolution:\\
+
+\begin{itemize}
+\item \textbf{LWW:} as each operation has a unique ID, timestamp or both one could think about only accepting the most recent operation (Last-Write-Wins). It is important to notice that this approach is highly vulnerable to \textbf{data loss}.
+\item \textbf{Merge:} merge values of multiple updates together (e.g. alphabetically or in order of appearance).
+\item \textbf{Application Managed:} persist the conflict in a way, that it preserves all information without loss and let the application, using the data-system, or rather the user of the application take care about it later on (e.g. implemented by SVN\footnote{\cite{SVNWS}, https://subversion.apache.org/} or Git\footnote{\cite{GITWS}, https://git-scm.com/})
+\end{itemize}
+
 
 \subsubsubsection{Topologies}
+If you think again about the example at the beginning of this chapter (Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication}) the replication topology of all leader nodes is really straight forward as there are only two leader nodes, which need to talk with each other. But what about setups of far more leader nodes?
+Figure \ref{schema_replication_ml_topologies} on page \pageref{schema_replication_ml_topologies} illustrates the most common approaches:\\
+\begin{itemize}
+\item \textbf{Star Topology:} one designated node acts as the single point of communication and forwards all write requests to all nodes.
+\item \textbf{Circle Topology:} every node receives write operations from one node and forwards it to another node, adding its own write operations at the same time.
+\item \textbf{All-To-All Topology:} every node sends it write operations to all other nodes.\\
+\end{itemize} 
 
+One issue regarding \textit{circular topology} and \textit{star topology} is, if just one node fails (in case of the star topology the center node), the whole process of leader node replication is interrupted. This would not happen using \textit{all-to-all topology}. But \textit{all-to-all topology} is also vulnerable to network latencies and issues, it is not very unlikely that some write requests will overtake others in time, which requires a lot more effort in terms of conflict handling.
 
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_ml_topologies.png}
+	\caption{Schema - Multi-Leader Replication Topologies}
+	\label{schema_replication_ml_topologies}
+\end{figure}
+
+\newpage
 \subsubsection{Leaderless Replication}
 \label{tf_dds_replication_leaderless}
 Text
