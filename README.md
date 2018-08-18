@@ -27,12 +27,11 @@ If you  find any mistakes or misspellings feel free to send me a mail (contact@m
 
 ## Author
 **Marcel Mittelstädt**
-
 * **Head of Data Architecture and Development**, ProSiebenSat.1 Media SE, [www.prosiebensat1.com](https://www.prosiebensat1.com/)
 * **Co-Founder**, DataWhizz, [www.datawhizz.io](http://www.datawhizz.io/)
 * **University Lecturer**, Cooperative State University Baden-Wuerttemberg, [www.dhbw.de](http://www.dhbw.de/)
 
-contact@marcel-mittelstaedt.com
-
-www.marcel-mittelstaedt.com
+**Contact**
+* contact@marcel-mittelstaedt.com
+* [www.marcel-mittelstaedt.com](http://www.marcel-mittelstaedt.com/)
 
