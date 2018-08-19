@@ -891,7 +891,35 @@ One issue regarding \textit{circular topology} and \textit{star topology} is, if
 \newpage
 \subsubsection{Leaderless Replication}
 \label{tf_dds_replication_leaderless}
-Text
+Within the last wo chapters we have discussed (Single-/Multi-) Leader-based replication, in which all write requests of users or consumer applications must go trough one or multiple dedicated leader nodes. The leader node will take care about propagating all changes regarding the dataset to all follower nodes. Let's take a look at another approach without any dedicated leader node. \\
+The basic idea of \textit{leaderless replication} (alos known as \textit{masterless replication}), like illustrated in Figure \ref{schema_replication_ll}, is that there is no special kind of nodes - any node will not only accept read but also write requests from clients. This approach also works very well on multiple datacenter, with respect to reasonable quorum configuration, but we will talk about that later.
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_ll.png}
+	\caption{Schema - Leaderless Replication Example}
+	\label{schema_replication_ll}
+\end{figure}
+
+Using leaderless replication, clients can actual be users/consumer applications but also a \textit{controller node} in between user/consumer application and the data-system, which acts as a proxy and takes care of routing requests.\\
+For instance Cassandra makes use of an approach called \textit{coordinator} as a controller node\footnote{\cite{CASAR}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html}. Read or write requests of clients can be sent to any node within a cluster. The node receiving a request serves as the coordinator for the particular client operation. The coordinator determines which nodes within the cluster should process the request based on how the cluster is configured and which \textit{quorum} is used.\\
+Data-systems using the leaderless replication approach are usually able to achieve a better write \textit{performance} and \textit{horizontal scalability} as any node is able to serve write requests. In the same way the whole data-system is way more robust and \textit{fault-tolerant} than leader-based approaches, as there is no \textit{single-point-of-failure} (leader nodes), as multiple nodes can fail without causing the data-system being unable to serve write requests. A \textit{failover} process is not required at all, as there is no leader to failover. But this comes at a price: \\
+\begin{itemize}
+\item The client or rather the application using the data-system needs to handle a lot of tasks a leader node would usually take care of (quorum, consistency and conflict resolution)
+\item Initial setup costs, as you need at least 3 nodes for a quorum to be able to ensure consistency and availability.
+\item Application code complexity, as leaderless data-systems usually dont provide sophisticated querying engines or basic features like referential integrity, ACID\abk{ACID}{Atomicity, Consistency, Isolation, Durability}\footnote{\cite{ACID}, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties of database transactions intended to guarantee validity even in the event of failures (network issues, hardware failures etc.}, which would cause you to take care about that within your application code.
+\item Almost any leaderless data-system is a key/value store providing all advantages but also disadvantages and limitations of a key/value data system.\\
+\end{itemize}
+Lorem
+
+\subsubsubsection{Quorums}
+Lorem ipsum...
+
+\subsubsubsection{Limitations of Quorums}
+Lorem ipsum...
+
+\subsubsubsection{Concurrent Writes}
+Lorem ipsum...
 
 \newpage
 \subsection{Partitioning}
