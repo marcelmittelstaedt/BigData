@@ -60,7 +60,7 @@ If you take a look at Figure \ref{schema_ebay_architecture_1997_1999} on page \p
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=0.4\textwidth]{ebay_architecture_199799.png}
-	\caption{Schema - Architecture Ebay.com 1997-1999}
+	\caption{Schema - Architecture Ebay.com (1997-1999)}
 	\label{schema_ebay_architecture_1997_1999}
 \end{figure}
 As you can already guess, this architecture won't scale very well today, in fact the only way to scale this application was to upgrade the single server (\textit{scale up vertically}), in case of ebay.com they once switched from commodity hardware to a very pricey mainframe server (Sun Enterprise E10000\footnote{\cite{EBAYA}, slide 11}) to buy some time. But as you may have noticed there are much more ovious issues, e.g. if you think about:
@@ -139,7 +139,7 @@ To get an idea what \textit{load} of a data system actually means, how it could 
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=0.4\textwidth]{Ebay_2002.png}
-	\caption{Schema - Architecture Ebay.com April 2001 - December 2002}
+	\caption{Schema - Architecture Ebay.com April (2001 - December 2002)}
 	\label{schema_ebay_2002}
 \end{figure}
 
@@ -200,7 +200,7 @@ Therfore it is common to use an average for measuring throughput or response tim
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=1\textwidth]{mean_average_percentile_plot.png}
-	\caption{Schema - Arithmetic Mean, Median and Percentiles Example}
+	\caption{Schema - Arithmetic Mean, Median and Percentiles - Example}
 	\label{schema_mean_average_percentile_plot}
 \end{figure}
 
@@ -382,7 +382,7 @@ People may have worked for different companies (table \lstinline{companies}), li
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=1\textwidth]{relational_model_zuckerberg.png}
-	\caption{Schema - Facebook Profile As Relational Model}
+	\caption{Schema - Facebook Profile - As Relational Model}
 	\label{schema_facebook_relational_model}
 \end{figure}
 
@@ -456,7 +456,7 @@ Let's take a another look at the example in Figure \ref{schema_facebook_document
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=1\textwidth]{document_oriented_data_model_zuckerberg.png}
-	\caption{Schema - Facebook Profile As Document Oriented Model}
+	\caption{Schema - Facebook Profile - As Document Oriented Model}
 	\label{schema_facebook_document_oriented_model}
 \end{figure}
 
@@ -601,7 +601,7 @@ Now that we know how \textit{Map} and \textit{Reduce} work in Detail, let's have
 \begin{figure}[ht]
 	\centering
   \includegraphics[width=1\textwidth]{map_reduce_phases_schema.png}
-	\caption{Schema - MapReduce Phases (Word Count Example)}
+	\caption{Schema - MapReduce Phases - Word Count Example}
 	\label{schema_map_reduce_phases_wordcount}
 \end{figure}
 
@@ -653,133 +653,133 @@ Replication is the process of continuously copying data (usually via network) fr
 \end{itemize}
 
 But all of those advantages come at a price: keeping data replicated, requires a lot of overhead, especially on non-read queries like inserting, updating or deleting data. If the data set won't change, it's just about copying the data to all replicas but if we need to handle changes for the replicated data it gets difficult. Keeping all replicas in-sync even by using unreliable ressources like network, is a tough thing to to, as there are a lot of potential issues specific to those setups like failed replicas, partial network outages, concurrency and conflicts that need to be taken into consideration.  \\
-We will discuss common approaches (\textit{single-leader}, \textit{multi-leader}, \textit{leaderless}) for replication as well as accompanied challenges within this chapter. For the sake of simplicity we will not think about \textit{partitioning} right now, assume a dataset which fits entirely on a single node and get back to partitioning within the next chapter \ref{tf_dds_partitioning}.
+We will discuss common approaches (\textit{master}, \textit{multi-master}, \textit{masterless}) for replication as well as accompanied challenges within this chapter. For the sake of simplicity we will not think about \textit{partitioning} right now, assume a dataset which fits entirely on a single node and get back to partitioning within the next chapter \ref{tf_dds_partitioning}.
 
-\subsubsection{Single-Leader Replication}
-\label{tf_dds_replication_single_leader}
-Single-Leader Replication is the most simple approach for achieving replication and already used by a lot of relational data-systems, like MySQL\footnote{\cite{MYSQLREP}, https://dev.mysql.com/doc/refman/8.0/en/replication.html} or PostgreSQL\footnote{\cite{PSQLREP}, https://www.postgresql.org/docs/9.6/static/runtime-config-replication.html} but also NoSQL data-systems like MongoDB\footnote{\cite{MDBREP}, https://docs.mongodb.com/manual/replication/} or RethinkDB\footnote{\cite{RDBREP}, https://www.rethinkdb.com/docs/architecture/}.\\
-The Single-Leader replication (also known as \textit{Primary/Secondary} or \textit{Master/Slave} replication) consists of two types of replicas:\\
+\subsubsection{Master Replication}
+\label{tf_dds_replication_master}
+Master Replication is the most simple approach for achieving replication and already used by a lot of relational data-systems, like MySQL\footnote{\cite{MYSQLREP}, https://dev.mysql.com/doc/refman/8.0/en/replication.html} or PostgreSQL\footnote{\cite{PSQLREP}, https://www.postgresql.org/docs/9.6/static/runtime-config-replication.html} but also NoSQL data-systems like MongoDB\footnote{\cite{MDBREP}, https://docs.mongodb.com/manual/replication/} or RethinkDB\footnote{\cite{RDBREP}, https://www.rethinkdb.com/docs/architecture/}.\\
+The Master replication (also known as \textit{Primary/Secondary}, \textit{Master/Slave} or \textit{Single-Leader} replication) consists of two types of replicas:\\
 \begin{itemize}
-\item \textbf{Leader:} Dedicated processing node, usually also a replica and also known as \textit{primary} or \textit{master}. The leader node serves read as well as write queries, is responsible for persisting changes locally and propagates changes (e.g. by using replication logs or change streams) to follower nodes.
-\item \textbf{Follower:} Follower (also known as \textit{secondary}, \textit{slave} or \textit{hot-standby}) are dedicated for serving read queries only. They receive changes from the leader node and update their local replica accordingly to and in the same order as the replication log provided by the leader.\\
+\item \textbf{Master:} Dedicated processing node, usually also a replica and also known as \textit{primary} or \textit{leader}. The master node serves read as well as write queries, is responsible for persisting changes locally and propagates changes (e.g. by using replication logs or change streams) to slave nodes.
+\item \textbf{Slave:} Slave (also known as \textit{secondary}, \textit{follower} or \textit{hot-standby}) are dedicated for serving read queries only. They receive changes from the master node and update their local replica accordingly to and in the same order as the replication log provided by the master.\\
 \end{itemize}
 
-Let's take a look at Figure \ref{schema_replication_sl_read} on page \pageref{schema_replication_sl_read}, which illustrates the communication between every part of the data-system, with regards to the \textit{user}, the \textit{leader} and the \textit{followers} (y-axis) and the time (x-axis). As you can see a user is able to query and receive data from any replica within the replica set, it does not matter wether the node is a \textit{leader} or \textit{follower}, any option is possible.
+Let's take a look at Figure \ref{schema_replication_sl_read} on page \pageref{schema_replication_sl_read}, which illustrates the communication between every part of the data-system, with regards to the \textit{user}, the \textit{master} and the \textit{slaves} (y-axis) and the time (x-axis). As you can see a user is able to query and receive data from any replica within the replica set, it does not matter wether the node is a \textit{master} or \textit{slave}, any option is possible.
 
 \begin{figure}[H]
 	\centering
   \includegraphics[width=0.8\textwidth]{replication_schema_sl_read.png}
-	\caption{Schema - Single-Leader Replication - Read}
+	\caption{Schema - Master Replication - Read}
 	\label{schema_replication_sl_read}
 \end{figure}
 
-Write operations as shown in Figure \ref{schema_replication_sl_write} are not that easy to handle, as only the \textit{leader} is allowed to process write queries. The leader processes the requests and propagates it afterwords to all followers. When all followers have succeeded in processing the write query, the leader reports success to the user as well as making the data change visible to all other users.
+Write operations as shown in Figure \ref{schema_replication_sl_write} are not that easy to handle, as only the \textit{master} is allowed to process write queries. The master processes the requests and propagates it afterwords to all slaves. When all slaves have succeeded in processing the write query, the master reports success to the user as well as making the data change visible to all other users.
 
 \begin{figure}[H]
 	\centering
   \includegraphics[width=0.8\textwidth]{replication_schema_sl_write.png}
-	\caption{Schema - Single-Leader Replication - Write}
+	\caption{Schema - Master Replication - Write}
 	\label{schema_replication_sl_write}
 \end{figure}
 \newpage
 
 This is also calles \textit{synchronous} replication. This is usually configurable using relational databases but could also be hardcoded sometimes. There are 3 kinds of replication:\\
 \begin{itemize}
-\item \textbf{Synchronous:} As illustrated in Figure \ref{schema_replication_sl_write}, using synchronous replication, the leader waits for followers to succeed before reporting success to the user.
-\item \textbf{Semi-Synchronous:} As illustrated in Figrue \ref{schema_replication_sl_synchronous}, using semi-synchronous replication, the leader waits for one replica to report success, before reporting success to the user.
-\item \textbf{Asynchronous:} The leader does not wait for any follower to report success, before reporting success to a user.\\
+\item \textbf{Synchronous:} As illustrated in Figure \ref{schema_replication_sl_write}, using synchronous replication, the master waits for slaves to succeed before reporting success to the user.
+\item \textbf{Semi-Synchronous:} As illustrated in Figrue \ref{schema_replication_sl_synchronous}, using semi-synchronous replication, the master waits for one replica to report success, before reporting success to the user.
+\item \textbf{Asynchronous:} The master does not wait for any slaves to report success, before reporting success to a user.\\
 \end{itemize}
 
 \begin{figure}[H]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_sl_synchronous.png}
-	\caption{Schema - Single-Leader Replication - Synchrony}
+	\caption{Schema - Master Replication - Synchrony}
 	\label{schema_replication_sl_synchronous}
 \end{figure}
 
-\textbf{Synchronous} replication ensures that all follower have an up-to-date copy of the data that is shared with the leader, which is a great advantage, as any follower could take over if the leader crashs. But this comes at a price: latency and fault tolerance. If there are networks latencies, they will directly affect the write performance, as the leader needs to wait for the follower to finish. If the follower crashs, the leader won't be able to process the write query at all and waits till the replica gets available again. Even if everything is working smoothely, it will still be slower than any other replications type, as followers still add additional processing time to write queries.\\
-As you can see it usually does not make any sense to keep the whole data-system synchronous, as the failure of one node would cause the whole data-system to basically stop working. In practise it's common to make use of \textbf{semi-synchronous} replication, which means one follower is running synchronous to the leader and all other follower are running asynchronous. If the synchronous follower gets slow or crashs, one of the other asynchronous follower takes over and becomes synchronous. In this way it is guaranteed that at least two nodes store a replica which is up-to-date. This approach is much faster than the synchronous one, as one follower response is received much faster than all and probability is high, that at least one follower will be slow.\\
-But there are also data systems which are completely \textbf{asynchronous} and in this way not guaranteed to ensure durability. If the leader crashs and cannot be recovered, any write requests processed but not replicated to followers, are lost. Even this is not widely used, there are cases it makes sense, as the write performance is incredibly fast and the leader can still process requests, even if all followers have failed.\\
+\textbf{Synchronous} replication ensures that all slaves have an up-to-date copy of the data that is shared with the master, which is a great advantage, as any slaves could take over if the master crashs. But this comes at a price: latency and fault tolerance. If there are networks latencies, they will directly affect the write performance, as the master needs to wait for the slaves to finish. If a slave crashs, the master won't be able to process the write query at all and waits till the replica gets available again. Even if everything is working smoothely, it will still be slower than any other replications type, as slaves still add additional processing time to write queries.\\
+As you can see it usually does not make any sense to keep the whole data-system synchronous, as the failure of one node would cause the whole data-system to basically stop working. In practise it's common to make use of \textbf{semi-synchronous} replication, which means one slave is running synchronous to the master and all other slaves are running asynchronous. If the synchronous slave gets slow or crashs, one of the other asynchronous slave takes over and becomes synchronous. In this way it is guaranteed that at least two nodes store a replica which is up-to-date. This approach is much faster than the synchronous one, as one slave response is received much faster than all and probability is high, that at least one slave will be slow.\\
+But there are also data systems which are completely \textbf{asynchronous} and in this way not guaranteed to ensure durability. If the master crashs and cannot be recovered, any write requests processed but not replicated to slaves, are lost. Even this is not widely used, there are cases it makes sense, as the write performance is incredibly fast and the master can still process requests, even if all slaves have failed.\\
 
-As already spoken about \textit{performance} and \textit{scalability} at the beginning of the chapter, \textit{semi-synchronous} or \textit{asynchronous} replication is for instance a great match for achieving scalability of read-intensive data-systems. As you can distribute all read requests across multiple nodes, just by adding more \textit{follower} nodes to the data-system, which are able to serve more read requests than a single node could handle. Beside that, getting all the benefits of data locality (like reduced \textit{latency}) comes for ``free'', as you just need to put the follower nodes geographically close to your users and consumer applications. \\
-Remember it's quite unlikely a setup like this would work reliable with a data-system using \textit{synchronous} replication, as a network issue or single node failure would cause the whole data-system to be unavailable for write operations (as all writes need to be propagated to and acknowledged by every node within the data-system). Thats why most single-leader data-systems make use of asynchronous replication, for instance MongoDB\footnote{\cite{MDBASYNC}, https://docs.mongodb.com/manual/core/replica-set-sync/} or MySQL\footnote{\cite{MYSQLASYNC}, https://dev.mysql.com/doc/refman/8.0/en/replication.html}.\\
+As already spoken about \textit{performance} and \textit{scalability} at the beginning of the chapter, \textit{semi-synchronous} or \textit{asynchronous} replication is for instance a great match for achieving scalability of read-intensive data-systems. As you can distribute all read requests across multiple nodes, just by adding more \textit{slaves} nodes to the data-system, which are able to serve more read requests than a single node could handle. Beside that, getting all the benefits of data locality (like reduced \textit{latency}) comes for ``free'', as you just need to put the slave nodes geographically close to your users and consumer applications. \\
+Remember it's quite unlikely a setup like this would work reliable with a data-system using \textit{synchronous} replication, as a network issue or single node failure would cause the whole data-system to be unavailable for write operations (as all writes need to be propagated to and acknowledged by every node within the data-system). Thats why most Master data-systems make use of asynchronous replication, for instance MongoDB\footnote{\cite{MDBASYNC}, https://docs.mongodb.com/manual/core/replica-set-sync/} or MySQL\footnote{\cite{MYSQLASYNC}, https://dev.mysql.com/doc/refman/8.0/en/replication.html}.\\
 
-As you can guess, if the replication is done asynchronously, there will be a certain timeframe (\textbf{replication lag}, see Figure \ref{schema_replication_sl_replication_lag}) when the leader and it's follower will be \textit{inconsistent}, as the followers have not yet processed the most recent write request. If you would query the modified data within this timeframe from one of the follower, you would probably get an unexpected result. But this inconsistency is just temporary (usually just fractions of seconds depending on the \textit{load} of the data-system), if you would wait a while (without any new changes), the change will be eventually propagated to all followers. This is also known as \textit{eventual consistency}\footnote{\cite{DBEC}}. Let's have a look at 2 examples when \textit{replication lag} is not just a theoretical issue but really causing your data-system to be inconsistent: \textbf{Reading Your Own Writes} and \textbf{Monotonic Reads}.\\
+As you can guess, if the replication is done asynchronously, there will be a certain timeframe (\textbf{replication lag}, see Figure \ref{schema_replication_sl_replication_lag}) when the master and it's slaves will be \textit{inconsistent}, as the slaves have not yet processed the most recent write request. If you would query the modified data within this timeframe from one of the slaves, you would probably get an unexpected result. But this inconsistency is just temporary (usually just fractions of seconds depending on the \textit{load} of the data-system), if you would wait a while (without any new changes), the change will be eventually propagated to all slaves. This is also known as \textit{eventual consistency}\footnote{\cite{DBEC}}. Let's have a look at 2 examples when \textit{replication lag} is not just a theoretical issue but really causing your data-system to be inconsistent: \textbf{Reading Your Own Writes} and \textbf{Monotonic Reads}.\\
 
 \begin{figure}[h]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_sl_replication_lag.png}
-	\caption{Schema - Single-Leader Replication - Replication Lag}
+	\caption{Schema - Master Replication - Replication Lag}
 	\label{schema_replication_sl_replication_lag}
 \end{figure}
 
 \newpage
 \subsubsubsection{Reading Your Own Writes}
-You probably already know a lot of applications that let you submit or update some data and view it again later on. For instance a post to a Facebook timeline, post to a forum or something similar. In case of a single-leader replication this submit/update request needs to be processed by the leader node and propagated to all follower nodes. Using asynchronous replication it is possible that, if you query the data from a follower node (that has not yet received and processed the update), you will not get the desired result. In fact it would look like the data-system has not processed your previous write request at all (see Figure \ref{schema_replication_sl_replication_lag} on page \pageref{schema_replication_sl_replication_lag}).\\
+You probably already know a lot of applications that let you submit or update some data and view it again later on. For instance a post to a Facebook timeline, post to a forum or something similar. In case of a master replication this submit/update request needs to be processed by the master node and propagated to all slave nodes. Using asynchronous replication it is possible that, if you query the data from a slave node (that has not yet received and processed the update), you will not get the desired result. In fact it would look like the data-system has not processed your previous write request at all (see Figure \ref{schema_replication_sl_replication_lag} on page \pageref{schema_replication_sl_replication_lag}).\\
 To mitigate this issue we need \textit{read-your-writes-consistency}, which ensures that any write requests submitted by a user will directly be seen on any further read requests, guaranteeing a user his write request has been processed successfully. Approaches for achieving \textit{read-your-writes-consistency} could be, e.g.:\\
 
 \begin{samepage}
 \begin{itemize}
-\item Read data, a user may have modified, from the leader, otherwise make use of a follower. Using this approach you need to know, whether the required data has been modififed by a user, without querying it. For instance in case of a Xing/LinkedIn/Facebook it is pretty easy, as those profiles can only be edited by the user itself.
-\item The previous approach does not work very well for data-systems where a user is able to edit almost anything of a data-system, as this would cause any read request to be executed on the leader node (inhibiting scalability at all). Time or replication state could be a valuable criteria to decide wether use of he leader or a follower is appropriate. The data-system could consider the time(-stamp) of the last update or processing of replication logs by follower nodes, e.g. if an update request is newer than X seconds or less than the \textit{replication lag} (all follower nodes have not yet sucessfully processed the last write request), read from leader node otherwise make use of a follower node.\\
+\item Read data, a user may have modified, from the master, otherwise make use of a slave. Using this approach you need to know, whether the required data has been modififed by a user, without querying it. For instance in case of a Xing/LinkedIn/Facebook it is pretty easy, as those profiles can only be edited by the user itself.
+\item The previous approach does not work very well for data-systems where a user is able to edit almost anything of a data-system, as this would cause any read request to be executed on the master node (inhibiting scalability at all). Time or replication state could be a valuable criteria to decide wether use of he master or a slave is appropriate. The data-system could consider the time(-stamp) of the last update or processing of replication logs by slave nodes, e.g. if an update request is newer than X seconds or less than the \textit{replication lag} (all slave nodes have not yet sucessfully processed the last write request), read from master node otherwise make use of a slave node.\\
 \end{itemize}
 \end{samepage}
-Anyhow those approaches are just some and also very simple, if you think about the same user using multiple devices: How to synchronize the last update information between both devices? How to make sure both devices connect to the same leader within the same data center? What if the application does not make use of users at all?
+Anyhow those approaches are just some and also very simple, if you think about the same user using multiple devices: How to synchronize the last update information between both devices? How to make sure both devices connect to the same master within the same data center? What if the application does not make use of users at all?
 
 \subsubsubsection{Monotonic Reads}
-Another typical example, or rather an anomaly caused by \textit{replication lag}, is moving backward in time. This is caused by reading from asynchronous followers. Let's take a look at Figure \ref{schema_replication_sl_monotonic_reads} as an example. Here a user runs the same read query (SELECT) twice on two different follower nodes. The first query returns up-to-date values but the second one outdated values. This happens because the user is reading from 2 different followers, one with less and one with more replication lag, whereas the last one is still missing the replication update.\\
-\textit{Monotonic Read} guarantee ensures that this kind of anomaly does not happen - a user will not read less recent data after reading new data. Approaches for achieving monotonic read guarantee are for instance: ensuring the same user always reads from the same replica (leader or follower). Obviously different users can read from different replicas. A simple possibility to determine which replica node to read from. can be achieved by using the user id modulo the number of replica nodes - however, if a node fails, it's inevitable to reroute a users read request.\\
+Another typical example, or rather an anomaly caused by \textit{replication lag}, is moving backward in time. This is caused by reading from asynchronous slaves. Let's take a look at Figure \ref{schema_replication_sl_monotonic_reads} as an example. Here a user runs the same read query (SELECT) twice on two different slave nodes. The first query returns up-to-date values but the second one outdated values. This happens because the user is reading from 2 different slaves, one with less and one with more replication lag, whereas the last one is still missing the replication update.\\
+\textit{Monotonic Read} guarantee ensures that this kind of anomaly does not happen - a user will not read less recent data after reading new data. Approaches for achieving monotonic read guarantee are for instance: ensuring the same user always reads from the same replica (master or slave). Obviously different users can read from different replicas. A simple possibility to determine which replica node to read from. can be achieved by using the user id modulo the number of replica nodes - however, if a node fails, it's inevitable to reroute a users read request.\\
 
 \begin{figure}[H]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_sl_monotonic_reads.png}
-	\caption{Schema - Single-Leader Replication - Monotonic Reads}
+	\caption{Schema - Master Replication - Monotonic Reads}
 	\label{schema_replication_sl_monotonic_reads}
 \end{figure}
 
-\subsubsubsection{Adding New Follower Nodes}
+\subsubsubsection{Adding New Slave Nodes}
 As we have already spoken about adding new node to a replica set, due to outages of single nodes or because of the need to scale the \textit{load} of read requests horizontally. Let's take a quick look how this is usually achieved.\\
-In a data-system without frequently changing datasets, it is easily done by just copying data from one node (leader/follower) to the new one. But as datasets are usually changing, escpecially within the timeframe of executing the dataset copy statement, a simple copy is not appropriate, as at the end of the copy process, the new node will not be up-to-date obviously. One could think about a write lock during the execution of the copy process, but this would strongly violate our previously discussed requirement of high availability. In practise most data-systems make use of following concept:\\
+In a data-system without frequently changing datasets, it is easily done by just copying data from one node (master/slave) to the new one. But as datasets are usually changing, escpecially within the timeframe of executing the dataset copy statement, a simple copy is not appropriate, as at the end of the copy process, the new node will not be up-to-date obviously. One could think about a write lock during the execution of the copy process, but this would strongly violate our previously discussed requirement of high availability. In practise most data-systems make use of following concept:\\
 \begin{enumerate}
-\item \textbf{Create Snapshot:} Take a snapshot of a leader or follower node (if not already done, e.g. by backup processes). Usually done by using tools of the data-system itself (e.g. Ops Manager in case of MongoDB\footnote{\cite{MDBOM}, https://docs.opsmanager.mongodb.com/current/}) or by using typical ops storage system tools for snapshotting underlying data files (e.g. LVM\abk{LVM}{Logical Volume Manager}\footnote{\cite{LVM}, http://www.sourceware.org/lvm2/} or Amazon EBS\footnote{\cite{AMZEBS}, https://docs.aws.amazon.com/de\_de/AWSEC2/latest/UserGuide/EBSSnapshots.html} for EC2 instances) or even just \lstinline{cp}/\lstinline{rsync}. It is important to notice that the last option would require to stop the data-system, running on the node the copy is taken from, as otherwise it is impossible to get a consistent snapshot. Another disadvantage of those plain copy snapshots: they are unnecessary big as they also include indexes and duplicate underlying storage padding and fragmentation.
-\item \textbf{Copy Snaphsot:} Copy Snapshot to new replica follower node, for instance automatically by using tools of the data system or in a lot of cases even \lstinline{rsync} or \lstinline{cp} is used\footnote{\cite{MYSQLNS}, https://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html}.
-\item \textbf{Process Replication Log:} The new follower node connects to the leader node and processes all dataset changes happened since the snapshot used, was created. This is usually done by using a replication log of the leader node (e.g. \textit{Oplog} collection in case of MongoDB\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/} or a binary \textit{relay log} in case of MySQL\footnote{\cite{MYSQLRL}, https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html}) or even follower nodes (e.g. in case of MongoDB\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/} or MySQL\footnote{\cite{MYSQLNS}, https://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html}). It is important to mention that the oldest entry within the replication log needs to be less recent than or equal to the creation time of the snapshot used, as the replication logs are usually capped after some time. Otherwise you would have a gap between the snaphshot and the replication log, which would lead to an information loss. A Slave which is too far behind the replication log, and in this way requirering a complete resync, is also known as a \textit{stale} slave. If this happens, you would usually need to start all over again.
-\item \textbf{Go Live:} As soon as the new follower successfully processed the replication log and is up-to-date, it can start working again like any follower node, processing changes from the leader as they happen.\\
+\item \textbf{Create Snapshot:} Take a snapshot of a master or slave node (if not already done, e.g. by backup processes). Usually done by using tools of the data-system itself (e.g. Ops Manager in case of MongoDB\footnote{\cite{MDBOM}, https://docs.opsmanager.mongodb.com/current/}) or by using typical ops storage system tools for snapshotting underlying data files (e.g. LVM\abk{LVM}{Logical Volume Manager}\footnote{\cite{LVM}, http://www.sourceware.org/lvm2/} or Amazon EBS\footnote{\cite{AMZEBS}, https://docs.aws.amazon.com/de\_de/AWSEC2/latest/UserGuide/EBSSnapshots.html} for EC2 instances) or even just \lstinline{cp}/\lstinline{rsync}. It is important to notice that the last option would require to stop the data-system, running on the node the copy is taken from, as otherwise it is impossible to get a consistent snapshot. Another disadvantage of those plain copy snapshots: they are unnecessary big as they also include indexes and duplicate underlying storage padding and fragmentation.
+\item \textbf{Copy Snaphsot:} Copy Snapshot to new replica slave node, for instance automatically by using tools of the data system or in a lot of cases even \lstinline{rsync} or \lstinline{cp} is used\footnote{\cite{MYSQLNS}, https://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html}.
+\item \textbf{Process Replication Log:} The new slave node connects to the master node and processes all dataset changes happened since the snapshot used, was created. This is usually done by using a replication log of the master node (e.g. \textit{Oplog} collection in case of MongoDB\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/} or a binary \textit{relay log} in case of MySQL\footnote{\cite{MYSQLRL}, https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html}) or even slave nodes (e.g. in case of MongoDB\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/} or MySQL\footnote{\cite{MYSQLNS}, https://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html}). It is important to mention that the oldest entry within the replication log needs to be less recent than or equal to the creation time of the snapshot used, as the replication logs are usually capped after some time. Otherwise you would have a gap between the snaphshot and the replication log, which would lead to an information loss. A Slave which is too far behind the replication log, and in this way requirering a complete resync, is also known as a \textit{stale} slave. If this happens, you would usually need to start all over again.
+\item \textbf{Go Live:} As soon as the new slave successfully processed the replication log and is up-to-date, it can start working again like any slave node, processing changes from the master as they happen.\\
 \end{enumerate}
 
 \subsubsubsection{Outages Of Nodes}
 As we have already spoken about adding new nodes to a cluster, it is also important to speak about the challenge of handling node outages.\\
 
-\textbf{Follower Outage:}\\
-As previously discussed, follower nodes make use of repliation logs to stay in-sync with the leader. Those replication logs and processing state (usually timestamp, number or position of event within replication log) are usually stored on the follower, for instance in case of MongoDB \textit{OpLog} (stored locally in a collection called \lstinline{local.oplog.rs}\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/}) or in case of MySQL relay logs\footnote{\cite{MYSQLRL}, https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html}. If a follower node crashes and gets back up again or recovers from an network issue, it can just start right away where it stopped before the outage occured. It can connect to the leader and request all dataset changes that have happende during the time of outage or which are newer than the last entry of the replication log before the outage. As soon as the new follower successfully processed all missing data changes and is up-to-date, it can start working again like before, processing changes from the leader as they happen.\\
+\textbf{Slave Outage:}\\
+As previously discussed, slave nodes make use of repliation logs to stay in-sync with the master. Those replication logs and processing state (usually timestamp, number or position of event within replication log) are usually stored on the slave, for instance in case of MongoDB \textit{OpLog} (stored locally in a collection called \lstinline{local.oplog.rs}\footnote{\cite{MDBRSOL}, https://docs.mongodb.com/manual/core/replica-set-oplog/}) or in case of MySQL relay logs\footnote{\cite{MYSQLRL}, https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html}. If a slave node crashes and gets back up again or recovers from an network issue, it can just start right away where it stopped before the outage occured. It can connect to the master and request all dataset changes that have happende during the time of outage or which are newer than the last entry of the replication log before the outage. As soon as the new slave successfully processed all missing data changes and is up-to-date, it can start working again like before, processing changes from the master as they happen.\\
 
-\textbf{Leader Outage:}\\
-Handling an outage of a leader is not that easy, as a \textit{Failover} needs to happen: one of the replica follower nodes needs to be promoted as the new leader, all other follower nodes need to consume the replication log from the new leader and and clients need to send their write requests to the new leader as well. A Failover can be performed manually (e.g. in case of maintenance of the leader node) or automatically, which would require following 3 steps:\\
+\textbf{Master Outage:}\\
+Handling an outage of a master is not that easy, as a \textit{Failover} needs to happen: one of the replica slave nodes needs to be promoted as the new master, all other slave nodes need to consume the replication log from the new master and and clients need to send their write requests to the new master as well. A Failover can be performed manually (e.g. in case of maintenance of the master node) or automatically, which would require following 3 steps:\\
 
 \begin{enumerate}
-\item \textbf{Determining Leader Failure:} As there are a lot of thing that can potentially go wrong (e.g. network, power-supply or disk outages), data-systems as well as many high-available systems make use of timeouts to identify wether a node has failed. All nodes of a data-system usually send messages (also known as \textit{Heartbeat}) between each other and if a node does not respond within a defined timeframe (e.g. 60 seconds) it is declared dead. \\
+\item \textbf{Determining Master Failure:} As there are a lot of thing that can potentially go wrong (e.g. network, power-supply or disk outages), data-systems as well as many high-available systems make use of timeouts to identify wether a node has failed. All nodes of a data-system usually send messages (also known as \textit{Heartbeat}) between each other and if a node does not respond within a defined timeframe (e.g. 60 seconds) it is declared dead. \\
 But the timeout approach also has pitfalls, for instance if the outage happened because of heavy network \textit{load}, a failover process will even increase the network load and make the whole situation much worse. This is also a reason some operation teams do not make use of automatic failover.
-\item \textbf{Evaluating New Leader:} There are different approaches to evaluating a new leader, most common the new leader is chosen by the majority of the remaining replica nodes or by a controller node (e.g. an \textit{Arbiter} node in case of MongoDB\footnote{\cite{MDBARB}, https://docs.mongodb.com/manual/core/replica-set-arbiter/}). The best candidate is obviously the one containing the most recent updates from the old leader.\\
-This approach has pitfalls, for instance if the cause of the outage was a network split, leaving nodes in two separate networks, not able to communicate with each other. You could end up in a \textit{split-brain} scenario, where there is a leader in each network, thinking it is the only leader, processing write requests and in this way corrupting all data.
-\item \textbf{Reconfiguration:} As soon as the new leader is elected, all clients need to send their write requests to the new leader and all followers need to receive their replication log from the new leader as well. If the old leader gets back up again, it needs to be ensured it recognizes the new leader and will become a follower.
+\item \textbf{Evaluating New Master:} There are different approaches to evaluating a new master, most common the new master is chosen by the majority of the remaining replica nodes or by a controller node (e.g. an \textit{Arbiter} node in case of MongoDB\footnote{\cite{MDBARB}, https://docs.mongodb.com/manual/core/replica-set-arbiter/}). The best candidate is obviously the one containing the most recent updates from the old master.\\
+This approach has pitfalls, for instance if the cause of the outage was a network split, leaving nodes in two separate networks, not able to communicate with each other. You could end up in a \textit{split-brain} scenario, where there is a master in each network, thinking it is the only master, processing write requests and in this way corrupting all data.
+\item \textbf{Reconfiguration:} As soon as the new master is elected, all clients need to send their write requests to the new master and all slaves need to receive their replication log from the new master as well. If the old master gets back up again, it needs to be ensured it recognizes the new master and will become a slave.
 \end{enumerate}
 
 \subsubsubsection{Types Of Replication Logs}
 As we have already spoken a lot about replication logs, let's discuss 3 of the most common approaches:\\
 
 \textbf{Statement-Based:}\\
-Statement-based replication is the most simple approach, the leader processes and afterwards adds every write request (e.g. \lstinline{INSERT}, \lstinline{UPDATE} or \lstinline{DELETE} statements in case of a relational data model) to the replication log. Those statements are later on executed by all replica follower nodes (like the leader did). This approach has some pitfalls as you can guess:\\
+Statement-based replication is the most simple approach, the master processes and afterwards adds every write request (e.g. \lstinline{INSERT}, \lstinline{UPDATE} or \lstinline{DELETE} statements in case of a relational data model) to the replication log. Those statements are later on executed by all replica slave nodes (like the master did). This approach has some pitfalls as you can guess:\\
 \begin{itemize}
 \item How to handle non-deterministic functions within a write request (like \lstinline{RAND()}, \lstinline{USER()} or \lstinline{NOW()} used in an SQL query) or external functions like StoredProcedures, Triggers or user-defined functions?\\
-The leader node would need to replace those non-deterministic functions with deterministic values (like the return value of the called function).
+The master node would need to replace those non-deterministic functions with deterministic values (like the return value of the called function).
 \item What if statements depend on other data, like in an \lstinline{UPDATE ... WHERE ...} statement. \\
 This requires all statements to be executed within the exact same order, otherwise they will end up in different results.\\
 \end{itemize}
 As there are a lot more potential issues that need to be taken care of, today most data-systems make use of other replication log types. For instance MySQL previously made use of statement-based replication but switched to logical (row-based) replication\footnote{\cite{MYSQLRF}, https://dev.mysql.com/doc/refman/8.0/en/replication-formats.html}. But MySQL also still supports a mixed approach\footnote{\cite{MYSQLMR}, https://dev.mysql.com/doc/refman/8.0/en/binary-log-mixed.html}, which (depending of the statement) dynamically decides whether to use statement- or row-based replication. This serves the purpose of still getting the advantages of statement-based replication, like less data that needs to be written to the replication logs, which increases overall performance, especially restoring data from backups/snapshots is done more quickly.\\
 
 \textbf{WAL (Write-Ahead-Log):}\\
-Using the write-ahead-log approach, the leader logs all IO data changes to a WAL (e.g. (re-)writes of disk blocks, appends to files, etc.), writes the WAL to disk and sends it to all followers. When a follower processes this log file, it builds an exact same copy of the data structures as found at the leader.\\
-Using WAL results in significantly reduced IO (disk writes), because only the log file needs to be flushed to disk to guarantee that a transaction is committed, rather than every statement or data file changed by the transaction. The main disadvantage of this approach is the dependence to the used storage engine, as the WAL is very low-level and defines which byte has changed within which disk block. This makes it impossible to run different versions of a data-system or storage engine on leader and follower nodes and also increases complexity of maintenance tasks, especially rolling-upgrades of single nodes within a data-system are not possible any more, making downtimes inevitable.\\
+Using the write-ahead-log approach, the master logs all IO data changes to a WAL (e.g. (re-)writes of disk blocks, appends to files, etc.), writes the WAL to disk and sends it to all slaves. When a slave processes this log file, it builds an exact same copy of the data structures as found at the master.\\
+Using WAL results in significantly reduced IO (disk writes), because only the log file needs to be flushed to disk to guarantee that a transaction is committed, rather than every statement or data file changed by the transaction. The main disadvantage of this approach is the dependence to the used storage engine, as the WAL is very low-level and defines which byte has changed within which disk block. This makes it impossible to run different versions of a data-system or storage engine on master and slave nodes and also increases complexity of maintenance tasks, especially rolling-upgrades of single nodes within a data-system are not possible any more, making downtimes inevitable.\\
 Write-Ahead-Logs are for instance used by data-systems like ArangoDB\footnote{\cite{ARANGOWAL}, https://docs.arangodb.com/3.3/Manual/Architecture/WriteAheadLog.html} or PostgreSQL\footnote{\cite{PSQLWAL}, https://www.postgresql.org/docs/9.6/static/wal-intro.html}.\\
 
 
@@ -791,7 +791,7 @@ Another approach for replication logs is logical (row-based) replication and unl
 \item \textbf{DELETE:} The log contains one record for each row to be deleted as well as information to uniquely identify the row to be deleted (e.g. primary key).\\
 \end{itemize}
 
-As this approach is decoupled from the underlying storage engine (unlike WAL), it is impossible to run different versions of the data-system or storage engine on leader and follower nodes and in this way to do rolling-upgrades without the data-system having any downtime.\\
+As this approach is decoupled from the underlying storage engine (unlike WAL), it is impossible to run different versions of the data-system or storage engine on master and slave nodes and in this way to do rolling-upgrades without the data-system having any downtime.\\
 
 Let's take a look at an example using MongoDB. At first we switch to our desired collection (\lstinline{user}) on database \lstinline{test}, then we insert a new document containing \lstinline{user_id:1} and afterwords extending the same document by the value \lstinline{married_to:4711}:
 
@@ -843,24 +843,24 @@ Whereas:
 If we would update multiple rows at once, MongoDB would create an entry for each row affected within the Oplog replication log.
 
 \newpage
-\subsubsection{Multi Leader Replication}
-\label{tf_dds_replication_multi_leader}
-As we have discussed Leader-based replication within the last chapter we have already noticed the biggest weakness: we have only one leader. All write requests must go through it (strongly limiting write \textit{scalability}) and if the leader is suffering a network outage, we are not able to process write requests anyhow. A multi-leader replication  mitigates those issues, as it allows multiple (leader) nodes to accept write requests. The basic replication idea of \textit{leader} and \textit{follower} nodes stays the same: each leader processing write requests needs to propagate those changes to all followers as well as each leader acts as a follower to the other leader nodes. The multi-leader replication is also known as \textit{Multi-Master}, \textit{Active/Active} or \textit{Master/Master} replication.
+\subsubsection{Multi-Master Replication}
+\label{tf_dds_replication_multi_master}
+As we have discussed Master-based replication within the last chapter we have already noticed the biggest weakness: we have only one master. All write requests must go through it (strongly limiting write \textit{scalability}) and if the master is suffering a network outage, we are not able to process write requests anyhow. A multi-master replication  mitigates those issues, as it allows multiple (master) nodes to accept write requests. The basic replication idea of \textit{master} and \textit{slave} nodes stays the same: each master processing write requests needs to propagate those changes to all slaves as well as each master acts as a slave to the other master nodes. The multi-master replication is also known as \textit{Multi-Master}, \textit{Active/Active} or \textit{Master/Master} replication.
 
 \begin{figure}[h]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_ml_replication.png}
-	\caption{Schema - Multi-Leader Replication Example}
+	\caption{Schema - Multi-Master Replication - Example}
 	\label{schema_replication_ml_replication}
 \end{figure}
 
-Figure \ref{schema_replication_ml_replication} illustrates an example of multi-leader replication setup. As you can see there are multiple leaders, which are able to process read requests as well as multiple follower nodes which serve the purpose of processing read requests. Using this approach approach we are able to achieve a better write \textit{performance} (\textit{horizontal scalability}) as multiple nodes are able serve read requests. In the same way the whole data-system is way more \textit{fault-tolerant} as if a single leader node suffers an outage there are still other leader nodes available for serving write requests (while another follower node is already in the process of being elected, replicating and replacing the old leader node).\\
-Implementations of multi-leader replication can be found at CouchDB\footnote{\cite{CDBMM}, http://docs.couchdb.org/en/2.1.2/replication/intro.html}, PostgreSQL (using BDR\abk{BDR}{Bi-Directional Replication}\footnote{\cite{PSQLBDR}, https://www.2ndquadrant.com/en/resources/postgres-bdr-2ndquadrant/}) or MySQL (using Tungsten Replicator\footnote{\cite{TNGSTNREP}, https://github.com/continuent/tungsten-replicator} or MYSQL native multi-source implementation, which is very limited and does not even provide any conflict detection or resolution\footnote{\cite{MYSQLMS}, https://dev.mysql.com/doc/refman/5.7/en/replication-multi-source-overview.html}).\\
-As also illustrated in Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication} a multi-leader is a perfect match for setting up data-systems on multiple data-centers and getting data for read as well as write requests geographically close to users and consumer applications. But there is also a big downside using multi-leader setups, as multiple nodes are able to process write requests we need to think about conflicting write requests involving the same dataset to be changed within the same time. We will discuss this within the next chapter.
+Figure \ref{schema_replication_ml_replication} illustrates an example of multi-master replication setup. As you can see there are multiple master, which are able to process read requests as well as multiple slave nodes which serve the purpose of processing read requests. Using this approach approach we are able to achieve a better write \textit{performance} (\textit{horizontal scalability}) as multiple nodes are able serve read requests. In the same way the whole data-system is way more \textit{fault-tolerant} as if a single master node suffers an outage there are still other master nodes available for serving write requests (while another slave node is already in the process of being elected, replicating and replacing the old master node).\\
+Implementations of multi-master replication can be found at CouchDB\footnote{\cite{CDBMM}, http://docs.couchdb.org/en/2.1.2/replication/intro.html}, PostgreSQL (using BDR\abk{BDR}{Bi-Directional Replication}\footnote{\cite{PSQLBDR}, https://www.2ndquadrant.com/en/resources/postgres-bdr-2ndquadrant/}) or MySQL (using Tungsten Replicator\footnote{\cite{TNGSTNREP}, https://github.com/continuent/tungsten-replicator} or MYSQL native multi-source implementation, which is very limited and does not even provide any conflict detection or resolution\footnote{\cite{MYSQLMS}, https://dev.mysql.com/doc/refman/5.7/en/replication-multi-source-overview.html}).\\
+As also illustrated in Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication} a multi-master is a perfect match for setting up data-systems on multiple data-centers and getting data for read as well as write requests geographically close to users and consumer applications. But there is also a big downside using multi-master setups, as multiple nodes are able to process write requests we need to think about conflicting write requests involving the same dataset to be changed within the same time. We will discuss this within the next chapter.
 
 \subsubsubsection{Conflicts}
-Write conflicts within multi-leader setups happen if the same dataset is being edited in parallel using multiple leader nodes. Imagine editing the same line of a document within Google Docs simultanously: user 1 is working on a leader node based in Frankfurt and user 2 is working on a leader node in Berlin. Each write gets processed successfully on each leader but later at the asynchronous replication between the two leader nodes a conflict will arise. This won't happen if you are using a single-leader replication. One could think about making the write requests and conflict detection synchronous, but this would be foolish as you would abandon the main benefit of multi-leader replication: \textit{horizontal} write \textit{scalability}, as multiple nodes are able to process write requests. But how to handle write conflicts?\\
-Well the best approach would be to avoid those conflicts, for instance this could be done by the application using the data-system. Thinking about our Google Docs example: if the application would ensure that both users are pushing their write requests to the same leader, write conflicts will no longer occur.\\
+Write conflicts within multi-master setups happen if the same dataset is being edited in parallel using multiple master nodes. Imagine editing the same line of a document within Google Docs simultanously: user 1 is working on a master node based in Frankfurt and user 2 is working on a master node in Berlin. Each write gets processed successfully on each master but later at the asynchronous replication between the two master nodes a conflict will arise. This won't happen if you are using a master replication. One could think about making the write requests and conflict detection synchronous, but this would be foolish as you would abandon the main benefit of multi-master replication: \textit{horizontal} write \textit{scalability}, as multiple nodes are able to process write requests. But how to handle write conflicts?\\
+Well the best approach would be to avoid those conflicts, for instance this could be done by the application using the data-system. Thinking about our Google Docs example: if the application would ensure that both users are pushing their write requests to the same master, write conflicts will no longer occur.\\
 But what if the application is not able to prevent those write conflicts? Let's dicsuss some common approaches for conflict resolution:\\
 
 \begin{itemize}
@@ -871,7 +871,7 @@ But what if the application is not able to prevent those write conflicts? Let's 
 
 
 \subsubsubsection{Topologies}
-If you think again about the example at the beginning of this chapter (Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication}) the replication topology of all leader nodes is really straight forward as there are only two leader nodes, which need to talk with each other. But what about setups of far more leader nodes?
+If you think again about the example at the beginning of this chapter (Figure \ref{schema_replication_ml_replication} on page \pageref{schema_replication_ml_replication}) the replication topology of all master nodes is really straight forward as there are only two master nodes, which need to talk with each other. But what about setups of far more master nodes?
 Figure \ref{schema_replication_ml_topologies} on page \pageref{schema_replication_ml_topologies} illustrates the most common approaches:\\
 \begin{itemize}
 \item \textbf{Star Topology:} one designated node acts as the single point of communication and forwards all write requests to all nodes.
@@ -879,47 +879,85 @@ Figure \ref{schema_replication_ml_topologies} on page \pageref{schema_replicatio
 \item \textbf{All-To-All Topology:} every node sends it write operations to all other nodes.\\
 \end{itemize} 
 
-One issue regarding \textit{circular topology} and \textit{star topology} is, if just one node fails (in case of the star topology the center node), the whole process of leader node replication is interrupted. This would not happen using \textit{all-to-all topology}. But \textit{all-to-all topology} is also vulnerable to network latencies and issues, it is not very unlikely that some write requests will overtake others in time, which requires a lot more effort in terms of conflict handling.
+One issue regarding \textit{circular topology} and \textit{star topology} is, if just one node fails (in case of the star topology the center node), the whole process of master node replication is interrupted. This would not happen using \textit{all-to-all topology}. But \textit{all-to-all topology} is also vulnerable to network latencies and issues, it is not very unlikely that some write requests will overtake others in time, which requires a lot more effort in terms of conflict handling.
 
 \begin{figure}[h]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_ml_topologies.png}
-	\caption{Schema - Multi-Leader Replication Topologies}
+	\caption{Schema - Multi-Master Replication - Topologies}
 	\label{schema_replication_ml_topologies}
 \end{figure}
 
 \newpage
-\subsubsection{Leaderless Replication}
-\label{tf_dds_replication_leaderless}
-Within the last wo chapters we have discussed (Single-/Multi-) Leader-based replication, in which all write requests of users or consumer applications must go trough one or multiple dedicated leader nodes. The leader node will take care about propagating all changes regarding the dataset to all follower nodes. Let's take a look at another approach without any dedicated leader node. \\
-The basic idea of \textit{leaderless replication} (alos known as \textit{masterless replication}), like illustrated in Figure \ref{schema_replication_ll}, is that there is no special kind of nodes - any node will not only accept read but also write requests from clients. This approach also works very well on multiple datacenter, with respect to reasonable quorum configuration, but we will talk about that later.
+\subsubsection{Masterless Replication}
+\label{tf_dds_replication_masterless}
+Within the last wo chapters we have discussed (Single-/Multi-) Master-based replication, in which all write requests of users or consumer applications must go trough one or multiple dedicated master nodes. The master node will take care about propagating all changes regarding the dataset to all slave nodes. Let's take a look at another approach without any dedicated master node. \\
+The basic idea of \textit{masterless replication} (also known as \textit{masterless} replication), like illustrated in Figure \ref{schema_replication_ll}, is that there is no special kind of nodes - any node will not only accept read but also write requests from clients. This approach also works very well on multiple datacenter, with respect to reasonable quorum configuration, but we will talk about that later.
 
 \begin{figure}[h]
 	\centering
   \includegraphics[width=1\textwidth]{replication_schema_ll.png}
-	\caption{Schema - Leaderless Replication Example}
+	\caption{Schema - Masterless Replication - Example}
 	\label{schema_replication_ll}
 \end{figure}
 
-Using leaderless replication, clients can actual be users/consumer applications but also a \textit{controller node} in between user/consumer application and the data-system, which acts as a proxy and takes care of routing requests.\\
-For instance Cassandra makes use of an approach called \textit{coordinator} as a controller node\footnote{\cite{CASAR}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html}. Read or write requests of clients can be sent to any node within a cluster. The node receiving a request serves as the coordinator for the particular client operation. The coordinator determines which nodes within the cluster should process the request based on how the cluster is configured and which \textit{quorum} is used.\\
-Data-systems using the leaderless replication approach are usually able to achieve a better write \textit{performance} and \textit{horizontal scalability} as any node is able to serve write requests. In the same way the whole data-system is way more robust and \textit{fault-tolerant} than leader-based approaches, as there is no \textit{single-point-of-failure} (leader nodes), as multiple nodes can fail without causing the data-system being unable to serve write requests. A \textit{failover} process is not required at all, as there is no leader to failover. But this comes at a price: \\
+Using masterless replication, clients can actual be users/consumer applications but also a \textit{controller node} in between user/consumer applications and the data-system, which acts as a proxy and takes care of routing requests.\\
+For instance Cassandra makes use of an approach called \textit{coordinator} as a controller node\footnote{\cite{CASAR}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archIntro.html}. Read or write requests of clients can be sent to any node within a cluster. The node receiving a request serves as the coordinator for the particular client operation. The coordinator determines which nodes within the cluster should process the request based on how the cluster is configured and which \textit{quorum} is used. This approach enables a better write performance as write requests can be parallelized as well as a better overall performance as failing and slow replica nodes can be tolerated without causing \textit{latency} and/or \textit{failover} processes. \\Other examples of data-systems using masterless replication are for instance: VoldemortDB\footnote{\cite{VOLDML}, http://www.project-voldemort.com/voldemort/design.html}, Riak\footnote{\cite{RIAKML}, http://basho.com/products/riak-kv/resiliency/} or DynamoDB\footnote{\cite{DYNML}, https://aws.amazon.com/de/dynamodb/}.\\
+Data-systems using the masterless replication approach are usually able to achieve a better write \textit{performance} and \textit{horizontal scalability} as any node is able to serve write requests. In the same way the whole data-system is way more robust and \textit{fault-tolerant} than master-based approaches, as there is no \textit{single-point-of-failure} (master nodes), as multiple nodes can fail without causing the data-system being unable to serve write requests. A \textit{failover} process is not required at all, as there is no master to failover. But this comes at a price: \\
 \begin{itemize}
-\item The client or rather the application using the data-system needs to handle a lot of tasks a leader node would usually take care of (quorum, consistency and conflict resolution)
+\item The client or rather the application using the data-system needs to handle a lot of tasks a master node would usually take care of (quorum, consistency and conflict resolution)
 \item Initial setup costs, as you need at least 3 nodes for a quorum to be able to ensure consistency and availability.
-\item Application code complexity, as leaderless data-systems usually dont provide sophisticated querying engines or basic features like referential integrity, ACID\abk{ACID}{Atomicity, Consistency, Isolation, Durability}\footnote{\cite{ACID}, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties of database transactions intended to guarantee validity even in the event of failures (network issues, hardware failures etc.}, which would cause you to take care about that within your application code.
-\item Almost any leaderless data-system is a key/value store providing all advantages but also disadvantages and limitations of a key/value data system.\\
+\item Application code complexity, as masterless data-systems usually dont provide sophisticated querying engines or basic features like referential integrity, ACID\abk{ACID}{Atomicity, Consistency, Isolation, Durability}\footnote{\cite{ACID}, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties of database transactions intended to guarantee validity even in the event of failures (network issues, hardware failures etc.}, which will force you to take care about that within your application code.
+\item Almost any masterless data-system is a key/value store providing all advantages but also disadvantages and limitations of a key/value data system.\\
 \end{itemize}
-Lorem
 
+\newpage
 \subsubsubsection{Quorums}
-Lorem ipsum...
+Let's take a look at a simple example of handling write requests on a \textit{masterless} data-system (Figure \ref{replication_schema_ll_quorum_write}). As you can see a user executes a read request, which gets distributed to all 3 replica nodes and executed in parallel. Two of three replica nodes successfully process the write requests, but one node fails (e.g. because of a failure or network outage). The overall write request returns success as at least two of the three replica nodes returne with a success message. Now what about the faulty node comes back online and starts serving read requests again, which may result in \textit{stale} (outdated) results? Let's take a look at Figure \ref{replication_schema_ll_quorum_read} on page \pageref{replication_schema_ll_quorum_read}. As you can see the read request of a user is also distribted to all replica nodes and executed in parallel. The user gets a result set of two up-to-date and one updated result, being able to determine the most recent value (\textit{last-write-wins}). \\
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_ll_quorum_write.png}
+	\caption{Schema - Masterless Replication - Quorum Write Example}
+	\label{replication_schema_ll_quorum_write}
+\end{figure}
+
+But how to take care about outdated nodes to become eventually consistent? Let's briefly discuss 3 common approaches:\\
+
+\begin{itemize}
+\item \textbf{Read Repair:} If a user application or controller node executes a read requests and recognizes a replica node with a stale value (see Figure \ref{replication_schema_ll_quorum_read} on page \pageref{replication_schema_ll_quorum_read}), the user application or controller sends it the most recent value afterwards. For instance used by Cassandra\footnote{\cite{CASSRN}, https://docs.datastax.com/en/cassandra/3.0/cassandra/operations/opsRepairNodesTOC.html}, RIAK\footnote{\cite{RIAKRN}, http://basho.com/posts/technical/why-riak-just-works/} and VoldemortDB\footnote{\cite{VOLDML}, http://www.project-voldemort.com/voldemort/design.html}.
+\item \textbf{Anti-Entropy Repair:} Some data-systems are running background processes or provide tools (e.g. \lstinline{nodetool repair} in case of Casssandra\footnote{\cite{CASSNR}, https://docs.datastax.com/en/cassandra/3.0/cassandra/tools/toolsRepair.html}) which run in background constantly looking for differences between different replica nodes and copying data from one node to another to keep everything up-to-date. For instance used by Cassandra\footnote{\cite{CASSRN}, https://docs.datastax.com/en/cassandra/3.0/cassandra/operations/opsRepairNodesTOC.html} and RIAK\footnote{\cite{RIAKRN}, http://basho.com/posts/technical/why-riak-just-works/} but not supported by VoldemortDB.
+\item \textbf{Hinted Handoff:} If a node is unable to process a particular write request, the user application or coordinator node (which executed the write request) preserves the data to be written as a set of hints. As soon as the faulty node comes back online, the user application or coordinator triggers a repair process by handing off hints to the faulty node to catch up with the missed writes. For instance used by Cassandra\footnote{\cite{CASSRN}, https://docs.datastax.com/en/cassandra/3.0/cassandra/operations/opsRepairNodesTOC.html} and RIAK\footnote{\cite{RIAKRN}, http://basho.com/posts/technical/why-riak-just-works/} but not supported by VoldemortDB.\\
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{replication_schema_ll_quorum_read.png}
+	\caption{Schema - Masterless Replication - Quorum Read Example}
+	\label{replication_schema_ll_quorum_read}
+\end{figure}
+
+It is important to notice that those approaches do not work like the previously discussed \textit{replication log}. Any of those repair approaches don't run in a particular order (unlike \textit{replication logs}) and there is no guarantee in terms of time when a replica node will be up-to-date again, just that it will be eventual consistent. Usually the delay is much bigger than data-systems using \textit{master-based replication}. But in terms of consistency this is totally fine as long as a reasonable quorum is used. So what is a (reasonable) quorum?\\
+A quorum is the minimum number of votes that a read/write request to a distributed data-system has to obtain in order to be sure the requests is successful (and the result consistent). For instance, if a data-system has \lstinline{n} replica nodes (\lstinline{n} \textbf{is not} the number of all nodes available within the whole cluster, just the number of nodes sharing the same replica), every read and write request must be processed and confirmed by at least \lstinline{r} nodes (read) or acknowleded by at least \lstinline{w} nodes (write). A reasonable quorum is \lstinline{r + w > n}, as we can be sure to get an up-to-date result (e.g. in case of a read request) as at least one of the \lstinline{r} replica nodes will have the most-recent value for our request. Read and write requests which adhere to those rules are called \textit{quorum reads} and \textit{quorum writes}.\\
+The quorum parameters are configurable, based on your cluster size, a read/write performance and fault-tolerance you want to achieve. In terms of read performance it is reasonable to choose a smaller \lstinline{r}, but resulting in a larger \lstinline{w} which causes slower writes. Vice versa a smaller \lstinline{w} will speed up writes but result in a larger \lstinline{r}, which causes slower reads. The number of node failures a data-system can tolerate can easily be calculated by:
+\begin{itemize}
+\item \lstinline{n - r = number} of nodes tolerated to be unavailable for read requests
+\item \lstinline{n - w = number} of nodes tolerated to be unavailable for write requests \\
+\end{itemize}
+
+For instance a data-system of 5 nodes (\lstinline{n = 5}, \lstinline{r = 3} and \lstinline{w = 3}) is able to tolerate 2 unavailable nodes. 
 
 \subsubsubsection{Limitations of Quorums}
-Lorem ipsum...
-
-\subsubsubsection{Concurrent Writes}
-Lorem ipsum...
+As we discussed quorums and their advantages so for, let's have a look at some major limitations. Most quorum based data-systems allow to weaken up the quorum \textbf{r + w $\leq$ n}, for instance for the purpose of reducing \textit{latency}, increasing \textit{high availablity}, ensuring durability or just distributing the whole data-system among different datacenters, which are more closely to a user or consumer applications. This is totally fine, as long as the nodes used for read and write requests overlap at least in on node. In this way its more likely that a data-system is still able to process read and write requests, even in case of failure of multiple nodes, network or datacenter outages (unless the number of replica nodes does not get smaller than \lstinline{r} and \lstinline{w}). 
+But even using the \textbf{r + w > n} quorum, there are some pitfalls resulting into reading stale values:\\
+\begin{itemize}
+\item \textbf{Concurrent Writes:} If two write requests are executed concurrently, it is not clear which one happened first, as both are executed from different controller nodes or applications. Both requests need to be merged, for instance based on a timestamp (\textit{last-write-wins}), which is highly vulnerable to clock skew, causing older values to overwrite more recent ones.\\
+For instance Cassandra is based on \textit{last-write-wins}\footnote{\cite{CASLWW}, https://docs.datastax.com/en/cassandra/3.0/cassandra/dml/dmlWriteUpdate.html} whereas Riak requires the admin to choose whether to make use of \textit{last-write-wins} or handle write conflicts within the application using the data-system\footnote{\cite{RIALWW}, http://docs.basho.com/riak/kv/2.2.3/developing/usage/conflict-resolution/}.
+\item \textbf{Concurrent Reads And Writes:} If read and write requests (regarding the same value) happen at the same time it is unclear whether the read request returns the stale or the new values. As the write request may succeeded only on some nodes during execution of the read query, the new value might be underrepresented, causing the old value to win the quorum.
+\item \textbf{Node Failure:} If a node previously processed a new value, crashed and comes back online and is restored from a node with the old value, the quorum might be violated as the number of nodes storing the new value might be \lstinline{< w}.
+\item \textbf{Sloppy Quorum and Hinted Handoff:} There are cases like network or datacenter outages causing some user or consumer applications being cut off from some nodes of a data-system (while the unreachable nodes are still online). In this case it is possible that some user or consumer applications won't be able to achieve a quorum. If the data-systems contains more than \lstinline{n} nodes, it needs to make a crucial decision here, whether to ignore all requests that cannot achieve a quorum or still accept write requests and just write them to some nodes outside of \lstinline{n} to ensure \textit{write availability} and \textit{durability}. A \textit{sloppy quorum} still requires \lstinline{r} and \lstinline{w} nodes, but those do not need to be one of the original \lstinline{n} nodes. As soon as the network or datacenter outage is fixed, all writes processed by nodes outside of \lstinline{n} are sent to the appropriate nodes inside of \lstinline{n} (\textit{Hinted Handoff}). Using this approach it is no longer guaranteed a data-system will provide the most recent value as read and write requests may not overlap on \lstinline{r} and \lstinline{w} nodes. This could also be mitigated by using versioning of values, like \textit{vector clocks} (e.g. used by DynamoDB\footnote{\cite{DYNVC}, https://de.wikipedia.org/wiki/Amazon\_Dynamo}).\\
+For instance sloppy quorums are enabled by default within Riak\footnote{\cite{RIASQ}, http://docs.basho.com/riak/kv/2.2.3/learn/glossary/} and disabled by default within Cassandra\footnote{\cite{CASSSQ}, https://www.datastax.com/dev/blog/understanding-hinted-handoff}.\\
+\end{itemize}
 
 \newpage
 \subsection{Partitioning}
