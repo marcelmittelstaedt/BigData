@@ -728,7 +728,7 @@ Anyhow those approaches are just some and also very simple, if you think about t
 
 \subsubsubsection{Monotonic Reads}
 Another typical example, or rather an anomaly caused by \textit{replication lag}, is moving backward in time. This is caused by reading from asynchronous slaves. Let's take a look at Figure \ref{schema_replication_sl_monotonic_reads} as an example. Here a user runs the same read query (SELECT) twice on two different slave nodes. The first query returns up-to-date values but the second one outdated values. This happens because the user is reading from 2 different slaves, one with less and one with more replication lag, whereas the last one is still missing the replication update.\\
-\textit{Monotonic Read} guarantee ensures that this kind of anomaly does not happen - a user will not read less recent data after reading new data. Approaches for achieving monotonic read guarantee are for instance: ensuring the same user always reads from the same replica (master or slave). Obviously different users can read from different replicas. A simple possibility to determine which replica node to read from. can be achieved by using the user id modulo the number of replica nodes - however, if a node fails, it's inevitable to reroute a users read request.\\
+\textit{Monotonic Read} consistency ensures that this kind of divergence does not happen - a user will not read less recent data after reading new data. Approaches for achieving monotonic read guarantee are for instance: ensuring the same user always reads from the same replica (master or slave). Obviously different users can read from different replicas. A simple possibility to determine which replica node to read from. can be achieved by using the user id modulo the number of replica nodes - however, if a node fails, it's inevitable to reroute a users read request.\\
 
 \begin{figure}[H]
 	\centering
@@ -959,10 +959,92 @@ For instance Cassandra is based on \textit{last-write-wins}\footnote{\cite{CASLW
 For instance sloppy quorums are enabled by default within Riak\footnote{\cite{RIASQ}, http://docs.basho.com/riak/kv/2.2.3/learn/glossary/} and disabled by default within Cassandra\footnote{\cite{CASSSQ}, https://www.datastax.com/dev/blog/understanding-hinted-handoff}.\\
 \end{itemize}
 
+\subsubsubsection{Gossip}
+
 \newpage
 \subsection{Partitioning}
 \label{tf_dds_partitioning}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+Partitioning is the process of continuously dividing data into subsets and distributing it to several nodes within a data-system. Usually each record or document within a partitioned data-system is distributed and directly assigned to certain partition. We will discuss approaches on how to \textit{distribute} data and related topics like \textit{routing} of certain data and \textit{rebalancing} of nodes later within this chapter. Partitioning serves the purpose of, e.g.:\\
+\begin{itemize}
+\item \textbf{Scalability and Performance:} Distributing data to multiple nodes, for instance increases read/write performance and throughput as read/write queries can be distributed to multiple nodes and handled concurrently. In this way it is possible parallelize IO (disk), computing power (CPU) as well as scale the memory usage needed to run a certain operation on a part of the dataset.  
+\item \textbf{Low Latency:} Using partitioning it is possible to place data close to where it is used (user or consumer applications).
+\item \textbf{Availability:} Even if some nodes fail, only parts of the data are offline. \\
+\end{itemize}
+
+To avoid confusion on the term \textit{partition} or \textit{partitioning}, let's list some other terms, you might have heard and which are frequently used synonymously:
+\begin{itemize}
+\item \textit{shards/sharding} - (e.g. MongoDB\footnote{\cite{MDBPAR}, https://docs.mongodb.com/manual/sharding/}, ElasticSearch\footnote{\cite{ELAPAR}, https://www.elastic.co/guide/en/elasticsearch/reference/current/\_basic\_concepts.html} or RethinkDB\footnote{\cite{RDBPAR}, https://www.rethinkdb.com/docs/architecture/})
+\item \textit{Vnodes/Virtual Nodes} - (e.g. Riak\footnote{\cite{RIAKPAR}, http://docs.basho.com/riak/kv/2.2.3/learn/concepts/vnodes/} or Cassandra\footnote{\cite{CASPAR}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archData DistributeVnodesUsing.html})
+\item \textit{region} - (e.g. HBase\footnote{\cite{HBASEPAR}, http://hbase.apache.org/0.94/book/regions.arch.html})
+\item \textit{tablet} - (e.g. BigTable\footnote{\cite{BTPAR}, ``Bigtable: A Distributed Storage System for Structured Data'', Google Inc.})
+\item \textit{vBucket} - (e.g. Couchbase\footnote{\cite{CBPAR}, https://developer.couchbase.com/documentation/server/3.x/admin/Concepts/concept-vBucket.html})
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{partitioning_schema_replication.png}
+	\caption{Schema - Partitioning (using Replication)}
+	\label{partitioning_schema_replication}
+\end{figure}
+
+Partitioning and Replication are usually used together, especially when building data-intensive applications, as a dataset is to big to be stored on a single server or replica, and benefits of replication are required (e.g. \textit{redundancy}, \textit{fault-tolerance} or high read/write \textit{throughput}). This can be achieved by storing partitions of a data set on multiple replica nodes. In case of \textit{single-master} replication a usual approach looks like visualized in Figure \ref{partitioning_schema_replication}. Each partition is replicated to multiple nodes, it has a master node as well as 2 slave nodes storing the same data. Each single node can be a master for a certain partition but also a slave for another partition. Using this approach, datasets and \textit{load} can be easily distributed among multiple nodes as well as an outage of a node won't cause partitions to be unavailable for requests.\\[0.5 cm]
+
+\hspace*{4mm}%
+\fbox{%
+  \hspace*{1.5mm}\hspace*{-1\fboxsep}%
+  \parbox{0.08\textwidth + 5mm - 2\fboxsep}{%
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=\linewidth]{exclamation_mark.png}
+\end{minipage}
+  }%
+}\hspace*{4mm}%
+\begin{minipage}{0.8\textwidth}\raggedright
+As \textbf{horizontal} and \textbf{vertical} partitioning are mixed up sometimes, it is important to notice: when we speak about partitioning within this lecture, we mean \textit{horizontal partioning}. \textit{Vertical partitioning} is an approach of traditional relational databases, usually done by splitting datasets into multiple entities (e.g. tables or databases) and using references (e.g. to achieve \textit{normalization}). \\
+\end{minipage}
+
+\subsubsection{Partitioning Of Key-Value Data}
+\label{tf_dds_partitioning_key_value}
+Partitioning is done with the purpose of distributing a dataset, but more important: distribute related \textit{load} (read/write queries) evenly among several nodes of a data-system. This requires the way of determining the partition of a certain row or document to be choosen wisely, as it directly affecs the performance of a data-system. An improper choosen distribution key may cause some nodes to be idle and/or empty and a single node to be the processing bottleneck and hitting its space limitations as all read/write requests end up on that single node. Whereas an appropriate distribution key will distribute the data evenly and enable the data-system to (theoretically) scale linearily in terms of space utilization and request throughput. Let's discuss some approaches for partitioning:\\
+\begin{itemize}
+\item \textbf{Key Range Partitioning:} Derive a partition by determining whether a key is inside a certain value range. Dicussed within chapter \ref{tf_dds_partitioning_key_value_keyrange}.
+\item \textbf{Partitioning By Hash Value Of A Key:} Derive a partition by a certain hash of a given key to achieve a more even data distribution. Dicussed within chapter \ref{tf_dds_partitioning_key_value_hash_of_key}.
+\item \textbf{Partitioning By List:} Every partition to be used has an assigned list of values. A related partition is derived from the input dataset by checking whether it contains one of those values. For instance all rows containing \textit{iPhone}, \textit{Samsung Galaxy} and \textit{HTC One} within a column \lstinline{device_type} are assigned to partition \textit{Smartphone}. \\
+As no data-intensive system makes use of partitioning by list (as it is very improper to provide even data distribution), we wont discuss this approach in detail.
+\item \textbf{Round-Robin Partitioning:} A very simple approach, which ensures even data distribution. For instance assignment to a partition can be achieved by \lstinline{n} modulo \lstinline{p} (\lstinline{n} = number of inccoming data records, \lstinline{p} = number of partitions). \\
+As no data-intensive system makes use of round-robin partitioning (as for instance the direct access to an individual data record or subset usually requires accessing the whole dataset), we wont discuss this approach in detail.\\
+\end{itemize}
+
+
+\subsubsubsection{Key Range Partitioning}
+\label{tf_dds_partitioning_key_value_keyrange}
+Key Range partitioning is done by defining continues ranges of keys and assigning each of them to a certain partition. If you are aware of the boundaries of each key range, you can easily derive a partition belonging to a certain data record (and in this way node of a data-system) just by using the key of the record. This approach can be compared with an encyclopedia (compare Figure \ref{partitioning_image_wikipedia_as_book}), which is partitioned into books, of which everyone stores a certain range of articles partitioned by the first letters of the name of the article. For instance the article \textit{``Arsenal F.C.''}\footnote{https://en.wikipedia.org/wiki/Arsenal\_F.C.} will be found in partition \textit{863 ``ARS'' - ``ART''}.\\
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=0.8\textwidth]{wikipedia_as_book.jpg}
+	\caption{Image - Wikipedia as Books}
+	\label{partitioning_image_wikipedia_as_book}
+\end{figure}
+
+As you can guess a partitioning only using the first letter (\textit{A, B, C, ... Y, Z}) would lead to an unevenly data distribution. Therefore partition keys or rather boundaries need to be choosen wisely and suitable to a certain dataset, e.g. by a data-system admin or automatically. Another advantage of key range partitioning is, that some operations on a dataset are very easy, especially range scans (queries). If you partition a dataset by time (e.g. web server log files by day) it is very easy to fetch all log files related to a particular week.
+Disadvantages of key range partitioning are:
+\begin{itemize}
+\item \textbf{Datasets Are Changing:} A key range partitioning which was suitable in the past might not be appropriate in the future. Expensive rebalancing or even repartitioning might be needed somewhen. For instance web server log files partitioned per ranges of the URL (\lstinline{/products/[A-B]}, \lstinline{/products/[C-D]}... \lstinline{/products/[Y-Z]}) maybe improper in the future, as some products will have heavier traffic than others over time (\textit{load skew}).
+\item \textbf{Hotspots:} Keys that seem very appropriate in terms of even distribution at first sight, for instance partitioning of web server logfiles over time (by using timestamp of data record), create hotspots within the data system. As all write requests end up on the same partition (e.g. today), a single partition (and node(-s)) will underly heavy load whereas other partitions or rather nodes are idle (\textit{load skew}).
+\item \textbf{Query Performance:} As you do not know the size of a partition beforehand, query performance is impredictable as well as partition pruning and partition-wise joins are more complex and less efficient.
+\end{itemize}
+
+\subsubsubsection{Partitioning By Hash Value Of Key}
+\label{tf_dds_partitioning_key_value_hash_of_key}
+
+\subsubsection{Partitioning Of Secondary Indices}
+\label{tf_dds_partitioning_secondary_indices}
+
+\subsubsection{Rebalancing Partitions}
+\label{tf_dds_partitioning_rebalancing}
+
+\subsubsection{Request Routing}
+\label{tf_dds_partitioning_request_routing}
 
 
 \subsection{Transactions}
