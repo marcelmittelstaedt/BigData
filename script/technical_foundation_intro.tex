@@ -1031,7 +1031,7 @@ Disadvantages of key range partitioning are:
 \begin{itemize}
 \item \textbf{Datasets Are Changing:} A key range partitioning which was suitable in the past might not be appropriate in the future. Expensive rebalancing or even repartitioning might be needed somewhen. For instance web server log files partitioned per ranges of the URL (\lstinline{/products/[A-B]}, \lstinline{/products/[C-D]}... \lstinline{/products/[Y-Z]}) maybe improper in the future, as some products will have heavier traffic than others over time (\textit{load skew}).
 \item \textbf{Hotspots:} Keys that seem very appropriate in terms of even distribution at first sight, for instance partitioning of web server logfiles over time (by using timestamp of data record), create hotspots within the data system. As all write requests end up on the same partition (e.g. today), a single partition (and node(-s)) will underly heavy load whereas other partitions or rather nodes are idle (\textit{load skew}).
-\item \textbf{Query Performance:} As you do not know the size of a partition beforehand, query performance is impredictable as well as partition pruning and partition-wise joins are more complex and less efficient.
+\item \textbf{Query Performance:} As you do not know the size of a partition beforehand, query performance is impredictable as well as partition pruning and partition-wise joins are more complex and less efficient. 
 \end{itemize}
 
 \subsubsubsection{Partitioning By Hash Value Of Key}
