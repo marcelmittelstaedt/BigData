@@ -1031,14 +1031,96 @@ Disadvantages of key range partitioning are:
 \begin{itemize}
 \item \textbf{Datasets Are Changing:} A key range partitioning which was suitable in the past might not be appropriate in the future. Expensive rebalancing or even repartitioning might be needed somewhen. For instance web server log files partitioned per ranges of the URL (\lstinline{/products/[A-B]}, \lstinline{/products/[C-D]}... \lstinline{/products/[Y-Z]}) maybe improper in the future, as some products will have heavier traffic than others over time (\textit{load skew}).
 \item \textbf{Hotspots:} Keys that seem very appropriate in terms of even distribution at first sight, for instance partitioning of web server logfiles over time (by using timestamp of data record), create hotspots within the data system. As all write requests end up on the same partition (e.g. today), a single partition (and node(-s)) will underly heavy load whereas other partitions or rather nodes are idle (\textit{load skew}).
-\item \textbf{Query Performance:} As you do not know the size of a partition beforehand, query performance is impredictable as well as partition pruning and partition-wise joins are more complex and less efficient. 
+\item \textbf{Query Performance:} As you do not know the size of a partition beforehand, query performance is impredictable as well as partition pruning and partition-wise joins are more complex and less efficient. \\
 \end{itemize}
 
-\subsubsubsection{Partitioning By Hash Value Of Key}
+Nevertheless for instance RethinkDB makes use of \textit{key range partitioning}\footnote{\cite{RDBARCH}, https://www.rethinkdb.com/docs/architecture/}. RethinkDB calls this approach \textit{range sharding} and its applied on the table’s primary key. If a table is configured to make use of a certain number of partitions (\textit{shards}), RethinkDB automatically examines the statistics for the table and finds the optimal set of \textit{split points} to distribute the table's data evenly among all partitions. But this comes (as discussed) at a price: every time you need to add a shard to the data-system or the dataset changes significantly over time in a way that the primary key distribution is not even anymore, you need to \textit{rebalance}\footnote{\cite{RDBREB}, https://www.rethinkdb.com/api/javascript/rebalance/} all shards of a table.
+
+\newpage
+
+\subsubsubsection{Hash Partitioning}
 \label{tf_dds_partitioning_key_value_hash_of_key}
+Hash partitioning is used to spread data efficiently and evenly among several certain partitions. This is achieved by splitting data in a randomized way rather than by using information provided within the dataset (e.g. IDs) or derived by arbitrary factors (e.g. time of data receival). The hash value itself is derived by a hash function (on a certain key of a data record) and is used to determine the partition a data records should be saved on.
+\\[0.5 cm]
+\hspace*{4mm}%
+\fbox{%
+  \hspace*{1.5mm}\hspace*{-1\fboxsep}%
+  \parbox{0.08\textwidth + 5mm - 2\fboxsep}{%
+\begin{minipage}{0.1\textwidth}
+\includegraphics[width=\linewidth]{gear_brain.png}
+\end{minipage}
+  }%
+}\hspace*{4mm}%
+\begin{minipage}{0.8\textwidth}\raggedright
+\textbf{Hash Function} is a function which takes input data of arbitrary size and usually provides an output of fixed size. The output of a hash function is called \textit{hash}, \textit{hash value} or \textit{digest}. A hash function needs to be \textit{deterministic} and \textit{uniform}. Common use cases for hash functions are \textit{cryptography}, \textit{checksums} and \textit{partitioning}.\\
+\end{minipage}\\[0.4 cm]
+
+Hash functions are commonly used for partitioning, as they are:
+\begin{itemize}
+\item \textbf{deterministic}\footnote{A deterministic hash function will provide the same output, if it is executed several times for the same input.} - as we need to be able to find records to be saved later on and 
+\item \textbf{uniform}\footnote{A uniform hash function will map the inputs as evenly as possible to the available output range} - as we want to distribute the data as evenly as possible among the set of avaiable partitions and nodes, even if the inputs of the hash function (e.g. data record key) are very similar.\\
+\end{itemize} 
+
+Unlike cryptography, partitioning makes use of hash functions that are not cryptographilly strong (as this is not needed) but fast and less CPU consuming. Examples of commonly used hash function for distributed data-systems are:
+\begin{itemize}
+\item \textbf{MD5} - For instance used and supported by MySQL\footnote{\cite{MYSQLHP}, https://dev.mysql.com/doc/refman/5.7/en/partitioning-key.html} and Cassandra\footnote{\cite{CASHP}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archPartitionerAbout.html}.
+\item \textbf{MurmurHash} - For instance supported by Cassandra\footnote{\cite{CASHP}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archPartitionerAbout.html}.
+\item \textbf{SHA1} - For instance used and supported by Riak\footnote{\cite{RIAKHP}, http://basho.com/posts/technical/why-riak-just-works/}.
+\item \textbf{CRC32} - For instance used and supported by Couchbase\footnote{\cite{CBCRC}, https://docs.couchbase.com/server/5.5/understanding-couchbase/buckets-memory-and-storage/vbuckets.html}.\\
+\end{itemize} 
+
+As an example for \textit{determinism} and \textit{uniformity} let's take a quick look at MD5 and how the hash value changes when a single character is added to the input value, when just a single character of the input value is changed or the same input value is hashed twice (see bash output in Code Snippet \ref{md5_example}).\\
+
+\begin{lstlisting}[aboveskip=1ex, belowskip=3ex, xleftmargin=18pt, emphstyle=\underbar, breaklines=true, showstringspaces=false, captionpos=b, caption=Bash Output - \textit{MD5 Hash For Several Input Values}, label=md5_example,language=java]
+marcel$ md5 -s abc
+MD5 ("abc") = 900150983cd24fb0d6963f7d28e17f72
+// add a single character ("d")
+marcel$ md5 -s abcd
+MD5 ("abcd") = e2fc714c4727ee9395f324cd2e7f331f
+// change  a single character ("d" to "e")
+marcel$ md5 -s abce
+MD5 ("abce") = b9c4fe92c2a30ef69833ac8f53eebcec
+// hash again with same input value
+marcel$ md5 -s abce
+MD5 ("abce") = b9c4fe92c2a30ef69833ac8f53eebcec
+\end{lstlisting}
+
+As you can see \textit{uniformity} is ensured, as with just the change of a single character the resulting hash is completely different. \textit{Determinism} is also fulfilled as executing the function with the same input value produces the same hash value.\\
+Using this hash functions, distributed data-systems are able to distribute records among partitions, this is usually done by two common approaches:\\
+
+\textbf{Hash Modulo:}\\ 
+Take the calculated hash value \textit{V} and calculate \textit{V} \lstinline{modulo} \textit{N} (number of partitions). This allows the the data-system to easily distribute and receive records to and from a given number of partitions. Unfortunately this approach has a major disadvantage in terms of \textit{scalability} especially \textit{operability}. As data-systems usually grow significantly over time (which requires adding additional nodes (\textit{N}) to a data-system to cope with the increasing data volume) \textit{hash modulo} causes a lot of trouble, as an increased (as well as decreased) \textit{N} results in different partition assignments for a lot of records (depending on size of \textit{N}), which will require to shuffle and reassign already saved data again among all partitions. That's the main reason most data-systems we talk about within this lecture (unlike traditional databases) do not make use of \textit{hash modulo} but \textit{consistent hashing}. Nevertheless for instance elasticsearch makes use of it, a partition (called \textit{shard}) is derived by\footnote{\cite{ESROUT}, https://www.elastic.co/guide/en/elasticsearch/guide/current/routing-value.html}:
+\begin{lstlisting}[aboveskip=2ex, belowskip=2ex,emphstyle=\underbar, breaklines=true,frame=none,numbers=none,xleftmargin=0.15\textwidth,xrightmargin=0.15\textwidth,showstringspaces=false,language=java]
+shard = hash(routing) % number_of_primary_shards
+\end{lstlisting}
+The number of shards for an \textit{index}\footnote{index - An index is a collection of documents. Compared to a relational database like MySQL: elasticsearch can contain multiple indices (databases), which in turn contain multiple types (tables). These types hold multiple documents (rows), and each document has properties (columns).} can increased (by \lstinline{_split}\footnote{\cite{ESSPLIT}, https://www.elastic.co/guide/en/elasticsearch/reference/6.4/indices-split-index.html}) or decreased (by \lstinline{_shrink}\footnote{\cite{ESSHRINK}, https://www.elastic.co/guide/en/elasticsearch/reference/6.4/indices-shrink-index.html}) some time after creation but this is not a trivial task and will usually require recreating the same or even creating a new \textit{index}.\\
+
+
+\textbf{Consistent Hashing:}\\  
+Assign a range of hashes to every partition (and in this way node). Every record will be stored and read from the partition in charge for a given range of hash values. Imagine \textit{consistent hashing} as a ring of keys (see Figure \ref{partitioning_consistent_hashing} on page \pageref{partitioning_consistent_hashing}). Each node (\textit{N\textsubscript{\textbf{i}}}) is in charge for serving all hash values \textit{v} in between \textit{i} and the position \textit{j} of its clockwise predecessor \textit{N\textsubscript{\textbf{j}}} :\\
+\centerline{\textbf{j < v $\leq$ i}}
+
+Using \textit{consistent hashing} even distribution and avoiding of hotspots is also ensured by using hash values of keys. Unlike \textit{hash modulo} this approach is not vulnerable for a changing cluster size (number of nodes \textit{N}), as for instance in case of removing a node (see Figure \ref{partitioning_consistent_hashing} on page \pageref{partitioning_consistent_hashing}, node 7), the higher neighbour (node 8) takes over and all other data does not need to be touched or reassigned. Node \textit{N\textsubscript{\textbf{8}}} is no longer in charge of hash values \textit{v} between \textbf{7 < v $\leq$ 8} but \textbf{6 < v $\leq$ 8}. 
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{partitioning_consistent_hashing.png}
+	\caption{Schema - Consistent Hashing}
+	\label{partitioning_consistent_hashing}
+\end{figure}
+
+In case of a node is added to the data-system, it just takes values from another node and all other partitions and nodes do not need to be touched. As you can see after every addition or removal of a node, only \textit{c}/\textit{N} keys need to be redistributed (where \textit{c} is the count of hash values and \textit{N} is the number of nodes within the data-system). Because of that \textit{cosistent hashing} has become a de facto standard for all modern highly distributed data-systems (e.g. Cassandra\footnote{\cite{CASCH}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archDataDist ributeHashing.html}, Riak\footnote{\cite{RIAKCH}, http://docs.basho.com/riak/kv/2.2.3/learn/glossary/}, VoldemortDB\footnote{\cite{VDBCH}, http://www.project-voldemort.com/voldemort/design.html} or DynamoDB\footnote{\cite{DYNDBCH}, https://cloudacademy.com/blog/dynamodb-replication-and-partitioning-part-4/}).\\
+
+It is important to notice a disadvantage of \textit{consistent hashing}: range queries. As keys are now randomly distributed among all partitions (to achieve even distribution) range queries will perform less efficient compared to \textit{key range partitioning} as the query needs to be sent and processed by all partitions (and therefore nodes). For instance MongoDB provides \textit{key range partitioning} (called \textit{ranged sharding}\footnote{\cite{MDBRS}, https://docs.mongodb.com/manual/core/ranged-sharding/}) as well as \textit{hash partitioning} (called \textit{hashed sharding}\footnote{\cite{MDBHS}, https://docs.mongodb.com/manual/core/hashed-sharding/}) to efficently serve both use cases, but you still need to choose wisely and make a trade-off which one to use depending on your case.\\
 
 \subsubsection{Partitioning Of Secondary Indices}
 \label{tf_dds_partitioning_secondary_indices}
+
+\subsubsubsection{Local Index}
+\label{tf_dds_partitioning_secondary_indices_local_index}
+
+\subsubsubsection{Global Index}
+\label{tf_dds_partitioning_secondary_indices_global_index}
 
 \subsubsection{Rebalancing Partitions}
 \label{tf_dds_partitioning_rebalancing}
