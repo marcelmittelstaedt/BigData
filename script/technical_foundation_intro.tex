@@ -341,7 +341,7 @@ However finding useful abstractions is not that easy and needs a lot of experien
 \newpage
 \section{Storage Concepts}
 \label{tf_storageconcepts}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+to-be-added
 
 \newpage
 
@@ -486,8 +486,7 @@ There is no universal answer to the question which data model leads to more or l
 
 \subsubsection{Graph Data Model}
 \label{tf_dma_datamodels_gdm}
-
-Lorem Ipsum...
+to-be-added
 \newpage
 \subsection{Data Access}
 \label{tf_dma_dataaccess}
@@ -635,12 +634,12 @@ As MapReduce is kind of a low-level programming model, it is most likely you wil
 
 \subsubsection{SPARQL}
 \label{tf_dma_dataaccess_sparql}
-
+to-be-added
 \newpage
 
 \section{Challenges Of Distributed Data Systems}
 \label{tf_dds}
-Einleitungstext XXX
+to-be-added
 
 \subsection{Replication}
 \label{tf_dds_replication}
@@ -960,7 +959,7 @@ For instance sloppy quorums are enabled by default within Riak\footnote{\cite{RI
 \end{itemize}
 
 \subsubsubsection{Gossip}
-
+to-be-added
 \newpage
 \subsection{Partitioning}
 \label{tf_dds_partitioning}
@@ -1113,14 +1112,48 @@ In case of a node is added to the data-system, it just takes values from another
 
 It is important to notice a disadvantage of \textit{consistent hashing}: range queries. As keys are now randomly distributed among all partitions (to achieve even distribution) range queries will perform less efficient compared to \textit{key range partitioning} as the query needs to be sent and processed by all partitions (and therefore nodes). For instance MongoDB provides \textit{key range partitioning} (called \textit{ranged sharding}\footnote{\cite{MDBRS}, https://docs.mongodb.com/manual/core/ranged-sharding/}) as well as \textit{hash partitioning} (called \textit{hashed sharding}\footnote{\cite{MDBHS}, https://docs.mongodb.com/manual/core/hashed-sharding/}) to efficently serve both use cases, but you still need to choose wisely and make a trade-off which one to use depending on your case.\\
 
+\newpage
+
 \subsubsection{Partitioning Of Secondary Indices}
 \label{tf_dds_partitioning_secondary_indices}
 
-\subsubsubsection{Local Index}
+We previously discussed partitioning mostly relying on key-value data, in which a single key is not only used for partitioning but also as the primary key of a dataset. If you only need to access the data by the primary key, determination of the belonging partition can easily be achieved by using the hash function as described within the last chapter. But what if you need to access the data by attributes within a record or even do a range scan on those attributes? Let's take our previous discussed Example of Facebook profiles as an example (Figure \ref{schema_facebook_relational_model} on page \pageref{schema_facebook_relational_model}). If you want to receive a single profile and know the \lstinline{user_id}, a belonging partition can easily be determined, but if you want to receive all profiles of people living in ``\textit{Palo Alto}'' \textit{secondary indices} are a good choice to efficiently access the required data by attributes that are other than the primary key. \\
+You probably already know the idea of \textit{secondary indices} from traditional relational databases like DB2, Oracle or Informix discussed within previous lectures. Applying this concept on distributed data-systems is a little bit more complex, as \textit{secondary indices} need to take care of partitions of the data they link to as well as they even need to be partioned themself too. We will take a closer look on two common approaches for \textit{secondary indeces} and partitioning within the next two chapters \textit{\ref{tf_dds_partitioning_secondary_indices_local_index} \nameref{tf_dds_partitioning_secondary_indices_local_index}} and \textit{\ref{tf_dds_partitioning_secondary_indices_global_index} \nameref{tf_dds_partitioning_secondary_indices_global_index}}.
+
+\subsubsubsection{Local Secondary Indices}
 \label{tf_dds_partitioning_secondary_indices_local_index}
 
-\subsubsubsection{Global Index}
+A \textit{local secondary index} (also known as \textit{LSI}\abk{LSI}{Local Secondary Index}) is achieved by creating, storing and maintaining the index locally in every partition. Insert, update or delete operations are performed locally on the node and partition the index belongs to. Every partition basically manages its own index and all pointers reference to local data items. For instance if a data record is added to a partition, the partition also automatically adds the new entry to its secondary index. Maintaining a local index requires less overhead and is in this way usually much faster than maintaining a global index. But do not ignore that maintaining the local index will compete with the local workload and affect the throughput and if your cluster grows significantly in size (amount of nodes), \textit{scattering} and \textit{gathering} overhead will probably have a major impact on read request performance.\\
+Let's get back to the previously mentioned example of Facebook profiles (Figure \ref{schema_facebook_relational_model} on page \pageref{schema_facebook_relational_model}) and how this would look like using \textit{local secondary indices}: Figure \ref{partitioning_secondary_indexes_local} on page \pageref{partitioning_secondary_indexes_local}. As you can see every partition has its own local secondary indices. If you for instance want to query alle profiles of people living in ``\textit{Palo Alto}'', you would need to query the secondary index of every partition (\textit{scatter} and \textit{gather}) as the data is not partitioned by \lstinline{city} and related entries can be found in any partition. This is also a major weakness of \textit{local secondary indices}, as they are expensive as you need to query all partitions. This can be done in parallel, as we are talking about distibuted, partitioned and probably replicated data-systems but you should keep that always in mind. It is recommended to partition a dataset in such a way, secondary indices can be served by one partition, but thats not always feasible. especially if you make use of multiple seconday indices within one query.\\
+\textit{Local secondary indices} are implemented and provided by e.g. Riak\footnote{\cite{RIAKSIL}, http://docs.basho.com/riak/kv/2.2.3/using/reference/secondary-indexes/}, Cassandra\footnote{\cite{CASSIL}, https://www.datastax.com/dev/blog/cassandra-native-secondary-index-deep-dive} and DynamoDB\footnote{\cite{DYNDBSIL}, https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LSI.html}.
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{partitioning_secondary_indexes_local.png}
+	\caption{Schema - Secondary Indices (local)}
+	\label{partitioning_secondary_indexes_local}
+\end{figure}
+
+\newpage
+
+\subsubsubsection{Global Secondary Indices}
 \label{tf_dds_partitioning_secondary_indices_global_index}
+
+A \textit{global secondary index} (also known as \textit{GSI}\abk{GSI}{Global Secondary Index}) is achieved by creating, storing and maintaining the index globally and independent of local data items of partitions. Insert, update or delete operations require remote updates of the index for the belonging data. A \textit{global secondary index} could be saved on a single node but that would not only violate the basic idea of distributed data-systems, \textit{scalability} and \textit{reliability} but also will also be impossible at some time as the size of the index gets to big for one node. So every \textit{global secondary index} is partitioned by its own key indepent of local data records. For instance if a data record is added to a partition, the partition also automatically adds the new entry to its secondary index.\\ 
+Maintaining a global index requires more overhead and is in this way usually slower than maintaining a local index but also more efficent in terms of read requests as you only need to query one partition index instead of \textit{scattering} and \textit{gathering} all partitions. This approach usually weakens the read consistency, as indices updates take more time, for instance DynamoDB supports \textit{strong consistency} for \textit{local secondary indices}\footnote{\cite{DYNDBSIL}, https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LSI.html} but only \textit{eventual consistency} for \textit{eventual consistency} for \textit{global secondary indices}\footnote{\cite{DYNDBGIL}, https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}.\\
+\textit{Local secondary indices} are mostly implemented by traditional relational databases (e.g. Oracle Database\footnote{\cite{ORCLGSI}, https://docs.oracle.com/database/121/VLDBG/GUID-EE7C7B09-81BD-4996-8AC1-42A50D26FC25.htm} or Microsoft SQL Server\footnote{\cite{MSSQLGSI}, https://docs.microsoft.com/de-de/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-2017}) but rarely used by BigData data-systems. Nevertheless DynamoDB\footnote{\cite{DYNDBGIL}, https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html} and Couchbase\footnote{\cite{CBGSI}, https://docs.couchbase.com/server/5.5/indexes/indexing-overview.html} make use of them.\\
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{partitioning_secondary_indexes_global.png}
+	\caption{Schema - Secondary Index (global)}
+	\label{partitioning_secondary_indexes_global}
+\end{figure}
+
+Let's get back to the previously mentioned example of Facebook profiles (Figure \ref{schema_facebook_relational_model} on page \pageref{schema_facebook_relational_model}) and how this would look like using a \textit{global secondary index}: Figure \ref{partitioning_secondary_indexes_global} on page \pageref{partitioning_secondary_indexes_global}.
+As you can see every \textit{global secondary index} is partioned and stored complety independant of the belonging data it points to. If you for instance want to query alle profiles of people living in ``\textit{Palo Alto}'', you would query the secondary index of partition 1 once and be able to get all related records, irrespective of which partition they are stored in. The \textit{global secondary index} itself is also partitioned, as you can see, but completely independent of the partions of the data records it points to. \\
+This approach is usually faster in terms of read requests, as you only need to query one partition to get the full secondary index instead of \textit{scattering} over all partitions. But it could also be slower at write operations, as if only one record changes, probably multiple indexes and partitions (probably on multiple nodes) need to be updated too.
+\newpage
 
 \subsubsection{Rebalancing Partitions}
 \label{tf_dds_partitioning_rebalancing}
@@ -1131,8 +1164,8 @@ It is important to notice a disadvantage of \textit{consistent hashing}: range q
 
 \subsection{Transactions}
 \label{tf_dds_transactions}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+to-be-added
 
 \subsection{Consistency}
 \label{tf_dds_consistency}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+to-be-added
