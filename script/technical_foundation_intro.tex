@@ -1158,6 +1158,39 @@ This approach is usually faster in terms of read requests, as you only need to q
 \subsubsection{Rebalancing Partitions}
 \label{tf_dds_partitioning_rebalancing}
 
+\subsubsubsection{Hash Modulo}
+We have previously discussed the approach of using \textit{hash modulo} (chapter \ref{tf_dds_partitioning_key_value_hash_of_key} \nameref{tf_dds_partitioning_key_value_hash_of_key}) for partitioning. Take the derived hash value \textit{V} and calculate \textit{V} \lstinline{modulo} \textit{N} (number of nodes) to get the related partition (and therefore node). As discussed, this approach is very prone to changing cluster sizes, as a changing number of nodes results into different results of the modulo operation and in this way partition allocations. This results in very IO and disk expensive rebalancing as probably partitions of multiple nodes need to be rebalanced among the whole data-system.\\
+As the main goal of rebalancing is to move around as less data as possible we won't further discuss this approach.
+
+\subsubsubsection{Fixed Number Of Partitions}
+\label{tf_dds_partitioning_rebalancing_fixed_no_partitions}
+Another approach to minimize rebalancing overhead is to create more partitions \textit{p} than nodes \textit{n} within the data-system. elasticsearch recommends having 5 \textit{shards} (partitions) and one replica per \textit{index}\footnote{index - An index is a collection of documents. Compared to a relational database like MySQL: elasticsearch can contain multiple indices (databases), which in turn contain multiple types (tables). These types hold multiple documents (rows), and each document has properties (columns).}\footnote{\cite{ELSSIZ}, https://www.elastic.co/guide/en/elasticsearch/reference/current/\_basic\_concepts.html}. So if you are running a cluster of 2 nodes, this means having 10 shards for the whole data-system (5 shards per node). Riak even recommends having up to 64-128 partitions for 3 nodes\footnote{\cite{RIAKNOP}, http://docs.basho.com/riak/kv/2.2.3/setup/planning/cluster-capacity/}. \\
+In this way, for instance if a node is added to a cluster (Node 4), it can just \textit{steal} some partitions of other nodes within the same cluster (see Figure \ref{partitioning_rebalancing_fixed_no_partitions} on page \pageref{partitioning_rebalancing_fixed_no_partitions}) until the distribution within the data-system is even again. \\
+Using this approach only full partitions can be moved (which is fine if partitions are small) and requires less overhead as partitions do not need to be splitted or merged. Unlike hash modulo, the association between keys and partitions also stays unchanged, reducing the amount of data to be moved around for rebalancing of the data-system. Usually the amount of partitions \textit{p} need to be configured during the initial setup of the data-system, which requires a wiseful sizing with future datagrowth in mind. You may think about just configuring a high number of \textit{p} but this will cause unnecessary overhead especially increasing \textit{latency} for read requests. If \textit{p} is too small, the size of every partition will be too large and in this way rebalancing and recovery unnecessarily slow.\\
+This approach is used and implemented by, e.g. Elasticsearch\footnote{\cite{ELSSIZ}, https://www.elastic.co/guide/en/elasticsearch/reference/current/\_basic\_concepts.html}, Riak\footnote{\cite{RIAKNOP}, http://docs.basho.com/riak/kv/2.2.3/setup/planning/cluster-capacity/} and Couchbase\footnote{\cite{CBVP}, https://docs.couchbase.com/server/4.1/concepts/buckets-vbuckets.html}.
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1\textwidth]{partitioning_rebalancing_fixed_no_partitions.png}
+	\caption{Schema - Rebalancing (Fixed Number Of Partitions)}
+	\label{partitioning_rebalancing_fixed_no_partitions}
+\end{figure}
+
+\subsubsubsection{Dynamic Amount Of Partitions}
+We have previously discussed the approach of partitioning by key-range (chapter \textit{\ref{tf_dds_partitioning_key_value_keyrange} \nameref{tf_dds_partitioning_key_value_keyrange}}). Using this approach and a fixed number partitions, we would probably end up with a lot of unbalanced partitions forcing us to reconfigure the key range and rebalancing the whole data-system. Because of that key-range partitioned data-systems (e.g. RethinkDB\footnote{\cite{RDBSR}, https://www.rethinkdb.com/docs/sharding-and-replication/}) make use of \textit{dynamic partitioning}. If such a data-system is used, an initial number of partitions \textit{p} is configured, for instance \textit{p} = \textit{n} (nodes). If a partition exceeds some well defined max size threshold, e.g. 10GB per default using HBase (\lstinline{hbase.hregion.max.filesize})\footnote{\cite{HBSSM}, https://de.hortonworks.com/blog/apache-hbase-region-splitting-and-merging/}, it gets split into two partitions. The other way around, if a partitions falls below a certain threshold it gets merged with another partition. This approach is pretty similar to the idea of \textit{B-Trees} you already know from previous database lectures (see Figure \ref{partitioning_rebalancing_b_trees}\footnote{schema from https://en.wikipedia.org/wiki/B-tree\#/media/File:B\_tree\_insertion\_example.png}).
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=0.3\textwidth]{partitioning_rebalancing_b_trees.png}
+	\caption{Schema - Dynamic Partition Rebalancing (Idea similar to B-Trees)}
+	\label{partitioning_rebalancing_b_trees}
+\end{figure}
+
+The behaviour of changing cluster sizes is similar to the approach of the previous chapter (\textit{\ref{tf_dds_partitioning_rebalancing_fixed_no_partitions} \nameref{tf_dds_partitioning_rebalancing_fixed_no_partitions}}). If a node is added to the data-systems, it steals \textit{partitions}. If a node leaves or is lost, other nodes reclaim belonging partitions. \\
+The advantage of this approach is, that you do not need to worry about a well defined number of partitions \textit{p}, as \textit{p} will dynamically adapt to the size of the dataset. A disadvantage (you need to keep in mind) may be the \textit{load} (IO and network) during the runtime of your data-system, as it will continously rebalance, create and merge partitions.
+
+
+\subsubsubsection{Fixed Number Of Partitions Per Node}
+
 \subsubsection{Request Routing}
 \label{tf_dds_partitioning_request_routing}
 
