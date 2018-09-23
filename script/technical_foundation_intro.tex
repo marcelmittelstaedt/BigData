@@ -1177,7 +1177,7 @@ This approach is used and implemented by, e.g. Elasticsearch\footnote{\cite{ELSS
 \end{figure}
 
 \subsubsubsection{Dynamic Amount Of Partitions}
-We have previously discussed the approach of partitioning by key-range (chapter \textit{\ref{tf_dds_partitioning_key_value_keyrange} \nameref{tf_dds_partitioning_key_value_keyrange}}). Using this approach and a fixed number partitions, we would probably end up with a lot of unbalanced partitions forcing us to reconfigure the key range and rebalancing the whole data-system. Because of that key-range partitioned data-systems (e.g. RethinkDB\footnote{\cite{RDBSR}, https://www.rethinkdb.com/docs/sharding-and-replication/}) make use of \textit{dynamic partitioning}. If such a data-system is used, an initial number of partitions \textit{p} is configured, for instance \textit{p} = \textit{n} (nodes). If a partition exceeds some well defined max size threshold, e.g. 10GB per default using HBase (\lstinline{hbase.hregion.max.filesize})\footnote{\cite{HBSSM}, https://de.hortonworks.com/blog/apache-hbase-region-splitting-and-merging/}, it gets split into two partitions. The other way around, if a partitions falls below a certain threshold it gets merged with another partition. This approach is pretty similar to the idea of \textit{B-Trees} you already know from previous database lectures (see Figure \ref{partitioning_rebalancing_b_trees}\footnote{schema from https://en.wikipedia.org/wiki/B-tree\#/media/File:B\_tree\_insertion\_example.png}).
+We have previously discussed the approach of partitioning by key-range (chapter \textit{\ref{tf_dds_partitioning_key_value_keyrange} \nameref{tf_dds_partitioning_key_value_keyrange}}). Using this approach and a fixed number partitions, we would probably end up with a lot of unbalanced partitions forcing us to reconfigure the key range and rebalancing the whole data-system. Because of that key-range partitioned data-systems (e.g. RethinkDB\footnote{\cite{RDBSR}, https://www.rethinkdb.com/docs/sharding-and-replication/}) make use of \textit{dynamic partitioning}. If such a data-system is used, an initial number of partitions \textit{p} is configured, for instance \textit{p} = \textit{n} (nodes). If a partition exceeds some well defined max size threshold, e.g. 10GB per \textit{region} as default using HBase (\lstinline{hbase.hregion.max.filesize})\footnote{\cite{HBSSM}, https://de.hortonworks.com/blog/apache-hbase-region-splitting-and-merging/}, it gets split into two partitions. The other way around, if a partitions falls below a certain threshold it gets merged with another partition. This approach is pretty similar to the idea of \lstinline{INSERT}s into \textit{B-Trees} you already know from previous database lectures (see Figure \ref{partitioning_rebalancing_b_trees}\footnote{schema from https://en.wikipedia.org/wiki/B-tree\#/media/File:B\_tree\_insertion\_example.png}).
 \begin{figure}[h]
 	\centering
   \includegraphics[width=0.3\textwidth]{partitioning_rebalancing_b_trees.png}
@@ -1188,11 +1188,43 @@ We have previously discussed the approach of partitioning by key-range (chapter 
 The behaviour of changing cluster sizes is similar to the approach of the previous chapter (\textit{\ref{tf_dds_partitioning_rebalancing_fixed_no_partitions} \nameref{tf_dds_partitioning_rebalancing_fixed_no_partitions}}). If a node is added to the data-systems, it steals \textit{partitions}. If a node leaves or is lost, other nodes reclaim belonging partitions. \\
 The advantage of this approach is, that you do not need to worry about a well defined number of partitions \textit{p}, as \textit{p} will dynamically adapt to the size of the dataset. A disadvantage (you need to keep in mind) may be the \textit{load} (IO and network) during the runtime of your data-system, as it will continously rebalance, create and merge partitions.
 
-
+\newpage
 \subsubsubsection{Fixed Number Of Partitions Per Node}
+Another appproach is to have a fixed number of partitions \textit{p} per node \textit{n}. Every \textit{n} has a fix amount of \textit{p}, for instance Cassandra, which makes use of \textit{vNodes}\footnote{\cite{CASVN}, https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archDataDistribute Distribute.html}, has a default of 256 \textit{vNodes} per \textit{n} (cassandra.yaml parameter \lstinline{num_tokens})\footnote{\cite{CASVNDEF}, https://docs.datastax.com/en/datastax\_enterprise/4.8/datastax\_enterprise/config/config Vnodes.html}. Having a lot of small partitions and keeping \textit{p} fix for every node \textit{n} simplifies a lot of tasks related to rebalancing, most of the time rebalancing is ``not even necessary'', as a new node just assumes responsibility for an even portion of data from the other nodes within the data-system. In this way the amount of data to be transferred between all nodes, if a node is being added to a data-system, is limited to a minimum. The case of rebuilding a failed node, gets even faster, as it is able to involve probably every other node within the data-system.
 
-\subsubsection{Request Routing}
-\label{tf_dds_partitioning_request_routing}
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1.0\textwidth]{partitioning_rebalancing_fixed_no_partitions_per_node.png}
+	\caption{Schema - Rebalancing (Fixed Number Of Partitions Per Node)}
+	\label{partitioning_rebalancing_fixed_no_partitions_per_node}
+\end{figure}
+
+Let's take a look at Figure \ref{partitioning_rebalancing_fixed_no_partitions_per_node} as a very simplified example (very small number of \textit{p}) for what happens if a node (\textit{Node 9}) is added to the data-system. As you can see, Node 9 just gets a slice of a fix number of existing \textit{p} (3) from the other nodes within the data-system. Existing partitions just get evenly split, which means leaving the old partition owner (node) a half as well as transferring the other half to the new node. In this way the size of each \textit{p} grows proportionally with the size of the whole dataset and if you add a node, the size of the existing \textit{p} become smaller again. This approach keeps the size and distribution of every \textit{p} evenly and stable.\\
+
+Another advantage of having a fixed amount of \textit{p} per \textit{n} is hardware \textit{efficiency}. As a data-system usually grows over time, you need to add more nodes as already discusssed. To get the most out of the hardware you would need to add server with the exact same specification like the old ones (CPU, RAM etc.) or if you would like to add more powerful server, you would end up replacing the old ones as well, to keep the required \textit{homogeneous} environment. With the possibility of configuring the amount of \textit{p} proportionally for each node, you are able to run your data-system on a \textit{heterogenous} hardware environment. For instance in case of Cassandra\footnote{\cite{CASVNUNE}, https://www.datastax.com/dev/blog/virtual-nodes-in-cassandra-1-2}, if you once created your data-system having 64 \textit{p} (\textit{vNodes}) per \textit{n}, those old servers can stay the same but you can just set up the new, twice as powerful, ones to take care of 128 \textit{p} (\textit{vNodes}) per \textit{n}.
+
+\newpage
+\subsubsection{Partition Lookup}
+\label{tf_dds_partitioning_partition_lookup}
+Now that we have discussed how to partition datasets, indices and how to rebalance them among multiple nodes of a data-system, let's quickly discuss how to keep track of the files, especially when partitions are rebalanced and the assignment of records moves to another node. Some part of the distributed data-system needs to keep track on, and be able to determine the node related to a data record or read request to it.\\
+
+\begin{figure}[h]
+	\centering
+  \includegraphics[width=1.0\textwidth]{partitioning_request_routing_approaches.png}
+	\caption{Schema - Request Routing Approaches}
+	\label{partitioning_request_routing_approaches}
+\end{figure}
+
+Figure \ref{partitioning_request_routing_approaches} illustrates 3 common approaches:
+
+\begin{itemize}
+\item A) \textbf{Direct Routing} - Querying data requires the knowledge of which partition a certain data record belongs to (\textit{partition lookup table}) within the application layer (\textit{client tier}), to be able to route the data requests to the appropriate nodes. As this gets very impractical in many kinds like \textit{scalability}, \textit{reliability} and \textit{operability}, it's mostly used by traditional relational databases rather than by highly distributed data-systems. For instance this approach is used by Microsoft SQL Server\footnote{\cite{PLMSSQL}, https://technet.microsoft.com/en-us/library/cc966448.aspx}.
+\item B) \textbf{Dedicated Routing Tier} - This approach makes use of a dedicated \textit{routing tier} which stores all information which partition a certain data record belongs to (\textit{partition lookup table}) and redirects all queries to the appropriate node within the data-system. Usually it also provides a \textit{coordination service} which coordinates all data nodes in terms of partitions and replicas as well. For instance supported by MongoDB which makes use of a dedicated routing (\textit{mongos}) and config/coordination service (\textit{mongo config})\footnote{\cite{PLMDB}, https://docs.mongodb.com/manual/sharding/}.
+\item C) \textbf{Ask-Any-Node} - This approach stores the information, which partition a data record belongs to (\textit{partition lookup table}), on every node within the data-system. In this way a client can connect to any node within the data-system. In case the node stores the required partition, it just returns the result to the client. If the required partition is stored on another node, the initially queryed node requests the node storing the required partition on its own and returns the result to the client afterwards. For instance this approach is used by Riak Core\footnote{\cite{PLRIAK}, https://github.com/basho/riak\_core/wiki}.\\
+\end{itemize} 
+
+Talking about distributed data-systems and mostly the Apache Hadoop ecosystem (especially all related data-systems like HDFS, HBase, HDFS, Hadoop MapReduce, YARN HA, Hive, Solr, Flume, Kafka...) we need to talk about Apache Zookeeper\footnote{\cite{AZOOHP}, https://zookeeper.apache.org/}. Apache Zookeeper works as a separate dedicated coordination service (like illustrated and discussed as approach B within Figure \ref{partitioning_request_routing_approaches} on page \pageref{partitioning_request_routing_approaches}). It takes care of tasks like partition lookup and rebalancing, but also general cluster management. Zookeeper provides a (distributed) configuration service, synchronization service, naming registry for distributed data-systems and all of them with \textit{high-availability}. ZooKeeper initially started as a sub-project of Hadoop but is now a top-level Apache project in its own right.\\
+So instead of developing their own coordination services, all previously listed data-systems usually make use of Apache Zookeeper.
 
 
 \subsection{Transactions}
