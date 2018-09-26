@@ -116,34 +116,120 @@ If you just do not want to throw data away, there are cheaper and more appropria
 \label{bd_vs_other_vs}
 to-be-added
 
-\section{Challenges}
+\section{Big Data Challenges}
 \label{bd_def}
 to-be-added
 
-\section{BigData Use Cases}
-\label{bd_def}
-to-be-added
-
-\section{BigData And Consistency}
+\section{Big Data And Consistency}
 \label{bd_consistency}
-to-be-added
 
-ACID
-CAP
-BASE
+\subsection{CAP Theorem}
+\label{bd_consistency_cap}
 
-\section{BigData in Business}
+\subsection{ACID Theorem}
+\label{bd_consistency_acid}
+
+\subsection{BASE Theorem}
+\label{bd_consistency_base}
+
+\section{Big Data in Business}
 \label{bd_bdib}
 to-be-added
 
-\subsection{Roles}
-\label{bd_bdib_roles}
+\subsection{Big Data Use Cases}
+\label{bd_bdib_ucases}
 to-be-added
 
-Roles
-- Data Engineer
-- Data Scientist
-- Ops
+\subsection{Big Data Analytics Value Chain}
+\label{bd_bdib_vchain}
+
+\subsection{Roles}
+\label{bd_bdib_roles}
+Within this chapter we will get a quick overview of the most common job roles required to build a Big Data data-system as well as a general understanding of their required skillsets, tasks and responsibilities.
+
+\subsubsection{Data Engineer/Architect}
+\label{bd_bdib_roles_de}
+\textit{Data Engineers/Architects} are designer, builder and manager of the information of a Big Data data-system. A Data Engineer develops, tests, maintains and improves highly scalable data-systems. Development includes ETL Jobs, custom analytics applications or custom software components for standard analytic tools. A data engineers work is all about collecting, transforming and storing data, this can be achieved using batch processing or real-time streaming, with the goal to serve analytical use cases, applications and data scientists.
+\\Sometimes a Big Data Architect is a separate Job role but most of the time, especially in smaller companies, it is part of a Data Engineers work. Usually someone more senior, for instance a Lead Data Engineer takes responsibility of architectural tasks and responsibilities, ensures long-term quality and flexibility of the software the team develops, shares best practices with team and enables the team to meet their goals and be successful.\\
+\begin{itemize}
+	\item \textbf{Study Direction:} Computer Science (databases, software engineering, distributed systems and processing, real-time processing)\\
+	\item \textbf{(Programming) Languages:} Java, Scala, Python, Bash, if necessary ETL Tools (e.g. Pentaho Data Integration, Informatica, DataStage, Talend)\\
+	\item \textbf{Key Skills:} 
+		\begin{itemize}
+		\item data modeling
+		\item ETL and dataflow architecture and design
+		\item data pipelin/workflow design and management
+		\item stream- and batch-processing
+		\item understand the concept, performance factors and limitations of distributed data-systems
+		\item alignment with larger organizations goals and strategy as well as corporate guidelines (e.g. data protection, information security, license and toolset policies)\\
+		\end{itemize}
+	\item \textbf{Tasks:} 
+		\begin{itemize}
+		\item develop ETL jobs, data- and workflows
+		\item develop and define architecture of a data-system, 
+		\item integration of data-sources
+		\item alignment with larger organizations goals and strategy as well as corporate guidelines (e.g. data protection, information security, license and toolset policies)\\
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Data Ops}
+\label{bd_bdib_roles_ops}
+A \textit{Data Operations Manager} (also known as Ops Manager) is an integral part of the whole big data team. An Ops manager will ensure that productive data-systems and services continually meet business needs in a reliable and efficient manner. This role requires strong communications as well as technical skills around incident and problem management, but mainly infrastructure and software deployment, configuration, automation and monitoring. An Ops manager will assess and analyze complex infrastructure and data problems and provide solutions that meet the companies objectives while working closely together with Data Engineers and Data Scientists.\\
+
+\begin{itemize}
+	\item \textbf{Study Direction:} Computer Science (databases, software engineering, distributed systems and processing, real-time processing)\\
+	\item \textbf{(Programming) Languages:} Python, Bash\\
+	\item \textbf{Key Skills:} 
+	\begin{itemize}
+	\item strong communication and collaboration skills
+	\item broad knowledge of Ops Tools, best practices and automation
+	\item frequently refreshs his knowledge as Ops tools crop up continuosly 
+	\item Continuos Integration and Deployment Automation (e.g. Jenkins, Gitlab CI), 
+	\item Infrastructure Automation (e.g. Foreman, Puppet, Ansible), 
+	\item Containerization (e.g. Docker, LXD etc.), 
+	\item Orchestration (e.g. Kubernetes, Mesos, Swarm),
+	\item Cloud (e.g. AWS, Google Cloud Platform, Azure, OpenStack)
+	\item Source Control (e.g. Git, Bitbucket, SVN)\\
+	\end{itemize} 
+	\item \textbf{Tasks:} 
+	\begin{itemize}
+	\item installs, configures, upgrades, scales and operates infrastructure and applications
+	\item monitoring and management of infrastructure and applications
+	\item provides and manages tools for continues delivery
+	\item incident and problem management
+	\item interface to developers (requirements for infrastructure, support developers needs and productive application operation)\\
+	\end{itemize} 
+\end{itemize}
+
+\subsubsection{Data Scientist}
+\label{bd_bdib_roles_ds}
+A \textit{Data Scientist} is responsible for interpreting data, extracting and discovering insights from strcutured and unstrcutured data to meet specific business needs and goals. Therefore a data scientist will analyze (probably a large) amount of data, make use of statistics, machine learning as well as belonging software and libraries specifically designed for his job. A data scientists needs to have enough business domain expertise and deep understanding of the data he is working with as well as strong communication and presentation skills to be able to easily share his insights with his stakeholders (usually business outside of IT).\\
+
+\begin{itemize}
+	\item \textbf{Study Direction:} Statistics, Data Science, Mathematics, Computer Science (Java, Python, R, SQL, Machine Learning) \\
+	\item \textbf{(Programming) Languages:} Python, R, Matlab, Bash, Java, Scala\\
+	\item \textbf{Key Skills:} 
+	\begin{itemize}
+	\item strong communication and collaboration skills
+	\item business domain expertise
+	\item deep understanding of the data he is working with
+	\item broad experience in using programming languages and tools for statistical purposes (Python, R, SQL, MapReduce, Spark, SparkML, Pandas, dataframes)
+	\item knowledge of a variety of machine learning techniques (e.g. clustering, regression, decision trees, neural networks, properties of distribution)
+	\item strong skills in data visualization (e.g. seaborn, Matplotlib, ggplot)\\
+	\end{itemize} 
+	\item \textbf{Tasks:} 
+	\begin{itemize}
+	\item identify and evaluate data-analytics problems that offer the greatest opportunities and/or business value
+	\item determining the right data sets and variables
+	\item cleansing and validation of data to ensure completeness, accuracy and uniformity
+	\item developing and applying models and algorithms on data 
+	\item analyze data to identify patterns, risks and trends
+	\item commmunication with and visualization for (business) stakeholder\\
+	\end{itemize} 
+\end{itemize}
+
+
+Obviously there are far more job roles required to build and operate a data-system, for instance Product Owner, Scrum Master, Business or Data Analysts. But as their required skillset is not very specific to Big Data, unlike the previously discussed job roles, we won't go into detail here.
 
 \subsection{BI vs DataScience}
 \label{bd_bdib_bi_vs_datascience}
