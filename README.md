@@ -25,6 +25,17 @@ git pull
 
 If you  find any mistakes or misspellings feel free to send me a mail (contact@marcel-mittelstaedt.com) or if you are able to, commit a push request.
 
+## Practical Exam Topics for Winter Semester 2018/2019
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+* [**Use OpenCellID Data To Estimate GSM, UMTS and LTE_Coverage For A Certain Destination**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_gsm_umts_lte_coverage)
+* [**Use OpenAddress Data To Validate Adresses.pdf**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_address_validation)
+* [**Use_TLC_Trip_Record_Data_To_Calculate_Performance_KPIs For New York City Cabs**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_new_york_taxi_performance_kpis)
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+* [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
+
 ## Author
 **Marcel Mittelstädt**
 * **Head of Data Architecture and Development**, ProSiebenSat.1 Media SE, [www.prosiebensat1.com](https://www.prosiebensat1.com/)
