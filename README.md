@@ -28,7 +28,7 @@ If you  find any mistakes or misspellings feel free to send me a mail (contact@m
 ## Practical Exam Topics for Winter Semester 2018/2019
 * [**Use Spotify Audio Features To Automatically Categorize Music Tracks**](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
 * [**Use OpenCellID Data To Estimate GSM, UMTS and LTE_Coverage For A Certain Destination**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_gsm_umts_lte_coverage)
-* [**Use OpenAddress Data To Validate Adresses.pdf**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_address_validation)
+* [**Use OpenAddress Data To Validate Adresses**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_address_validation)
 * [**Use TLC Trip Record Data To Calculate Performance KPIs For New York City Cabs**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_new_york_taxi_performance_kpis)
 * [**Use Kaggle Hubway Data To Calclulate Bike Sharing Usage KPIs**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_hubway_bike_sharing_usage_kpis)
 * [**Create Magic The Gathering Trading Card Database By API**](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_create_mtg_trading_card_database_by_api)
