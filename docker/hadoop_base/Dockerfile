@@ -3,8 +3,7 @@ FROM ubuntu:18.04
 MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install All Necessary APT Packages
-RUN apt-get update 
-RUN apt-get install -y openjdk-8-jdk sudo ssh pdsh openssh-client openssh-server vim curl htop && apt-get clean
+RUN apt-get update && apt-get install -y openjdk-8-jdk sudo ssh pdsh openssh-client openssh-server vim curl htop && apt-get clean
 
 # Add Hadoop User
 RUN useradd -ms /bin/bash hadoop
@@ -20,10 +19,7 @@ RUN cat /home/hadoop/.ssh/id_rsa.pub >> /home/hadoop/.ssh/authorized_keys
 RUN chmod 0600 /home/hadoop/.ssh/authorized_keys
 
 # Download and Install Hadoop
-RUN wget https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz
-RUN tar -xzf hadoop-3.1.2.tar.gz
-RUN rm hadoop-3.1.2.tar.gz
-RUN mv hadoop-3.1.2 hadoop
+RUN wget https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz && tar -xzf hadoop-3.1.2.tar.gz && rm hadoop-3.1.2.tar.gz && mv hadoop-3.1.2 hadoop
 
 # Install Config Files
 COPY .bashrc .bashrc
@@ -36,15 +32,16 @@ COPY yarn-site.xml hadoop/etc/hadoop/yarn-site.xml
 # Switch back to Root User
 USER root
 WORKDIR /
-ENTRYPOINT service ssh restart && bash
 
-# Expose Ports
-# Hadoop Task Tracker Web-Interface
-EXPOSE 8088  
+COPY startup.sh /startup.sh
+RUN chmod +x /startup.sh
 
-# Hadoop Name Node Web-Interface 
+#Expose Hadoop Ports
+EXPOSE 8088
 EXPOSE 9870
 
+# Start startup Script
+ENTRYPOINT ["/startup.sh"]
 
 
 
