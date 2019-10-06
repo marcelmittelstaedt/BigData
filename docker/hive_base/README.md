@@ -1,5 +1,5 @@
 # Hive and Hadoop Base Docker Image
-This folder contains Dockerfile, all necessary Hadoop FS and Yarn config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop Cluster including Hive. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/hive_base
+This folder contains Dockerfile, all necessary Hadoop FS, Yarn and Hive config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop Cluster including Hive. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/hive_base
 
 ## Build/Pull and Run Image:
 
