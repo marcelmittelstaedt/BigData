@@ -1,5 +1,5 @@
 # Hadoop Base Docker Image
-This folder contains Dockerfile and all necessary Hadoop FS and Yarn config files for a docker container running a pseudo-distributed single-node Hadoop Cluster. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/hadoop_base/tags
+This folder contains Dockerfile, all necessary Hadoop FS and Yarn config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop Cluster. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/hadoop_base/tags
 
 ## Build/Pull and Run Image:
 
@@ -38,8 +38,6 @@ cd
 
 Start Hadoop FS and Yarn:
 ```
-sudo su hadoop
-cd
 start-all.sh
 ```
 
