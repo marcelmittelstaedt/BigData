@@ -4,3 +4,6 @@ You can build the containers on your own or pull them from Docker Repository:
 ```
 https://hub.docker.com/u/marcelmittelstaedt
 ```
+
+## Images:
+* [**Hadoop Base**](https://github.com/marcelmittelstaedt/BigData/tree/master/slides) presented within the lecture
