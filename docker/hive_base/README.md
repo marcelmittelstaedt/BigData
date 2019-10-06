@@ -41,7 +41,7 @@ Start Hadoop FS and Yarn:
 start-all.sh
 ```
 
-Start Hive Commandline:
+Start Hive CLI:
 ```
 hive
 ```
