@@ -6,4 +6,6 @@ https://hub.docker.com/u/marcelmittelstaedt
 ```
 
 ## Images:
-* [**Hadoop Base**](https://github.com/marcelmittelstaedt/BigData/tree/master/slides) presented within the lecture
+* [**Hadoop Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/hadoop_base) Hadoop 3.1.2 Base Image (Ubuntu 18.04)
+* [**Hadoop and Hive Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/hadoop_base) Hadoop 3.1.2 and Hive X.Y Base Image (Ubuntu 18.04)
+ 
