@@ -1,5 +1,5 @@
 # Spark Base Docker Image
-This folder contains Dockerfile, all necessary Hadoop FS, Yarn, Hive and Spark config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop and Spark Cluster including Jupyter Notebooks. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/spark_base
+This folder contains Dockerfile, all necessary Hadoop FS, Yarn, Hive and Spark config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop and Spark Cluster including Jupyter Notebooks (as well as Hive and HiveServer2). You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/spark_base
 
 ## Build/Pull and Run Image:
 
