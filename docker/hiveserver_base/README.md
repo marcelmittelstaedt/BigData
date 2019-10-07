@@ -46,6 +46,11 @@ Start HiveServer2:
 hiveserver2
 ```
 
+Connect To HiveServer2 via JDBC (e.g. using DBeaver: https://dbeaver.io/):
+```
+jdbc:hive2://35.235.41.203:10000/default
+```
+
 Stop Hadoop FS and Yarn:
 ```
 stop-all.sh
