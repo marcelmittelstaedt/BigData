@@ -15,7 +15,7 @@ docker pull marcelmittelstaedt/spark_base
 
 Run Image:
 ```
-docker run -dit --name spark_base_container -p 8088:8088 -p 9870:9870 -p 10000:10000 marcelmittelstaedt/spark_base:latest
+docker run -dit --name spark_base_container -p 8088:8088 -p 9870:9870 -p 10000:10000 -p 4040:4040 -p 8042:8042 -p 8888:8888 marcelmittelstaedt/spark_base:latest
 ```
 
 # Start and Stop Docker Container:
