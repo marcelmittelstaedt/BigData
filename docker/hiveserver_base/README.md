@@ -1,4 +1,4 @@
-# Hadoop and Hive Base Docker Image
+# Hadoop, Hive and HiveServer Base Docker Image
 This folder contains Dockerfile, all necessary Hadoop FS, Yarn and Hive config files and docker Entrypoint startup script for a docker container running a pseudo-distributed single-node Hadoop Cluster including Hive and HiveServer2. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/hiveserver_base
 
 ## Build/Pull and Run Image:
