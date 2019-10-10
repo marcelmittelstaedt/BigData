@@ -31,7 +31,7 @@ docker start airflow_container
 
 # Start Airflow and PostgreSQL within Container:
 
-PostgreSQL and Airflow starts automatically on each start/restart of conatainer.
+PostgreSQL and Airflow starts automatically on each start/restart of container.
 
 Airflow UI: Airflow UI: http://X.X.X.X:8080
 
