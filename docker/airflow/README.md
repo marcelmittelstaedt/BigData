@@ -29,7 +29,7 @@ Start Container:
 docker start airflow_container
 ```
 
-# Start and Stop Hadoop, Spark and Jupyter within Container:
+# Start Airflow and PostgreSQL within Container:
 
 PostgreSQL and Airflow starts automatically on each start/restart of conatainer.
 
