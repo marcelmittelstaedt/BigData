@@ -29,15 +29,15 @@ If you  find any mistakes or misspellings feel free to send me a mail (contact@m
 * to-be-added
 
 ## Practical Exam Topics for Winter Semester 2018/2019
-* [Use Spotify Audio Features To Automatically Categorize Music Tracks](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/exam_spotify_music_categorization/)
-* [Use OpenCellID Data To Estimate GSM, UMTS and LTE Coverage For A Certain Destination](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_gsm_umts_lte_coverage)
-* [Use OpenAddress Data To Validate Adresses](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_address_validation)
-* [Use TLC Trip Record Data To Calculate Performance KPIs For New York City Cabs](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_new_york_taxi_performance_kpis)
-* [Use Kaggle Hubway Data To Calclulate Bike Sharing Usage KPIs](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_calculate_hubway_bike_sharing_usage_kpis)
-* [Create Magic The Gathering Trading Card Database By API](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_create_mtg_trading_card_database_by_api)
-* [Create Magic The Gathering Trading Card Database By Crawler](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_create_mtg_trading_card_database_by_crawler)
-* [Use XKCD API To Build A Searchable Database](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_create_searchable_xkcd_database)
-* [Create A Searchable IP And GeoLocation Database](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/exam_create_searchable_ip_and_geolocation_database)
+* [Use Spotify Audio Features To Automatically Categorize Music Tracks](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/winter_semester_2018-2019/exam_spotify_music_categorization/)
+* [Use OpenCellID Data To Estimate GSM, UMTS and LTE Coverage For A Certain Destination](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_calculate_gsm_umts_lte_coverage)
+* [Use OpenAddress Data To Validate Adresses](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_address_validation)
+* [Use TLC Trip Record Data To Calculate Performance KPIs For New York City Cabs](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_calculate_new_york_taxi_performance_kpis)
+* [Use Kaggle Hubway Data To Calclulate Bike Sharing Usage KPIs](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_calculate_hubway_bike_sharing_usage_kpis)
+* [Create Magic The Gathering Trading Card Database By API](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_create_mtg_trading_card_database_by_api)
+* [Create Magic The Gathering Trading Card Database By Crawler](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_create_mtg_trading_card_database_by_crawler)
+* [Use XKCD API To Build A Searchable Database](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_create_searchable_xkcd_database)
+* [Create A Searchable IP And GeoLocation Database](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2018-2019/exam_create_searchable_ip_and_geolocation_database)
 
 ## Author
 **Marcel Mittelstädt**
