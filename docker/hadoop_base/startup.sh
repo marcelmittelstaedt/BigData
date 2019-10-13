@@ -25,6 +25,8 @@ else
     echo "Not first start of Container, no HDFS format necessary."
 fi
 
+echo "Container Startup finished."
+
 # Start Hadoop Cluster
 #sudo -u hadoop -H sh -c "echo Switched to User:; whoami; cd; /home/hadoop/hadoop/sbin/start-all.sh"
 #status=$?
