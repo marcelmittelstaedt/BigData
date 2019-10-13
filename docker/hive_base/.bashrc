@@ -10,3 +10,4 @@ export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
 export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
 export HIVE_HOME=/home/hadoop/hive 
 export PATH=$PATH:/home/hadoop/hive/bin
+export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS -Xmx5g"
