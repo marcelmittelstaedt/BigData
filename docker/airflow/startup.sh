@@ -38,8 +38,8 @@ fi
 sudo service postgresql restart
 
 # Start Airflow
-sudo -u airflow -H sh -c "PATH=$PATH:/home/airflow/.local/bin exec /home/airflow/.local/bin/airflow scheduler > /home/airflow/airflow_scheduler.log &"
-sudo -u airflow -H sh -c "PATH=$PATH:/home/airflow/.local/bin exec /home/airflow/.local/bin/airflow webserver -p 8080 --pid /home/airflow/airflow/airflow-webserver.pid > /home/airflow/airflow_webservice.log &"
+sudo -u airflow -H sh -c "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/;export JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre; export HADOOP_USER_NAME=hadoop; PATH=$PATH:/home/airflow/.local/bin:/home/airflow/hive/bin:/home/airflow/hadoop:/home/airflow/hadoop/bin:/home/airflow/hadoop/sbin:/usr/lib/jvm/java-8-openjdk-amd64:/usr/lib/jvm/java-8-openjdk-amd64/jre exec /home/airflow/.local/bin/airflow scheduler > /home/airflow/airflow_scheduler.log &"
+sudo -u airflow -H sh -c "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/;export JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre; export HADOOP_USER_NAME=hadoop; PATH=$PATH:/home/airflow/.local/bin:/home/airflow/hive/bin:/home/airflow/hadoop:/home/airflow/hadoop/bin:/home/airflow/hadoop/sbin:/usr/lib/jvm/java-8-openjdk-amd64:/usr/lib/jvm/java-8-openjdk-amd64/jre exec /home/airflow/.local/bin/airflow webserver -p 8080 --pid /home/airflow/airflow/airflow-webserver.pid > /home/airflow/airflow_webservice.log &"
 
 # Start Hadoop Cluster
 #sudo -u hadoop -H sh -c "echo Switched to User:; whoami; cd; /home/hadoop/hadoop/sbin/start-all.sh"

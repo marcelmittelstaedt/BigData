@@ -4,11 +4,7 @@ MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install All Necessary APT Packages
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y sudo vim python3 python3-pip postgresql postgresql-contrib && apt-get clean
-
-# Copy systemd config files for airflow
-#COPY airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
-#COPY airflow-webservice.service /etc/systemd/system/airflow-webservice.service
+RUN apt-get update && apt-get install -y sudo vim python3 python3-pip postgresql postgresql-contrib openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean
 
 # Copy config files for PostgreSQL 
 COPY postgresql.conf /etc/postgresql/10/main/postgresql.conf
@@ -22,13 +18,23 @@ RUN useradd -ms /bin/bash airflow
 USER airflow
 WORKDIR /home/airflow
 
+# Install Hadoop Client
+RUN wget https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz && tar -xzf hadoop-3.1.2.tar.gz && rm hadoop-3.1.2.tar.gz && mv hadoop-3.1.2 hadoop
+
+# Install Hive Client
+RUN wget https://www-eu.apache.org/dist/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz && tar -xvzf apache-hive-3.1.2-bin.tar.gz && rm apache-hive-3.1.2-bin.tar.gz && mv apache-hive-3.1.2-bin hive
+
 COPY --chown=airflow .bashrc /home/airflow/.bashrc
+COPY --chown=airflow core-site.xml hadoop/etc/hadoop/core-site.xml
+COPY --chown=airflow hdfs-site.xml hadoop/etc/hadoop/hdfs-site.xml
 
 # Install Airflow
 RUN pip3 install --user apache-airflow[postgres,gcp_api] gunicorn
 
 # Copy Airflow Config
 COPY --chown=airflow airflow.cfg /home/airflow/airflow/airflow.cfg
+# Create dags folder
+RUN mkdir /home/airflow/airflow/dags
 
 # Switch back to Root User
 USER root
