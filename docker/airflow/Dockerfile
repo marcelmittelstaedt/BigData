@@ -4,7 +4,7 @@ MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install All Necessary APT Packages
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y sudo vim python3 python3-pip postgresql postgresql-contrib openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean
+RUN apt-get update && apt-get install -y sudo vim python3 python3-pip postgresql postgresql-contrib openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean && pip3 install findspark && pip3 install pyspark
 
 # Copy config files for PostgreSQL 
 COPY postgresql.conf /etc/postgresql/10/main/postgresql.conf
@@ -24,9 +24,15 @@ RUN wget https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.
 # Install Hive Client
 RUN wget https://www-eu.apache.org/dist/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz && tar -xvzf apache-hive-3.1.2-bin.tar.gz && rm apache-hive-3.1.2-bin.tar.gz && mv apache-hive-3.1.2-bin hive
 
+# Install Spark Client 
+RUN wget https://www-us.apache.org/dist/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz && tar -xvzf spark-2.3.4-bin-hadoop2.7.tgz && rm spark-2.3.4-bin-hadoop2.7.tgz && mv spark-2.3.4-bin-hadoop2.7 spark
+
 COPY --chown=airflow .bashrc /home/airflow/.bashrc
 COPY --chown=airflow core-site.xml hadoop/etc/hadoop/core-site.xml
+COPY --chown=airflow hive-site.xml spark/conf/hive-site.xml
 COPY --chown=airflow hdfs-site.xml hadoop/etc/hadoop/hdfs-site.xml
+COPY --chown=airflow spark-env.sh /home/airflow/spark/conf/spark-env.sh
+COPY --chown=airflow yarn-site.xml hadoop/etc/hadoop/yarn-site.xml
 
 # Install Airflow
 RUN pip3 install --user apache-airflow[postgres,gcp_api] gunicorn

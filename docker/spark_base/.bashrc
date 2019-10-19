@@ -14,3 +14,4 @@ export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS -Xmx5g"
 export SPARK_HOME=/home/hadoop/spark
 export PATH=$SPARK_HOME/bin:$PATH
 export PATH=$PATH:~/.local/bin
+export PYSPARK_PYTHON=python3

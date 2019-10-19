@@ -15,3 +15,9 @@ export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
 export HIVE_HOME=/home/airflow/hive
 export PATH=$PATH:/home/airflow/hive/bin
 export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS -Xmx5g"
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_HOME=/home/airflow/spark
+export PATH=$SPARK_HOME/bin:$PATH
+export PATH=$PATH:~/.local/bin
+export PYSPARK_PYTHON=python3
+
