@@ -5,7 +5,7 @@ export SPARK_WORKER_CORES=1
 export SPARK_WORKER_MEMORY=800m
 export SPARK_WORKER_INSTANCES=1
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
-export SPARK_LOCAL_IP="localhost"
+export SPARK_LOCAL_IP="airflow"
 
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
