@@ -15,7 +15,10 @@ docker pull marcelmittelstaedt/hiveserver_base
 
 Run Image:
 ```
-docker run -dit --name hiveserver_base_container -p 8088:8088 -p 9870:9870 -p 9864:9864 -p 10000:10000 marcelmittelstaedt/hiveserver_base:latest
+docker run -dit --name hiveserver_base_container \
+    -p 8088:8088 -p 9870:9870 -p 9864:9864 \
+    -p 10000:10000 -p 9000:9000 \
+    marcelmittelstaedt/hiveserver_base:latest
 ```
 
 # Start and Stop Docker Container:
@@ -48,7 +51,7 @@ hiveserver2
 
 Connect To HiveServer2 via JDBC (e.g. using DBeaver: https://dbeaver.io/):
 ```
-jdbc:hive2://35.235.41.203:10000/default
+jdbc:hive2://XXX.XXX.XXX.XXX:10000/default
 ```
 
 Stop Hadoop FS and Yarn:
