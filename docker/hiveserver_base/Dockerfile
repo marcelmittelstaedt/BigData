@@ -25,6 +25,7 @@ RUN chmod +x /startup.sh
 
 #Expose Hadoop Ports
 EXPOSE 8088
+EXPOSE 9000
 EXPOSE 9870
 EXPOSE 10000
 
