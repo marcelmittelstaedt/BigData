@@ -15,7 +15,10 @@ docker pull marcelmittelstaedt/hiveserver_base
 
 Run Image:
 ```
-docker run -dit --name hiveserver_base_container -p 8088:8088 -p 9870:9870 -p 9864:9864 -p 10000:10000 marcelmittelstaedt/hiveserver_base:latest
+docker run -dit --name hiveserver_base_container \
+    -p 8088:8088 -p 9870:9870 -p 9864:9864 \
+    -p 10000:10000 -p 9000:9000 \
+    marcelmittelstaedt/hiveserver_base:latest
 ```
 
 # Start and Stop Docker Container:
