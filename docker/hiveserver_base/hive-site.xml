@@ -52,4 +52,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 		<name>hive.server2.thrift.bind.host</name> 
 		<value>localhost</value>
 	</property>
+	<property>
+                <name>hive.exec.max.dynamic.partitions.pernode</name>
+                <value>1000</value>
+        </property>
 </configuration>
