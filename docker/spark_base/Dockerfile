@@ -17,6 +17,7 @@ COPY .bashrc .bashrc
 COPY spark-env.sh /home/hadoop/spark/conf/spark-env.sh
 COPY slaves /home/hadoop/spark/conf/slaves
 COPY yarn-site.xml hadoop/etc/hadoop/yarn-site.xml
+COPY core-site.xml hadoop/etc/hadoop/core-site.xml
 
 RUN mkdir /home/hadoop/.jupyter/ 
 COPY jupyter_notebook_config.py /home/hadoop/.jupyter/jupyter_notebook_config.py 
@@ -31,6 +32,7 @@ RUN chmod +x /startup.sh
 #Expose Hadoop Ports
 EXPOSE 8088
 EXPOSE 9870
+EXPOSE 9000
 EXPOSE 10000
 EXPOSE 4040
 EXPOSE 8042
