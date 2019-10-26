@@ -21,12 +21,12 @@ docker run -dit --name airflow -p 8080:8080 --net bigdatanet marcelmittelstaedt/
 # Start and Stop Docker Container:
 Stop Container:
 ```
-docker stop airflow_container
+docker stop airflow
 ```
 
 Start Container:
 ```
-docker start airflow_container
+docker start airflow
 ```
 
 # Start Airflow and PostgreSQL within Container:
