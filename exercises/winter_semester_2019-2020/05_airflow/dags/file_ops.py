@@ -22,7 +22,7 @@ copy_file = CopyFileOperator(
 
 create_dir = CreateDirectoryOperator(
     task_id='create_directory',
-    path='/home/airflow/',
+    path='/home/airflow',
     directory='testdir',
     dag=dag,
 )
