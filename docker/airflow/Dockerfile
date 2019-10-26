@@ -4,7 +4,7 @@ MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install All Necessary APT Packages
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y sudo vim python python3 python3-pip postgresql postgresql-contrib openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean && pip3 install findspark && pip3 install pyspark
+RUN apt-get update && apt-get install -y sudo vim python python3 python3-pip postgresql postgresql-contrib git openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean && pip3 install findspark && pip3 install pyspark && pip3 install pyarrow
 
 # Copy config files for PostgreSQL 
 COPY postgresql.conf /etc/postgresql/10/main/postgresql.conf
