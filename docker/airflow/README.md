@@ -15,7 +15,7 @@ docker pull marcelmittelstaedt/airflow
 
 Run Image:
 ```
-docker run -dit --name airflow_container -p 8080:8080 marcelmittelstaedt/airflow:latest
+docker run -dit --name airflow -p 8080:8080 --net bigdatanet marcelmittelstaedt/airflow:latest
 ```
 
 # Start and Stop Docker Container:
