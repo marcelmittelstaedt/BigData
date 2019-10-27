@@ -3,7 +3,7 @@ FROM marcelmittelstaedt/hiveserver_base:latest
 MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install Jupyter
-RUN apt-get install -y python3 python3-pip && apt-get clean && pip3 install jupyter && pip3 install findspark
+RUN apt-get update && apt-get install -y python git python3 python3-pip && apt-get clean && pip3 install jupyter && pip3 install findspark && pip3 install matplotlib && pip3 install pandas
 
 # Switch To Hadoop User
 USER hadoop
