@@ -15,18 +15,23 @@ docker pull marcelmittelstaedt/spark_base
 
 Run Image:
 ```
-docker run -dit --name spark_base_container -p 8088:8088 -p 9870:9870 -p 9864:9864 -p 10000:10000 -p 4040:4040 -p 8042:8042 -p 8888:8888 marcelmittelstaedt/spark_base:latest
+docker run -dit --name hadoop \
+	-p 8088:8088 -p 9870:9870 -p 9864:9864 -p 10000:10000 \
+	-p 8032:8032 -p 8030:8030 -p 8031:8031 -p 9000:9000 \
+	-p 8888:8888 --net bigdatanet \
+	marcelmittelstaedt/spark_base:latest
+
 ```
 
 # Start and Stop Docker Container:
 Stop Container:
 ```
-docker stop spark_base_container
+docker stop hadoop
 ```
 
 Start Container:
 ```
-docker start spark_base_container
+docker start hadoop
 ```
 
 # Start and Stop Hadoop, Spark and Jupyter within Container:
