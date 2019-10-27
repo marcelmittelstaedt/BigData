@@ -4,7 +4,7 @@ MAINTAINER Marcel Mittelstaedt <marcel.mittelstaedt@datawhizz.io>
 
 # Install All Necessary APT Packages
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y sudo vim python3 python3-pip postgresql postgresql-contrib openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean && pip3 install findspark && pip3 install pyspark
+RUN apt-get update && apt-get install -y sudo vim python python3 python3-pip postgresql postgresql-contrib git openjdk-8-jdk ssh pdsh openssh-client openssh-server curl htop  && apt-get clean && pip3 install findspark && pip3 install pyspark && pip3 install pyarrow
 
 # Copy config files for PostgreSQL 
 COPY postgresql.conf /etc/postgresql/10/main/postgresql.conf
@@ -19,7 +19,7 @@ USER airflow
 WORKDIR /home/airflow
 
 # Install Hadoop, Hive and Spark Client
-RUN wget https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz && tar -xzf hadoop-3.1.2.tar.gz && rm hadoop-3.1.2.tar.gz && mv hadoop-3.1.2 hadoop && wget https://www-eu.apache.org/dist/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz && tar -xvzf apache-hive-3.1.2-bin.tar.gz && rm apache-hive-3.1.2-bin.tar.gz && mv apache-hive-3.1.2-bin hive && wget https://www-us.apache.org/dist/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz && tar -xvzf spark-2.3.4-bin-hadoop2.7.tgz && rm spark-2.3.4-bin-hadoop2.7.tgz && mv spark-2.3.4-bin-hadoop2.7 spark
+RUN wget http://archive.apache.org/dist/hadoop/common/hadoop-3.1.2/hadoop-3.1.2.tar.gz && tar -xzf hadoop-3.1.2.tar.gz && rm hadoop-3.1.2.tar.gz && mv hadoop-3.1.2 hadoop && wget https://www-eu.apache.org/dist/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz && tar -xvzf apache-hive-3.1.2-bin.tar.gz && rm apache-hive-3.1.2-bin.tar.gz && mv apache-hive-3.1.2-bin hive && wget https://www-us.apache.org/dist/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz && tar -xvzf spark-2.3.4-bin-hadoop2.7.tgz && rm spark-2.3.4-bin-hadoop2.7.tgz && mv spark-2.3.4-bin-hadoop2.7 spark
 
 COPY --chown=airflow .bashrc /home/airflow/.bashrc
 COPY --chown=airflow core-site.xml hadoop/etc/hadoop/core-site.xml
