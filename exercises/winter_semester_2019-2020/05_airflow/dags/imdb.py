@@ -16,10 +16,47 @@ from airflow.operators.zip_file_operations import UnzipFileOperator
 from airflow.operators.hdfs_operations import HdfsPutFileOperator, HdfsGetFileOperator, HdfsMkdirFileOperator
 from airflow.operators.filesystem_operations import CreateDirectoryOperator
 from airflow.operators.filesystem_operations import ClearDirectoryOperator
+from airflow.operators.hive_operator import HiveOperator
 
 args = {
     'owner': 'airflow'
 }
+
+hiveSQL_create_table_title_ratings='''
+CREATE EXTERNAL TABLE IF NOT EXISTS title_ratings(
+	tconst STRING,
+        average_rating DECIMAL(2,1),
+        num_votes BIGINT
+) COMMENT 'IMDb Ratings' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '/user/hadoop/imdb/title_ratings'
+TBLPROPERTIES ('skip.header.line.count'='1');
+'''
+
+hiveSQL_create_table_title_basics='''
+CREATE EXTERNAL TABLE IF NOT EXISTS title_basics(
+	tconst STRING,
+	title_type STRING,
+	primary_title STRING,
+	original_title STRING,
+	is_adult DECIMAL(1,0),
+	start_year DECIMAL(4,0),
+	end_year STRING,
+	runtime_minutes INT,
+	genres STRING
+) COMMENT 'IMDb Movies' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '/user/hadoop/imdb/title_basics'
+TBLPROPERTIES ('skip.header.line.count'='1');
+'''
+
+hiveSQL_add_partition_title_ratings='''
+ALTER TABLE title_ratings
+ADD IF NOT EXISTS partition(partition_year={{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}, partition_month={{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}, partition_day={{ macros.ds_format(ds, "%Y-%m-%d", "%d")}})
+LOCATION '/user/hadoop/imdb/title_ratings/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/';
+'''
+
+hiveSQL_add_partition_title_basics='''
+ALTER TABLE title_basics
+ADD IF NOT EXISTS partition(partition_year={{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}, partition_month={{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}, partition_day={{ macros.ds_format(ds, "%Y-%m-%d", "%d")}})
+LOCATION '/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/';
+'''
 
 dag = DAG('IMDb', default_args=args, description='IMDb Import',
           schedule_interval='56 18 * * *',
@@ -67,23 +104,16 @@ unzip_title_basics = UnzipFileOperator(
     dag=dag,
 )
 
-create_hdfs_imdb_import_dir = HdfsMkdirFileOperator(
-    task_id='mkdir_hdfs_imdb_dir',
-    directory='/user/hadoop/imdb',
-    hdfs_conn_id='hdfs_default',
-    dag=dag,
-)
-
-create_hdfs_title_ratings_dir = HdfsMkdirFileOperator(
+create_hdfs_title_ratings_partition_dir = HdfsMkdirFileOperator(
     task_id='mkdir_hdfs_title_ratings_dir',
-    directory='/user/hadoop/imdb/title_ratings',
+    directory='/user/hadoop/imdb/title_ratings/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}',
     hdfs_conn_id='hdfs_default',
     dag=dag,
 )
 
-create_hdfs_title_basics_dir = HdfsMkdirFileOperator(
+create_hdfs_title_basics_partition_dir = HdfsMkdirFileOperator(
     task_id='mkdir_hdfs_title_basics_dir',
-    directory='/user/hadoop/imdb/title_basics',
+    directory='/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}',
     hdfs_conn_id='hdfs_default',
     dag=dag,
 )
@@ -91,7 +121,7 @@ create_hdfs_title_basics_dir = HdfsMkdirFileOperator(
 hdfs_put_title_ratings = HdfsPutFileOperator(
     task_id='upload_title_ratings_to_hdfs',
     local_file='/home/airflow/imdb/title.ratings_{{ ds }}.tsv',
-    remote_file='/user/hadoop/imdb/title_ratings/title.ratings_{{ ds }}.tsv',
+    remote_file='/user/hadoop/imdb/title_ratings/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/title.ratings_{{ ds }}.tsv',
     hdfs_conn_id='hdfs_default',
     dag=dag,
 )
@@ -99,12 +129,36 @@ hdfs_put_title_ratings = HdfsPutFileOperator(
 hdfs_put_title_basics = HdfsPutFileOperator(
     task_id='upload_title_basics_to_hdfs',
     local_file='/home/airflow/imdb/title.basics_{{ ds }}.tsv',
-    remote_file='/user/hadoop/imdb/title_basics/title.basics_{{ ds }}.tsv',
+    remote_file='/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/title.basics_{{ ds }}.tsv',
     hdfs_conn_id='hdfs_default',
     dag=dag,
 )
 
+create_HiveTable_title_ratings = HiveOperator(
+    task_id='create_title_ratings_table',
+    hql=hiveSQL_create_table_title_ratings,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
+create_HiveTable_title_basics = HiveOperator(
+    task_id='create_title_basics_table',
+    hql=hiveSQL_create_table_title_basics,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
+addPartition_HiveTable_title_ratings = HiveOperator(
+    task_id='add_partition_title_ratings_table',
+    hql=hiveSQL_add_partition_title_ratings,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
+addPartition_HiveTable_title_basics = HiveOperator(
+    task_id='add_partition_title_basics_table',
+    hql=hiveSQL_add_partition_title_basics,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
 create_local_import_dir >> clear_local_import_dir 
-clear_local_import_dir >> download_title_ratings >> unzip_title_ratings >> create_hdfs_imdb_import_dir >> create_hdfs_title_ratings_dir >> hdfs_put_title_ratings
-clear_local_import_dir >> download_title_basics >> unzip_title_basics >> create_hdfs_imdb_import_dir >> create_hdfs_title_basics_dir >> hdfs_put_title_basics
+clear_local_import_dir >> download_title_ratings >> unzip_title_ratings >> create_hdfs_title_ratings_partition_dir >> hdfs_put_title_ratings >> create_HiveTable_title_ratings >> addPartition_HiveTable_title_ratings
+clear_local_import_dir >> download_title_basics >> unzip_title_basics >> create_hdfs_title_basics_partition_dir >> hdfs_put_title_basics >> create_HiveTable_title_basics >> addPartition_HiveTable_title_basics
 
