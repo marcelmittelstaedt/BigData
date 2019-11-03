@@ -145,14 +145,14 @@ unzip_title_basics = UnzipFileOperator(
 create_hdfs_title_ratings_partition_dir = HdfsMkdirFileOperator(
     task_id='mkdir_hdfs_title_ratings_dir',
     directory='/user/hadoop/imdb/title_ratings/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}',
-    hdfs_conn_id='hdfs_default',
+    hdfs_conn_id='hdfs',
     dag=dag,
 )
 
 create_hdfs_title_basics_partition_dir = HdfsMkdirFileOperator(
     task_id='mkdir_hdfs_title_basics_dir',
     directory='/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}',
-    hdfs_conn_id='hdfs_default',
+    hdfs_conn_id='hdfs',
     dag=dag,
 )
 
@@ -160,7 +160,7 @@ hdfs_put_title_ratings = HdfsPutFileOperator(
     task_id='upload_title_ratings_to_hdfs',
     local_file='/home/airflow/imdb/title.ratings_{{ ds }}.tsv',
     remote_file='/user/hadoop/imdb/title_ratings/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/title.ratings_{{ ds }}.tsv',
-    hdfs_conn_id='hdfs_default',
+    hdfs_conn_id='hdfs',
     dag=dag,
 )
 
@@ -168,7 +168,7 @@ hdfs_put_title_basics = HdfsPutFileOperator(
     task_id='upload_title_basics_to_hdfs',
     local_file='/home/airflow/imdb/title.basics_{{ ds }}.tsv',
     remote_file='/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/title.basics_{{ ds }}.tsv',
-    hdfs_conn_id='hdfs_default',
+    hdfs_conn_id='hdfs',
     dag=dag,
 )
 
