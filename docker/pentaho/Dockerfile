@@ -23,17 +23,11 @@ COPY --chown=pentaho hdfs-site.xml hadoop/etc/hadoop/hdfs-site.xml
 COPY --chown=pentaho spark-env.sh /home/pentaho/spark/conf/spark-env.sh
 COPY --chown=pentaho yarn-site.xml hadoop/etc/hadoop/yarn-site.xml
 
-# Download Pentaho
-RUN wget https://cfhcable.dl.sourceforge.net/project/pentaho/Pentaho%208.0/client-tools/pdi-ce-8.0.0.0-28.zip
+# Download and Install Pentaho
+RUN wget https://cfhcable.dl.sourceforge.net/project/pentaho/Pentaho%208.0/client-tools/pdi-ce-8.0.0.0-28.zip && mkdir -p /home/pentaho/pentaho && unzip /home/pentaho/pdi-ce-8.0.0.0-28.zip -d /home/pentaho/pentaho && rm /home/pentaho/pdi-ce-8.0.0.0-28.zip 
 
-# Install Pentaho
-RUN mkdir -p /home/pentaho/pentaho && unzip /home/pentaho/pdi-ce-8.0.0.0-28.zip -d /home/pentaho/pentaho
-
-# Setup kettle.properties
-RUN mkdir /home/pentaho/.kettle
-
-# Install Hive JDBC Jar
-RUN cp /home/pentaho/hive/jdbc/hive-jdbc-3.1.2-standalone.jar /home/pentaho/pentaho/data-integration/lib
+# Setup kettle.properties and Hive JDBC jar
+RUN mkdir /home/pentaho/.kettle && cp /home/pentaho/hive/jdbc/hive-jdbc-3.1.2-standalone.jar /home/pentaho/pentaho/data-integration/lib
 
 # Switch back to Root User
 USER root
