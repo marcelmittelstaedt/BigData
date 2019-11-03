@@ -11,4 +11,5 @@ https://hub.docker.com/u/marcelmittelstaedt
 * [**Hadoop, Hive and HiveServer2 Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/hiveserver_base) Hadoop 3.1.2, Hive 3.1.2 and HiveServer2 Base Image (Ubuntu 18.04)
 * [**Spark Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/spark_base) Spark 2.3.4 on Hadoop 3.1.2 as well as Hive 3.1.2 and HiveServer2 Base Image (Ubuntu 18.04)
 * [**Airflow Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/airflow) Airflow 1.10.5 with PostgreSQL 10.10 as Metadata Store Base Image (Ubuntu 18.04)
+* [**Pentaho Data Integration Base Image**](https://github.com/marcelmittelstaedt/BigData/tree/master/docker/pentaho) Pentaho Data Integration 8.0 Base Image (Ubuntu 18.04)
  
