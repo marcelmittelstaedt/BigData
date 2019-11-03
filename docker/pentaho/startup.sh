@@ -16,6 +16,9 @@ if [ ! -e $CONTAINER_ALREADY_INITIALIZED ]; then
 	# Link Directories to Git Repo files
 	sudo -u pentaho -H sh -c "ln -s /home/pentaho/BigData/exercises/winter_semester_2019-2020/06_pentaho/pdi_jobs/ /home/pentaho/pdi_jobs"
 
+        # Copy kettle.properties for example
+        sudo -u pentaho -H sh -c "cp /home/pentaho/BigData/exercises/winter_semester_2019-2020/06_pentaho/kettle.properties /home/pentaho/.kettle/kettle.properties"
+
 else
     echo "Not first start of Container, no Pentaho setup necessary."
 fi
