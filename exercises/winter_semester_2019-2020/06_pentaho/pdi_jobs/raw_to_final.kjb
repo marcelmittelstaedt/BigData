@@ -437,7 +437,7 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM title_ratings r WHERE partit
       <name>Create Hive table imdb_movies_final</name>
       <description />
       <type>SQL</type>
-      <sql>CREATE TABLE IF NOT EXISTS imdb_movies_final(
+      <sql>CREATE TABLE IF NOT EXISTS imdb_movies(
   tconst string, 
   title_type string, 
   primary_title string, 
@@ -447,7 +447,7 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM title_ratings r WHERE partit
   end_year string, 
   runtime_minutes int, 
   genres string
-) COMMENT 'IMDb Movies Final' PARTITIONED BY (partition_quality string) STORED AS ORCFILE LOCATION '/user/hadoop/imdb_final/movies_final';
+) COMMENT 'IMDb Movies Final' PARTITIONED BY (partition_year string) STORED AS ORCFILE LOCATION '/user/hadoop/imdb_final/movies_final';
 </sql>
       <useVariableSubstitution>T</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>
@@ -464,7 +464,7 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM title_ratings r WHERE partit
       <name>Create Hive table imdb_ratings_final</name>
       <description />
       <type>SQL</type>
-      <sql>CREATE TABLE IF NOT EXISTS imdb_ratings_final(
+      <sql>CREATE TABLE IF NOT EXISTS imdb_ratings(
  	tconst string, 
 	average_rating decimal(2,1), 
 	num_votes bigint
