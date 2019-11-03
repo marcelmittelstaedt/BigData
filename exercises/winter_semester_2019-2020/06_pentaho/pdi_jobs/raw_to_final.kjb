@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
   <name>raw_to_final</name>
-  <description/>
-  <extended_description/>
-  <job_version/>
+  <description />
+  <extended_description />
+  <job_version />
   <job_status>0</job_status>
   <directory>/</directory>
   <created_user>-</created_user>
@@ -14,17 +14,17 @@
     <parameter>
       <name>day</name>
       <default_value>9</default_value>
-      <description/>
+      <description />
     </parameter>
     <parameter>
       <name>month</name>
       <default_value>10</default_value>
-      <description/>
+      <description />
     </parameter>
     <parameter>
       <name>year</name>
       <default_value>2018</default_value>
-      <description/>
+      <description />
     </parameter>
   </parameters>
   <connection>
@@ -36,9 +36,9 @@
     <port>10000</port>
     <username>hadoop</username>
     <password>Encrypted 2be98afc86aa7f2e4cb79ce10ca97bcce</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
+    <servername />
+    <data_tablespace />
+    <index_tablespace />
     <attributes>
       <attribute>
         <code>FORCE_IDENTIFIERS_TO_LOWERCASE</code>
@@ -81,12 +81,12 @@
   <slaveservers>
     </slaveservers>
   <job-log-table>
-    <connection/>
-    <schema/>
-    <table/>
-    <size_limit_lines/>
-    <interval/>
-    <timeout_days/>
+    <connection />
+    <schema />
+    <table />
+    <size_limit_lines />
+    <interval />
+    <timeout_days />
     <field>
       <id>ID_JOB</id>
       <enabled>Y</enabled>
@@ -194,10 +194,10 @@
     </field>
   </job-log-table>
   <jobentry-log-table>
-    <connection/>
-    <schema/>
-    <table/>
-    <timeout_days/>
+    <connection />
+    <schema />
+    <table />
+    <timeout_days />
     <field>
       <id>ID_BATCH</id>
       <enabled>Y</enabled>
@@ -285,10 +285,10 @@
     </field>
   </jobentry-log-table>
   <channel-log-table>
-    <connection/>
-    <schema/>
-    <table/>
-    <timeout_days/>
+    <connection />
+    <schema />
+    <table />
+    <timeout_days />
     <field>
       <id>ID_BATCH</id>
       <enabled>Y</enabled>
@@ -351,11 +351,11 @@
     </field>
   </channel-log-table>
   <pass_batchid>N</pass_batchid>
-  <shared_objects_file/>
+  <shared_objects_file />
   <entries>
     <entry>
       <name>START</name>
-      <description/>
+      <description />
       <type>SPECIAL</type>
       <start>Y</start>
       <dummy>N</dummy>
@@ -370,74 +370,122 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>80</xloc>
-      <yloc>112</yloc>
+      <xloc>64</xloc>
+      <yloc>192</yloc>
     </entry>
     <entry>
       <name>Insert Movies To Final Layer</name>
-      <description/>
+      <description />
       <type>SQL</type>
       <sql>set hive.exec.dynamic.partition.mode=nonstrict;
-insert overwrite table imdb_movies_final partition(partition_year)
+insert overwrite table imdb_movies partition(partition_year)
 select m.tconst, m.title_type, m.primary_title, m.original_title, m.is_adult, m.start_year, m.end_year, m.runtime_minutes, m.genres, m.start_year
-from imdb_movies_raw m WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} 
+from title_basics m WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} 
 and m.start_year > 2000;</sql>
       <useVariableSubstitution>T</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>
-      <sqlfilename/>
+      <sqlfilename />
       <sendOneStatement>F</sendOneStatement>
       <connection>Hive</connection>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>272</xloc>
-      <yloc>112</yloc>
+      <xloc>464</xloc>
+      <yloc>64</yloc>
     </entry>
     <entry>
       <name>Success</name>
-      <description/>
+      <description />
       <type>SUCCESS</type>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>272</xloc>
-      <yloc>352</yloc>
+      <xloc>656</xloc>
+      <yloc>160</yloc>
     </entry>
     <entry>
       <name>Insert Ratings To Final Layer</name>
-      <description/>
+      <description />
       <type>SQL</type>
-      <sql>INSERT OVERWRITE TABLE imdb_ratings_final partition(partition_quality='good') 
-SELECT r.tconst, r.average_rating, r.num_votes FROM imdb_ratings_raw r WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} and r.average_rating >= 7;
-INSERT OVERWRITE TABLE imdb_ratings_final partition(partition_quality='worse') 
-SELECT r.tconst, r.average_rating, r.num_votes FROM imdb_ratings_raw r WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} and r.average_rating &lt; 7;</sql>
+      <sql>INSERT OVERWRITE TABLE imdb_ratings partition(partition_quality='good') 
+SELECT r.tconst, r.average_rating, r.num_votes FROM title_ratings r WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} and r.average_rating >= 7;
+INSERT OVERWRITE TABLE imdb_ratings partition(partition_quality='worse') 
+SELECT r.tconst, r.average_rating, r.num_votes FROM title_ratings r WHERE partition_year = ${year} and partition_month = ${month} and partition_day = ${day} and r.average_rating &lt; 7;</sql>
       <useVariableSubstitution>T</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>
-      <sqlfilename/>
+      <sqlfilename />
       <sendOneStatement>F</sendOneStatement>
       <connection>Hive</connection>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>272</xloc>
-      <yloc>224</yloc>
+      <xloc>464</xloc>
+      <yloc>272</yloc>
     </entry>
     <entry>
-      <name>INSERT Failed</name>
-      <description/>
+      <name>Final Layer Failed</name>
+      <description />
       <type>ABORT</type>
-      <message>INSERT Failed</message>
+      <message>Final Layer Failed</message>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>512</xloc>
-      <yloc>224</yloc>
+      <xloc>368</xloc>
+      <yloc>160</yloc>
+    </entry>
+    <entry>
+      <name>Create Hive table imdb_movies_final</name>
+      <description />
+      <type>SQL</type>
+      <sql>CREATE TABLE IF NOT EXISTS imdb_movies_final(
+  tconst string, 
+  title_type string, 
+  primary_title string, 
+  original_title string, 
+  is_adult decimal(1,0), 
+  start_year decimal(4,0), 
+  end_year string, 
+  runtime_minutes int, 
+  genres string
+) COMMENT 'IMDb Movies Final' PARTITIONED BY (partition_quality string) STORED AS ORCFILE LOCATION '/user/hadoop/imdb_final/movies_final';
+</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename />
+      <sendOneStatement>F</sendOneStatement>
+      <connection>Hive</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>256</xloc>
+      <yloc>64</yloc>
+    </entry>
+    <entry>
+      <name>Create Hive table imdb_ratings_final</name>
+      <description />
+      <type>SQL</type>
+      <sql>CREATE TABLE IF NOT EXISTS imdb_ratings_final(
+ 	tconst string, 
+	average_rating decimal(2,1), 
+	num_votes bigint
+) COMMENT 'IMDb Ratings Final' PARTITIONED BY (partition_quality string) STORED AS ORCFILE LOCATION '/user/hadoop/imdb_final/ratings_final';
+</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename />
+      <sendOneStatement>F</sendOneStatement>
+      <connection>Hive</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>256</xloc>
+      <yloc>272</yloc>
     </entry>
   </entries>
   <hops>
     <hop>
       <from>START</from>
-      <to>Insert Movies To Final Layer</to>
+      <to>Create Hive table imdb_movies_final</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -445,8 +493,53 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM imdb_ratings_raw r WHERE par
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Insert Movies To Final Layer</from>
+      <from>Create Hive table imdb_movies_final</from>
+      <to>Insert Movies To Final Layer</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>START</from>
+      <to>Create Hive table imdb_ratings_final</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table imdb_ratings_final</from>
       <to>Insert Ratings To Final Layer</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table imdb_movies_final</from>
+      <to>Final Layer Failed</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table imdb_ratings_final</from>
+      <to>Final Layer Failed</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Insert Movies To Final Layer</from>
+      <to>Success</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -464,7 +557,7 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM imdb_ratings_raw r WHERE par
     </hop>
     <hop>
       <from>Insert Movies To Final Layer</from>
-      <to>INSERT Failed</to>
+      <to>Final Layer Failed</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -473,7 +566,7 @@ SELECT r.tconst, r.average_rating, r.num_votes FROM imdb_ratings_raw r WHERE par
     </hop>
     <hop>
       <from>Insert Ratings To Final Layer</from>
-      <to>INSERT Failed</to>
+      <to>Final Layer Failed</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>

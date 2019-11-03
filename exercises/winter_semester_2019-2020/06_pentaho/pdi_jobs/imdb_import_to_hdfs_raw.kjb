@@ -390,7 +390,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1216</xloc>
+      <xloc>1440</xloc>
       <yloc>160</yloc>
     </entry>
     <entry>
@@ -449,7 +449,7 @@
       <name>Add Partition For Basics</name>
       <description />
       <type>SQL</type>
-      <sql>ALTER TABLE imdb_movies_raw 
+      <sql>ALTER TABLE title_basics 
 ADD IF NOT EXISTS partition(partition_year=${year}, partition_month=${month}, partition_day=${day})
 LOCATION '${IMDB_HDFS_DIR}/title_basics/${year}/${month}/${day}/';</sql>
       <useVariableSubstitution>T</useVariableSubstitution>
@@ -460,7 +460,7 @@ LOCATION '${IMDB_HDFS_DIR}/title_basics/${year}/${month}/${day}/';</sql>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>928</xloc>
+      <xloc>1152</xloc>
       <yloc>16</yloc>
     </entry>
     <entry>
@@ -519,7 +519,7 @@ LOCATION '${IMDB_HDFS_DIR}/title_basics/${year}/${month}/${day}/';</sql>
       <name>Add Partition For Ratings</name>
       <description />
       <type>SQL</type>
-      <sql>ALTER TABLE imdb_ratings_raw 
+      <sql>ALTER TABLE title_ratings
 ADD IF NOT EXISTS partition(partition_year=${year}, partition_month=${month}, partition_day=${day})
 LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <useVariableSubstitution>T</useVariableSubstitution>
@@ -530,7 +530,7 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>928</xloc>
+      <xloc>1152</xloc>
       <yloc>336</yloc>
     </entry>
     <entry>
@@ -563,8 +563,68 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>928</xloc>
+      <xloc>1152</xloc>
       <yloc>160</yloc>
+    </entry>
+    <entry>
+      <name>Couldnt Create Hive tables</name>
+      <description />
+      <type>ABORT</type>
+      <message>Couldnt Create HDFS Dir Or Move File</message>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>944</xloc>
+      <yloc>160</yloc>
+    </entry>
+    <entry>
+      <name>Create Hive table for title_basics</name>
+      <description />
+      <type>SQL</type>
+      <sql>CREATE EXTERNAL TABLE IF NOT EXISTS title_basics(
+	tconst STRING,
+	title_type STRING,
+	primary_title STRING,
+	original_title STRING,
+	is_adult DECIMAL(1,0),
+	start_year DECIMAL(4,0),
+	end_year STRING,
+	runtime_minutes INT,
+	genres STRING
+) COMMENT 'IMDb Movies' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '{IMDB_HDFS_DIR}/title_basics'
+TBLPROPERTIES ('skip.header.line.count'='1');
+</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename />
+      <sendOneStatement>F</sendOneStatement>
+      <connection>Hive</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>944</xloc>
+      <yloc>16</yloc>
+    </entry>
+    <entry>
+      <name>Create Hive table for title_ratings</name>
+      <description />
+      <type>SQL</type>
+      <sql>CREATE EXTERNAL TABLE IF NOT EXISTS title_ratings(
+	tconst STRING,
+        average_rating DECIMAL(2,1),
+        num_votes BIGINT
+) COMMENT 'IMDb Ratings' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '{IMDB_HDFS_DIR}/title_ratings'
+TBLPROPERTIES ('skip.header.line.count'='1');</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename />
+      <sendOneStatement>F</sendOneStatement>
+      <connection>Hive</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>944</xloc>
+      <yloc>336</yloc>
     </entry>
   </entries>
   <hops>
@@ -576,24 +636,6 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>File Basics Exists And Not Empty?</from>
-      <to>Create HDFS Directory and Move Basics File</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Create HDFS Directory and Move Basics File</from>
-      <to>Add Partition For Basics</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>Add Partition For Basics</from>
@@ -614,24 +656,6 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>File Ratings Exists And Not Empty? </from>
-      <to>Create HDFS Directory and Move Ratings File</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Create HDFS Directory and Move Ratings File</from>
-      <to>Add Partition For Ratings</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>Add Partition For Ratings</from>
       <to>Success</to>
       <from_nr>0</from_nr>
@@ -692,6 +716,78 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table for title_basics</from>
+      <to>Couldnt Create Hive tables</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table for title_ratings</from>
+      <to>Couldnt Create Hive tables</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>File Basics Exists And Not Empty?</from>
+      <to>Create HDFS Directory and Move Basics File</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create HDFS Directory and Move Basics File</from>
+      <to>Create Hive table for title_basics</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>File Ratings Exists And Not Empty? </from>
+      <to>Create HDFS Directory and Move Ratings File</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create HDFS Directory and Move Ratings File</from>
+      <to>Create Hive table for title_ratings</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table for title_ratings</from>
+      <to>Add Partition For Ratings</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create Hive table for title_basics</from>
+      <to>Add Partition For Basics</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
