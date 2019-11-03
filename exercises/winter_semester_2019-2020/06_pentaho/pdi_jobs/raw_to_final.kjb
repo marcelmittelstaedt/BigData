@@ -29,13 +29,13 @@
   </parameters>
   <connection>
     <name>Hive</name>
-    <server>localhost</server>
+    <server>hadoop</server>
     <type>HIVE2</type>
     <access>Native</access>
     <database>default</database>
     <port>10000</port>
     <username>hadoop</username>
-    <password>Encrypted 2be98afc86aa7f2e4cb79ce10ca97bcce</password>
+    <password>Encrypted </password>
     <servername />
     <data_tablespace />
     <index_tablespace />
