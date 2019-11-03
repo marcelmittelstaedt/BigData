@@ -33,8 +33,6 @@ RUN pip3 install --user apache-airflow[postgres,gcp_api] gunicorn
 
 # Copy Airflow Config
 COPY --chown=airflow airflow.cfg /home/airflow/airflow/airflow.cfg
-# Create dags folder
-RUN mkdir /home/airflow/airflow/dags
 
 # Switch back to Root User
 USER root
