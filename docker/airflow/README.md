@@ -1,5 +1,5 @@
 # Airflow Base Docker Image
-This folder contains Dockerfile, all necessary Airflow and PostgreSQL config files  for a docker container running Airflow 1.10.5 on PostgreSQL 10.10 as Metadata Store. Also added and configured Hadoop and Hive Binaries, so airflow will be able to execute hadoop and hive commands (beeline) on other Hadoop/Hive docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/airflow
+This folder contains Dockerfile, all necessary Airflow and PostgreSQL config files for a docker container running Airflow 1.10.5 on PostgreSQL 10.10 as Metadata Store and using LocalExecutors. Also added and configured Hadoop, Hive and Spark Binaries, so airflow will be able to execute hadoop, hive and spark commands on other Hadoop/Hive/Spark docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/airflow
 
 ## Build/Pull and Run Image:
 
