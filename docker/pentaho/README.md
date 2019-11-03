@@ -1,5 +1,5 @@
-# Airflow Base Docker Image
-This folder contains Dockerfile, all necessary Airflow and PostgreSQL config files  for a docker container running Airflow 1.10.5 on PostgreSQL 10.10 as Metadata Store. Also added and configured Hadoop and Hive Binaries, so airflow will be able to execute hadoop and hive commands (beeline) on other Hadoop/Hive docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/airflow
+# Pentaho Data Integration Base Docker Image
+This folder contains Dockerfile, all necessary Airflow and PostgreSQL config files  for a docker container running Airflow 1.10.5 on PostgreSQL 10.10 as Metadata Store. Also added and configured Hadoop and Hive Binaries, so airflow will be able to execute hadoop and hive commands (beeline) on other Hadoop/Hive docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/pentaho
 
 ## Build/Pull and Run Image:
 
