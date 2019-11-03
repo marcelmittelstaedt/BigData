@@ -591,7 +591,7 @@ LOCATION '${IMDB_HDFS_DIR}/title_ratings/${year}/${month}/${day}/';</sql>
 	end_year STRING,
 	runtime_minutes INT,
 	genres STRING
-) COMMENT 'IMDb Movies' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '{IMDB_HDFS_DIR}/title_basics'
+) COMMENT 'IMDb Movies' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE LOCATION '${IMDB_HDFS_DIR}/title_basics'
 TBLPROPERTIES ('skip.header.line.count'='1');
 </sql>
       <useVariableSubstitution>T</useVariableSubstitution>
@@ -613,7 +613,7 @@ TBLPROPERTIES ('skip.header.line.count'='1');
 	tconst STRING,
         average_rating DECIMAL(2,1),
         num_votes BIGINT
-) COMMENT 'IMDb Ratings' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t' STORED AS TEXTFILE LOCATION '{IMDB_HDFS_DIR}/title_ratings'
+) COMMENT 'IMDb Ratings' PARTITIONED BY (partition_year int, partition_month int, partition_day int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE LOCATION '${IMDB_HDFS_DIR}/title_ratings'
 TBLPROPERTIES ('skip.header.line.count'='1');</sql>
       <useVariableSubstitution>T</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>
