@@ -1,38 +1,32 @@
 # Pentaho Data Integration Base Docker Image
-This folder contains Dockerfile, all necessary Airflow and PostgreSQL config files  for a docker container running Airflow 1.10.5 on PostgreSQL 10.10 as Metadata Store. Also added and configured Hadoop and Hive Binaries, so airflow will be able to execute hadoop and hive commands (beeline) on other Hadoop/Hive docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/pentaho
+This folder contains Dockerfile, all necessary config files for a docker container running Pentaho Data Integration 8.0. Also added and configured Hadoop, Hive and Spark Binaries, so airflow will be able to execute hadoop and hive commands (beeline) on other Hadoop/Hive/Spark docker container. You can build it on your own or pull it from https://hub.docker.com/r/marcelmittelstaedt/pentaho
 
 ## Build/Pull and Run Image:
 
 Build Airflow Base Image:
 ```
-docker build . -t marcelmittelstaedt/airflow:latest
+docker build . -t marcelmittelstaedt/pentaho:latest
 ```
 
 ...or pull Image:
 ```
-docker pull marcelmittelstaedt/airflow
+docker pull marcelmittelstaedt/pentaho
 ```
 
 Run Image:
 ```
-docker run -dit --name airflow -p 8080:8080 --net bigdatanet marcelmittelstaedt/airflow:latest
+docker run -dit --name pentaho --net bigdatanet marcelmittelstaedt/pentaho:latest 
 ```
 
 # Start and Stop Docker Container:
 Stop Container:
 ```
-docker stop airflow
+docker stop pentaho
 ```
 
 Start Container:
 ```
-docker start airflow
+docker start pentaho
 ```
-
-# Start Airflow and PostgreSQL within Container:
-
-PostgreSQL and Airflow starts automatically on each start/restart of container.
-
-Airflow UI: http://X.X.X.X:8080
 
 
