@@ -11,6 +11,8 @@ See Lecture Material: https://github.com/marcelmittelstaedt/BigData
 
 from datetime import datetime
 from airflow import DAG
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.contrib.operators.spark_submit_operator import SparkSubmitOperator
 from airflow.operators.http_download_operations import HttpDownloadOperator
 from airflow.operators.zip_file_operations import UnzipFileOperator
 from airflow.operators.hdfs_operations import HdfsPutFileOperator, HdfsGetFileOperator, HdfsMkdirFileOperator
@@ -56,6 +58,42 @@ hiveSQL_add_partition_title_basics='''
 ALTER TABLE title_basics
 ADD IF NOT EXISTS partition(partition_year={{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}, partition_month={{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}, partition_day={{ macros.ds_format(ds, "%Y-%m-%d", "%d")}})
 LOCATION '/user/hadoop/imdb/title_basics/{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}/{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}/';
+'''
+
+hiveSQL_create_top_tvseries_external_table='''
+CREATE EXTERNAL TABLE IF NOT EXISTS top_tvseries (
+    original_title STRING, 
+    start_year DECIMAL(4,0), 
+    end_year STRING,  
+    average_rating DECIMAL(2,1), 
+    num_votes BIGINT
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/hadoop/imdb_final/top_tvseries';
+'''
+
+hiveQL_create_top_movies_external_table='''
+CREATE TABLE IF NOT EXISTS top_movies (
+    original_title STRING, 
+    start_year DECIMAL(4,0), 
+    average_rating DECIMAL(2,1), 
+    num_votes BIGINT
+) STORED AS ORCFILE LOCATION '/user/hadoop/imdb_final/top_movies';
+'''
+
+hiveSQL_insertoverwrite_top_movies_table='''
+INSERT OVERWRITE TABLE top_movies
+SELECT
+    m.original_title,
+    m.start_year,
+    r.average_rating,
+    r.num_votes
+FROM
+    title_basics m
+    JOIN title_ratings r ON (m.tconst = r.tconst)
+WHERE
+    m.partition_year = {{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}} and m.partition_month = {{ macros.ds_format(ds, "%Y-%m-%d", "%m")}} and m.partition_day = {{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}
+    AND r.partition_year = {{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}} and r.partition_month = {{ macros.ds_format(ds, "%Y-%m-%d", "%m")}} and r.partition_day = {{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}
+    AND r.num_votes > 200000 AND r.average_rating > 8.6
+    AND m.title_type = 'movie' AND m.start_year > 2000
 '''
 
 dag = DAG('IMDb', default_args=args, description='IMDb Import',
@@ -158,7 +196,45 @@ addPartition_HiveTable_title_basics = HiveOperator(
     hive_cli_conn_id='beeline_default',
     dag=dag)
 
+dummy_op = DummyOperator(
+        task_id='dummy', 
+        dag=dag)
+
+pyspark_top_tvseries = SparkSubmitOperator(
+    task_id='pyspark_write_top_tvseries_to_final',
+    conn_id='spark_default',
+    application='/home/airflow/airflow/python/pyspark_top_tvseries.py',
+    total_executor_cores='2',
+    executor_cores='2',
+    executor_memory='2g',
+    num_executors='2',
+    name='spark_submit_test',
+    verbose=True,
+    application_args=['--year', '{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}', '--month', '{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}', '--day',  '{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}', '--hdfs_source_dir', '/user/hadoop/imdb', '--hdfs_target_dir', '/user/hadoop/imdb_final/top_tvseries', '--hdfs_target_format', 'csv'],
+    dag = dag
+)
+
+create_table_for_top_tvseries = HiveOperator(
+    task_id='create_top_tvseries_external_table',
+    hql=hiveSQL_create_top_tvseries_external_table,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
+create_HiveTable_top_movies = HiveOperator(
+    task_id='create_top_movies_external_table',
+    hql=hiveQL_create_top_movies_external_table,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
+hive_insert_overwrite_top_movies = HiveOperator(
+    task_id='hive_write_top_movies_table',
+    hql=hiveSQL_insertoverwrite_top_movies_table,
+    hive_cli_conn_id='beeline_default',
+    dag=dag)
+
 create_local_import_dir >> clear_local_import_dir 
-clear_local_import_dir >> download_title_ratings >> unzip_title_ratings >> create_hdfs_title_ratings_partition_dir >> hdfs_put_title_ratings >> create_HiveTable_title_ratings >> addPartition_HiveTable_title_ratings
-clear_local_import_dir >> download_title_basics >> unzip_title_basics >> create_hdfs_title_basics_partition_dir >> hdfs_put_title_basics >> create_HiveTable_title_basics >> addPartition_HiveTable_title_basics
+clear_local_import_dir >> download_title_ratings >> unzip_title_ratings >> create_hdfs_title_ratings_partition_dir >> hdfs_put_title_ratings >> create_HiveTable_title_ratings >> addPartition_HiveTable_title_ratings >> dummy_op
+clear_local_import_dir >> download_title_basics >> unzip_title_basics >> create_hdfs_title_basics_partition_dir >> hdfs_put_title_basics >> create_HiveTable_title_basics >> addPartition_HiveTable_title_basics >> dummy_op
+dummy_op >> pyspark_top_tvseries >> create_table_for_top_tvseries
+dummy_op >> create_HiveTable_top_movies >> hive_insert_overwrite_top_movies
 
