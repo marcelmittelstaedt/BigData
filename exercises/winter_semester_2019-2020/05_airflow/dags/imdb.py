@@ -175,25 +175,25 @@ hdfs_put_title_basics = HdfsPutFileOperator(
 create_HiveTable_title_ratings = HiveOperator(
     task_id='create_title_ratings_table',
     hql=hiveSQL_create_table_title_ratings,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 create_HiveTable_title_basics = HiveOperator(
     task_id='create_title_basics_table',
     hql=hiveSQL_create_table_title_basics,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 addPartition_HiveTable_title_ratings = HiveOperator(
     task_id='add_partition_title_ratings_table',
     hql=hiveSQL_add_partition_title_ratings,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 addPartition_HiveTable_title_basics = HiveOperator(
     task_id='add_partition_title_basics_table',
     hql=hiveSQL_add_partition_title_basics,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 dummy_op = DummyOperator(
@@ -217,19 +217,19 @@ pyspark_top_tvseries = SparkSubmitOperator(
 create_table_for_top_tvseries = HiveOperator(
     task_id='create_top_tvseries_external_table',
     hql=hiveSQL_create_top_tvseries_external_table,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 create_HiveTable_top_movies = HiveOperator(
     task_id='create_top_movies_external_table',
     hql=hiveQL_create_top_movies_external_table,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 hive_insert_overwrite_top_movies = HiveOperator(
     task_id='hive_write_top_movies_table',
     hql=hiveSQL_insertoverwrite_top_movies_table,
-    hive_cli_conn_id='beeline_default',
+    hive_cli_conn_id='beeline',
     dag=dag)
 
 create_local_import_dir >> clear_local_import_dir 
