@@ -202,13 +202,13 @@ dummy_op = DummyOperator(
 
 pyspark_top_tvseries = SparkSubmitOperator(
     task_id='pyspark_write_top_tvseries_to_final',
-    conn_id='spark_default',
+    conn_id='spark',
     application='/home/airflow/airflow/python/pyspark_top_tvseries.py',
     total_executor_cores='2',
     executor_cores='2',
     executor_memory='2g',
     num_executors='2',
-    name='spark_submit_test',
+    name='spark_calculate_top_tvseries',
     verbose=True,
     application_args=['--year', '{{ macros.ds_format(ds, "%Y-%m-%d", "%Y")}}', '--month', '{{ macros.ds_format(ds, "%Y-%m-%d", "%m")}}', '--day',  '{{ macros.ds_format(ds, "%Y-%m-%d", "%d")}}', '--hdfs_source_dir', '/user/hadoop/imdb', '--hdfs_target_dir', '/user/hadoop/imdb_final/top_tvseries', '--hdfs_target_format', 'csv'],
     dag = dag
