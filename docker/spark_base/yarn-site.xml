@@ -26,5 +26,9 @@
 		<name>yarn.nodemanager.vmem-check-enabled</name>
 		<value>false</value>
 	</property>
+  <property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>16384</value>
+  </property>
 </configuration>
 
