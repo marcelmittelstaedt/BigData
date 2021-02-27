@@ -10,7 +10,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 <configuration>
 	<property>
 		<name>javax.jdo.option.ConnectionURL</name> 
-		<value>jdbc:derby:;databaseName=/home/hadoop/hive/metastore_db;create=true</value>
+		<value>jdbc:derby:;databaseName=/home/hadoop/spark/metastore_db;create=true</value>
 		<description>
 			JDBC connect string for a JDBC metastore. To use SSL to encrypt/authenticate the connectio n, provide database-specific SSL flag in the connection URL.
 			For example, jdbc:postgresql://myhost/db?ssl=true for postgres database.
@@ -18,7 +18,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 	</property>
 	<property>
 		<name>hive.metastore.warehouse.dir</name>
-		<value>/user/hive/warehouse</value>
+		<value>/user/spark/warehouse</value>
 		<description>location of default database for the warehouse
 		</description>
 	</property>
@@ -38,22 +38,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 		<value>org.datanucleus.api.jdo.JDOPersistenceManagerFactory</value>
 		<description>class implementing the jdo persistence</description>
 	</property>
- 	<property> 
-		<name>hive.server2.thrift.min.worker.threads</name> 
-		<value>3</value>
-	</property>
-	<property>
-		<name>hive.server2.thrift.max.worker.threads</name>
-		<value>5</value> </property>
-	<property>
-		<name>hive.server2.thrift.port</name>
-		<value>10000</value> </property>
-	<property> 
-		<name>hive.server2.thrift.bind.host</name> 
-		<value>localhost</value>
-	</property>
-	<property>
-                <name>hive.exec.max.dynamic.partitions.pernode</name>
-                <value>1000</value>
-        </property>
 </configuration>
