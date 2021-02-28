@@ -18,6 +18,7 @@ COPY spark-env.sh /home/hadoop/spark/conf/spark-env.sh
 COPY slaves /home/hadoop/spark/conf/slaves
 COPY yarn-site.xml hadoop/etc/hadoop/yarn-site.xml
 COPY core-site.xml hadoop/etc/hadoop/core-site.xml
+COPY hive-site.xml /home/hadoop/spark/conf/hive-site.xml
 
 RUN mkdir /home/hadoop/.jupyter/ 
 COPY jupyter_notebook_config.py /home/hadoop/.jupyter/jupyter_notebook_config.py 

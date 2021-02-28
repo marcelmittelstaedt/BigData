@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 export SPARK_MASTER_IP=localhost
-export SPARK_WORKER_CORES=1
-export SPARK_WORKER_MEMORY=800m
+# export SPARK_WORKER_CORES=1
+# export SPARK_WORKER_MEMORY=800m
 export SPARK_WORKER_INSTANCES=1
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export SPARK_LOCAL_IP="localhost"
