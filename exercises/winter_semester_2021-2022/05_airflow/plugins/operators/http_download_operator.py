@@ -40,7 +40,7 @@ class HttpDownloadOperator(BaseOperator):
             raise AirflowException("Failure, could not execute request. Exception: " + str(e))
         
         if r.status_code != 200:
-            raise AirflowException("Failure, could not download file. HTTP Code: " + r.status_code)
+            raise AirflowException("Failure, could not download file. HTTP Code: " + str(r.status_code))
         
         with open(self.save_to, 'wb') as f:
             f.write(r.content)
