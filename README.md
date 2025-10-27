@@ -25,7 +25,7 @@ git pull
 
 If you  find any mistakes or misspellings feel free to send me a mail (contact@marcel-mittelstaedt.com) or if you are able to, commit a push request.
 
-## Practical Exam Topics for Winter Semester 2023/2024
+## Practical Exam Topics for Winter Semester 2025/2026
 * [Use Spotify Audio Features To Automatically Categorize Music Tracks](https://github.com/marcelmittelstaedt/BigData/blob/master/exercises/winter_semester_2025-2026/exam_spotify_music_categorization/)
 * [Use OpenCellID Data To Estimate GSM, UMTS and LTE Coverage For A Certain Destination](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2025-2026/exam_calculate_gsm_umts_lte_coverage)
 * [Use OpenAddress Data To Validate Adresses](https://github.com/marcelmittelstaedt/BigData/tree/master/exercises/winter_semester_2025-2026/exam_address_validation)
